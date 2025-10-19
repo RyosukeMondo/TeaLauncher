@@ -183,4 +183,20 @@ public static class MockFactory
 
         return mock;
     }
+
+    /// <summary>
+    /// Creates a MockDialogService configured with a default confirm response.
+    /// The mock records all dialog calls for verification in tests without requiring a display server.
+    /// </summary>
+    /// <param name="defaultConfirmResponse">The default response for ShowConfirmAsync (true for Yes, false for No). Default is true.</param>
+    /// <returns>A configured MockDialogService.</returns>
+    public static MockDialogService CreateMockDialogService(bool defaultConfirmResponse = true)
+    {
+        var mock = new MockDialogService();
+
+        // Configure the default confirmation response
+        mock.SetConfirmResponse(defaultConfirmResponse);
+
+        return mock;
+    }
 }
