@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TeaLauncher.Avalonia.Domain.Interfaces;
 using TeaLauncher.Avalonia.Domain.Models;
 
@@ -32,6 +33,7 @@ namespace TeaLauncher.Avalonia.Application.Services;
 public class CommandRegistryService : ICommandRegistry
 {
     private readonly IAutoCompleter _autoCompleter;
+    private readonly List<Command> _commands = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommandRegistryService"/> class.
@@ -45,30 +47,83 @@ public class CommandRegistryService : ICommandRegistry
     /// <inheritdoc />
     public void RegisterCommand(Command command)
     {
-        throw new NotImplementedException("Command registration logic will be implemented in task 5");
+        if (command == null)
+        {
+            throw new ArgumentNullException(nameof(command));
+        }
+
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            throw new ArgumentException("Command name cannot be null or whitespace.", nameof(command));
+        }
+
+        // Remove existing command with the same name (case-insensitive) to replace it
+        _commands.RemoveAll(cmd =>
+            string.Equals(cmd.Name, command.Name, StringComparison.OrdinalIgnoreCase));
+
+        // Add the new command
+        _commands.Add(command);
+
+        // Update auto-completer with current command names
+        UpdateAutoCompleter();
     }
 
     /// <inheritdoc />
     public bool RemoveCommand(string commandName)
     {
-        throw new NotImplementedException("Command removal logic will be implemented in task 5");
+        if (string.IsNullOrWhiteSpace(commandName))
+        {
+            return false;
+        }
+
+        // Remove command with case-insensitive comparison
+        int removedCount = _commands.RemoveAll(cmd =>
+            string.Equals(cmd.Name, commandName, StringComparison.OrdinalIgnoreCase));
+
+        if (removedCount > 0)
+        {
+            // Update auto-completer with current command names
+            UpdateAutoCompleter();
+            return true;
+        }
+
+        return false;
     }
 
     /// <inheritdoc />
     public void ClearCommands()
     {
-        throw new NotImplementedException("Command clearing logic will be implemented in task 5");
+        _commands.Clear();
+
+        // Clear auto-completer word list
+        _autoCompleter.UpdateWordList(Array.Empty<string>());
     }
 
     /// <inheritdoc />
     public bool HasCommand(string commandName)
     {
-        throw new NotImplementedException("Command lookup logic will be implemented in task 5");
+        if (string.IsNullOrWhiteSpace(commandName))
+        {
+            return false;
+        }
+
+        // Case-insensitive command lookup
+        return _commands.Exists(cmd =>
+            string.Equals(cmd.Name, commandName, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <inheritdoc />
     public IReadOnlyList<Command> GetAllCommands()
     {
-        throw new NotImplementedException("Command retrieval logic will be implemented in task 5");
+        return _commands.AsReadOnly();
+    }
+
+    /// <summary>
+    /// Updates the auto-completer with the current list of command names.
+    /// </summary>
+    private void UpdateAutoCompleter()
+    {
+        var commandNames = _commands.Select(cmd => cmd.Name).ToList();
+        _autoCompleter.UpdateWordList(commandNames);
     }
 }

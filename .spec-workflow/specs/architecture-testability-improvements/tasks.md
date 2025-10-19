@@ -56,7 +56,7 @@
 
 ## Phase 2: Service Refactoring
 
-- [ ] 5. Refactor CommandManager into CommandRegistryService
+- [x] 5. Refactor CommandManager into CommandRegistryService
   - File: TeaLauncher.Avalonia/Application/Services/CommandRegistryService.cs
   - Implement command registration and management logic
   - Purpose: Extract command registry responsibility from CommandManager

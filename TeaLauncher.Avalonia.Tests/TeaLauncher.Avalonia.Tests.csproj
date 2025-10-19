@@ -17,6 +17,8 @@
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
     <PackageReference Include="Avalonia" Version="11.2.2" />
+    <PackageReference Include="NSubstitute" Version="5.1.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,7 +27,7 @@
 
   <ItemGroup>
     <Compile Include="..\TeaLauncher.Avalonia\Configuration\CommandConfig.cs" Link="Configuration\CommandConfig.cs" />
-    <Compile Include="..\TeaLauncher.Avalonia\Configuration\YamlConfigLoader.cs" Link="Configuration\YamlConfigLoader.cs" />
+    <Compile Include="..\TeaLauncher.Avalonia\Infrastructure\Configuration\YamlConfigLoaderService.cs" Link="Infrastructure\Configuration\YamlConfigLoaderService.cs" />
   </ItemGroup>
 
 </Project>
