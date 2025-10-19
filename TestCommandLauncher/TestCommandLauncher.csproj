@@ -22,9 +22,4 @@
     <ProjectReference Include="..\CommandLauncher\CommandLauncher.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Exclude old AssemblyInfo.cs to avoid duplicate attributes -->
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-
 </Project>

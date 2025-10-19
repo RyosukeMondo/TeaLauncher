@@ -25,9 +25,4 @@
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Exclude old AssemblyInfo.cs to avoid duplicate attributes -->
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-
 </Project>

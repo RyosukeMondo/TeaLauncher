@@ -38,7 +38,7 @@
   - _Requirements: 4.1, 4.2_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: C# Developer with expertise in .NET collections and generics | Task: Update CommandLauncher/ConfigLoader.cs following requirements 4.1 and 4.2 to replace Hashtable with Dictionary<string, Dictionary<string, string>>. Change the private field 'm_Conf' from 'Hashtable' to 'Dictionary<string, Dictionary<string, string>> m_Conf = new();'. Update GetConfig method to return 'Dictionary<string, string>' instead of 'Hashtable' and remove the cast. In ParseConfig method where 'm_Conf[section] = new Hashtable()' is used, change it to 'm_Conf[section] = new Dictionary<string, string>()'. Update the variable 'ht' from 'Hashtable' to 'Dictionary<string, string>'. Preserve all existing logic, parsing algorithms, and exception handling. | Restrictions: Do not change parsing logic, maintain all existing exceptions (ConfigLoaderNotExistsSectionException, etc.), preserve method names and public API, do not modify file I/O code | Success: ConfigLoader uses Dictionary instead of Hashtable, all casts removed, method signatures updated, existing functionality preserved, compiles without warnings, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 5. Delete AssemblyInfo.cs files
+- [x] 5. Delete AssemblyInfo.cs files
   - Files: CommandLauncher/Properties/AssemblyInfo.cs, TestCommandLauncher/Properties/AssemblyInfo.cs
   - Remove AssemblyInfo.cs files (metadata now in .csproj)
   - Purpose: Eliminate redundant assembly metadata files
