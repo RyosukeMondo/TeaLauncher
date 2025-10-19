@@ -11,3 +11,12 @@ commands:
   - name: calculator
     linkto: calc.exe
     description: Test calculator command
+  - name: reload
+    linkto: "!reload"
+    description: Reload commands configuration
+  - name: version
+    linkto: "!version"
+    description: Show version information
+  - name: exit
+    linkto: "!exit"
+    description: Exit application

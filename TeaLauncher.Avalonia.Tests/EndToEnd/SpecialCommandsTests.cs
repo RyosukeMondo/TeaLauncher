@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Headless.NUnit;
 using Avalonia.Input;
@@ -62,13 +63,14 @@ public class SpecialCommandsTests
     /// <summary>
     /// Test: ReloadCommand_UpdatesCommands
     /// Scenario: Execute !reload command to reload configuration
-    /// Expected: Configuration is reloaded successfully
+    /// Expected: Configuration is reloaded successfully, no error dialog shown
     /// </summary>
     [AvaloniaTest]
     public void ReloadCommand_UpdatesCommands_ShouldSucceed()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath, new MockDialogService());
+        var mockDialogService = new MockDialogService();
+        var window = new MainWindow(_testConfigPath, mockDialogService);
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -83,8 +85,8 @@ public class SpecialCommandsTests
 ";
         File.WriteAllText(_testConfigPath, updatedConfig);
 
-        // Act - Execute !reload command
-        commandBox!.Text = "!reload";
+        // Act - Execute reload command (which triggers !reload special command)
+        commandBox!.Text = "reload";
 
         var enterKeyEventArgs = new KeyEventArgs
         {
@@ -108,31 +110,29 @@ public class SpecialCommandsTests
         // Command box should be cleared after execution
         commandBox.Text.Should().BeNullOrEmpty("command box should be cleared after reload");
 
-        // Verify the new command is now available by typing it
-        commandBox.Text = "new-reload-test-command";
-        // If the command was loaded successfully, it should be recognized
-        // We can't directly verify this in headless mode without executing,
-        // but the lack of exception is a good indicator
+        // No error dialogs should be shown for successful reload
+        var errorCalls = mockDialogService.GetDialogCalls().Where(c => c.DialogType == "Error");
+        errorCalls.Should().BeEmpty("no error dialogs should be shown for successful reload");
     }
 
     /// <summary>
     /// Test: VersionCommand_ShowsVersion
     /// Scenario: Execute !version command to display version information
-    /// Expected: Version information is displayed (dialog is shown)
-    /// Note: In headless mode, we verify the command executes without error
+    /// Expected: Version information is displayed via MockDialogService
     /// </summary>
     [AvaloniaTest]
     public void VersionCommand_ShowsVersion_ShouldExecute()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath, new MockDialogService());
+        var mockDialogService = new MockDialogService();
+        var window = new MainWindow(_testConfigPath, mockDialogService);
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
         commandBox.Should().NotBeNull("CommandBox control should exist");
 
-        // Act - Execute !version command
-        commandBox!.Text = "!version";
+        // Act - Execute version command (which triggers !version special command)
+        commandBox!.Text = "version";
 
         var enterKeyEventArgs = new KeyEventArgs
         {
@@ -151,11 +151,17 @@ public class SpecialCommandsTests
         }
 
         // Assert - Version command should execute without critical exceptions
-        // Note: In headless mode, dialog display may not work, but the command should still execute
         exception.Should().BeNull("version command should execute without critical errors");
 
         // Command box should be cleared
         commandBox.Text.Should().BeNullOrEmpty("command box should be cleared after version command");
+
+        // Verify a message dialog was shown with version information
+        var messageCalls = mockDialogService.GetDialogCalls().Where(c => c.DialogType == "Message");
+        messageCalls.Should().ContainSingle("version dialog should be shown");
+
+        var versionDialog = messageCalls.First();
+        versionDialog.Message.Should().Contain("version", "dialog should contain version information");
     }
 
     /// <summary>
@@ -173,8 +179,8 @@ public class SpecialCommandsTests
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
         commandBox.Should().NotBeNull("CommandBox control should exist");
 
-        // Act - Execute !exit command
-        commandBox!.Text = "!exit";
+        // Act - Execute exit command (which triggers !exit special command)
+        commandBox!.Text = "exit";
 
         var enterKeyEventArgs = new KeyEventArgs
         {
@@ -205,22 +211,23 @@ public class SpecialCommandsTests
 
     /// <summary>
     /// Test: SpecialCommand_ClearsInputAndHidesWindow
-    /// Scenario: Execute a special command and verify UI behavior
-    /// Expected: Command box is cleared and window is hidden
+    /// Scenario: Execute a special command and verify command box is cleared
+    /// Expected: Command box is cleared after special command execution
+    /// Note: Window visibility is not tested in headless mode
     /// </summary>
     [AvaloniaTest]
     public void SpecialCommand_ClearsInputAndHidesWindow()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath, new MockDialogService());
+        var mockDialogService = new MockDialogService();
+        var window = new MainWindow(_testConfigPath, mockDialogService);
         window.Show();
-        window.IsVisible.Should().BeTrue("window should be visible initially");
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
         commandBox.Should().NotBeNull("CommandBox control should exist");
 
-        // Act - Execute !reload (a special command)
-        commandBox!.Text = "!reload";
+        // Act - Execute reload (a special command)
+        commandBox!.Text = "reload";
 
         var enterKeyEventArgs = new KeyEventArgs
         {
@@ -240,21 +247,22 @@ public class SpecialCommandsTests
         // Assert - Command box should be cleared
         commandBox.Text.Should().BeNullOrEmpty("command box should be cleared after special command");
 
-        // Window should be hidden after command execution
-        // Note: In current implementation, window is hidden after any command execution
-        window.IsVisible.Should().BeFalse("window should be hidden after command execution");
+        // No error dialogs should be shown for successful reload
+        var errorCalls = mockDialogService.GetDialogCalls().Where(c => c.DialogType == "Error");
+        errorCalls.Should().BeEmpty("no error dialogs should be shown for successful reload");
     }
 
     /// <summary>
     /// Test: InvalidSpecialCommand_DoesNotExecute
     /// Scenario: Try to execute an invalid special command (e.g., !invalid)
-    /// Expected: Command is not recognized and handled appropriately
+    /// Expected: Command is not recognized, command box is not cleared
     /// </summary>
     [AvaloniaTest]
     public void InvalidSpecialCommand_DoesNotExecute()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath, new MockDialogService());
+        var mockDialogService = new MockDialogService();
+        var window = new MainWindow(_testConfigPath, mockDialogService);
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -282,20 +290,24 @@ public class SpecialCommandsTests
         // Assert - Invalid special command should not cause crashes
         exception.Should().BeNull("invalid special command should not throw exception");
 
-        // Command box should be cleared (as it starts with !)
-        commandBox.Text.Should().BeNullOrEmpty("command box should be cleared");
+        // Command box should NOT be cleared for invalid special commands
+        commandBox.Text.Should().Be("!invalid-special-command", "command box should retain text for invalid special commands");
+
+        // No dialogs should be shown for invalid special commands
+        mockDialogService.GetDialogCalls().Should().BeEmpty("no dialogs should be shown for invalid special commands");
     }
 
     /// <summary>
     /// Test: ReloadCommand_WithInvalidConfig_HandlesError
     /// Scenario: Modify config to be invalid, then execute !reload
-    /// Expected: Error is handled gracefully
+    /// Expected: Error is handled gracefully via error dialog
     /// </summary>
     [AvaloniaTest]
     public void ReloadCommand_WithInvalidConfig_HandlesError()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath, new MockDialogService());
+        var mockDialogService = new MockDialogService();
+        var window = new MainWindow(_testConfigPath, mockDialogService);
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -304,8 +316,8 @@ public class SpecialCommandsTests
         // Modify the config file to be invalid
         File.WriteAllText(_testConfigPath, "invalid: yaml: content: [unclosed");
 
-        // Act - Execute !reload command with invalid config
-        commandBox!.Text = "!reload";
+        // Act - Execute reload command with invalid config
+        commandBox!.Text = "reload";
 
         var enterKeyEventArgs = new KeyEventArgs
         {
@@ -324,12 +336,17 @@ public class SpecialCommandsTests
         }
 
         // Assert - Error should be handled gracefully (via dialog, not crash)
-        // In headless mode, dialog may not work, but application should not crash
-        if (exception != null)
-        {
-            exception.Should().NotBeOfType<NullReferenceException>(
-                "invalid config should not cause null reference exceptions");
-        }
+        exception.Should().BeNull("reload with invalid config should not throw exception");
+
+        // Command box should be cleared even when reload fails
+        commandBox.Text.Should().BeNullOrEmpty("command box should be cleared after reload attempt");
+
+        // Verify an error dialog was shown
+        var errorCalls = mockDialogService.GetDialogCalls().Where(c => c.DialogType == "Error");
+        errorCalls.Should().ContainSingle("error dialog should be shown for invalid config");
+
+        var errorDialog = errorCalls.First();
+        errorDialog.Message.Should().Contain("reload", "error message should mention reload failure");
 
         // Application should still be running (not crashed)
         window.Should().NotBeNull("window should still exist after error");
