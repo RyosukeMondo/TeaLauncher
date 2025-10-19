@@ -21,10 +21,11 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using TeaLauncher.Avalonia.Views;
+using AvaloniaApplication = Avalonia.Application;
 
 namespace TeaLauncher.Avalonia;
 
-public partial class App : Application
+public partial class App : AvaloniaApplication
 {
     public override void Initialize()
     {
