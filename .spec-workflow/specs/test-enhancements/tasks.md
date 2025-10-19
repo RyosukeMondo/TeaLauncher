@@ -73,7 +73,7 @@
 
 ## Phase 3: E2E Test Fixes
 
-- [ ] 8. Update TestServiceProvider to use MockDialogService by default
+- [x] 8. Update TestServiceProvider to use MockDialogService by default
   - File: TeaLauncher.Avalonia.Tests/Utilities/TestServiceProvider.cs
   - Ensure MockDialogService is provided in all test scenarios
   - Purpose: Make all E2E tests use mockable dialog service

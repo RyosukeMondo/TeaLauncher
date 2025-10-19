@@ -50,6 +50,7 @@ public static class TestServiceProvider
         services.AddSingleton(Substitute.For<IIMEController>());
 
         // Register MockDialogService for headless test compatibility
+        // Headless mode limitation: Real Avalonia dialogs require a display server and fail in CI/headless environments
         services.AddTransient<IDialogService, MockDialogService>();
 
         // Register orchestrator as transient (will receive mocked dependencies)
@@ -80,7 +81,9 @@ public static class TestServiceProvider
         services.AddSingleton(Substitute.For<IHotkeyManager>());
         services.AddSingleton(Substitute.For<IIMEController>());
 
-        // Register MockDialogService (headless mode cannot show real Avalonia dialogs)
+        // Register MockDialogService instead of AvaloniaDialogService
+        // Headless mode limitation: Real Avalonia dialogs require a display server and fail in CI/headless environments
+        // MockDialogService provides the same interface but records calls for test verification
         services.AddTransient<IDialogService, MockDialogService>();
 
         // Register orchestrator
@@ -92,6 +95,8 @@ public static class TestServiceProvider
     /// <summary>
     /// Creates a custom service provider with user-defined configuration.
     /// Use this when you need a mix of real and mocked services or custom service configuration.
+    /// Note: You are responsible for registering all required services including IDialogService.
+    /// Recommended: Use MockDialogService for IDialogService in test scenarios (see CreateWithMocks/CreateWithRealServices for examples).
     /// </summary>
     /// <param name="configure">Action to configure the service collection.</param>
     /// <returns>A service provider configured by the provided action.</returns>
@@ -100,6 +105,7 @@ public static class TestServiceProvider
     /// {
     ///     services.AddSingleton&lt;ICommandRegistry&gt;(mockRegistry);
     ///     services.AddSingleton&lt;ICommandExecutor, CommandExecutorService&gt;();
+    ///     services.AddTransient&lt;IDialogService, MockDialogService&gt;(); // Recommended for tests
     /// });
     /// </example>
     public static IServiceProvider CreateCustom(Action<IServiceCollection> configure)
