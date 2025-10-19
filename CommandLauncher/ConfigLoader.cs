@@ -19,7 +19,6 @@
 
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,7 +34,7 @@ namespace CommandLauncher
 
     public class ConfigLoader
     {
-        Hashtable m_Conf = new Hashtable();
+        Dictionary<string, Dictionary<string, string>> m_Conf = new();
 
         public void LoadConfigFile(string filename)
         {
@@ -64,7 +63,7 @@ namespace CommandLauncher
                 {
                     section = trimed.Substring(1, trimed.Length - 2);
 
-                    if (m_Conf[section] != null)
+                    if (m_Conf.ContainsKey(section))
                         throw new ConfigLoaderSameSectionException();
                 }
                 else // キーと値のときの処理
@@ -87,11 +86,11 @@ namespace CommandLauncher
                     string value = splitted[1].Trim();
 
                     // 無かったら登録
-                    if (m_Conf[section] == null)
-                        m_Conf[section] = new Hashtable();
+                    if (!m_Conf.ContainsKey(section))
+                        m_Conf[section] = new Dictionary<string, string>();
 
                     // 登録
-                    Hashtable ht = (Hashtable)(m_Conf[section]);
+                    Dictionary<string, string> ht = m_Conf[section];
                     try
                     {
                         ht.Add(key, value);
@@ -109,14 +108,14 @@ namespace CommandLauncher
         public List<string> GetSections()
         {
             List<string> list = new List<string>();
-            foreach (DictionaryEntry d in m_Conf)
-                list.Add((string)d.Key);
+            foreach (var d in m_Conf)
+                list.Add(d.Key);
             return list;
         }
 
-        public Hashtable GetConfig(string section)
+        public Dictionary<string, string> GetConfig(string section)
         {
-            return (Hashtable)m_Conf[section];
+            return m_Conf[section];
         }
     }
 }

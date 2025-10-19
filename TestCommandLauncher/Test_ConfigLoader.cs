@@ -19,7 +19,6 @@
 
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,28 +72,28 @@ hoge = fuga   "));
 
             // セクションから項目取得
             {
-                Hashtable conf = cl.GetConfig("section1");
+                Dictionary<string, string> conf = cl.GetConfig("section1");
                 Assert.AreEqual(2, conf.Count);
-                Assert.AreEqual("fuga", (string)conf["hoge"]);
-                Assert.AreEqual("aassddff", (string)conf["asdf"]);
+                Assert.AreEqual("fuga", conf["hoge"]);
+                Assert.AreEqual("aassddff", conf["asdf"]);
             }
             {
-                Hashtable conf = cl.GetConfig("section2");
+                Dictionary<string, string> conf = cl.GetConfig("section2");
                 Assert.AreEqual(1, conf.Count);
-                Assert.AreEqual("fuga asdf", (string)conf["hoge"]);
+                Assert.AreEqual("fuga asdf", conf["hoge"]);
             }
             {
-                Hashtable conf = cl.GetConfig("section3");
+                Dictionary<string, string> conf = cl.GetConfig("section3");
                 Assert.AreEqual(1, conf.Count);
-                Assert.AreEqual("fuga ahoaho", (string)conf["hoge"]);
+                Assert.AreEqual("fuga ahoaho", conf["hoge"]);
             }
             {
-                Hashtable conf = cl.GetConfig("section4");
+                Dictionary<string, string> conf = cl.GetConfig("section4");
                 Assert.AreEqual(4, conf.Count);
-                Assert.AreEqual("fuga", (string)conf["h"]);
-                Assert.AreEqual("fuga", (string)conf["ho"]);
-                Assert.AreEqual("fuga", (string)conf["hog"]);
-                Assert.AreEqual("fuga", (string)conf["hoge"]);
+                Assert.AreEqual("fuga", conf["h"]);
+                Assert.AreEqual("fuga", conf["ho"]);
+                Assert.AreEqual("fuga", conf["hog"]);
+                Assert.AreEqual("fuga", conf["hoge"]);
             }
         }
 
@@ -239,16 +238,16 @@ poka = poka
 
             // セクションから項目取得
             {
-                Hashtable conf = cl.GetConfig("section1");
+                Dictionary<string, string> conf = cl.GetConfig("section1");
                 Assert.AreEqual(2, conf.Count);
-                Assert.AreEqual("fuga", (string)conf["hoge"]);
-                Assert.AreEqual("aassddff", (string)conf["asdf"]);
+                Assert.AreEqual("fuga", conf["hoge"]);
+                Assert.AreEqual("aassddff", conf["asdf"]);
             }
             {
-                Hashtable conf = cl.GetConfig("addedsection");
+                Dictionary<string, string> conf = cl.GetConfig("addedsection");
                 Assert.AreEqual(2, conf.Count);
-                Assert.AreEqual("hoku", (string)conf["hoku"]);
-                Assert.AreEqual("poka", (string)conf["poka"]);
+                Assert.AreEqual("hoku", conf["hoku"]);
+                Assert.AreEqual("poka", conf["poka"]);
             }
         }
     }

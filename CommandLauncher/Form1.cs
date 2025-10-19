@@ -19,7 +19,6 @@
 
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -103,10 +102,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
             List<string> sections = conf.GetSections();
             foreach (string section in sections)
             {
-                Hashtable hashtable = conf.GetConfig(section);
+                Dictionary<string, string> hashtable = conf.GetConfig(section);
                 Command cmd = new Command();
                 cmd.command = section;
-                cmd.execution = (string)hashtable["linkto"];
+                cmd.execution = hashtable["linkto"];
                 if (cmd.execution == null)
                     throw new MainWindowNotExistsLinkToException();
                 m_CommandManager.RegisterCommand(cmd);

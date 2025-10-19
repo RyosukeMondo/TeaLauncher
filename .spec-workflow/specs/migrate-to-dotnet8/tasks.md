@@ -29,7 +29,7 @@
   - _Requirements: 2.2_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: .NET Solution Architect with expertise in Visual Studio solution files | Task: Review and update CommandLauncher.sln following requirement 2.2 to ensure compatibility with .NET 8 SDK and Visual Studio 2022. Verify the solution file format is compatible (Visual Studio 2022 uses Format Version 12.00, Visual Studio Version 17). If the current format is older, update the header while preserving project references and configurations. | Restrictions: Do not change project GUIDs, maintain all existing project references, preserve solution configurations (Debug/Release) | Success: Solution opens in Visual Studio 2022 without warnings, 'dotnet sln list' shows both projects correctly, 'dotnet build' at solution level succeeds, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 4. Update ConfigLoader.cs to use Dictionary instead of Hashtable
+- [x] 4. Update ConfigLoader.cs to use Dictionary instead of Hashtable
   - File: CommandLauncher/ConfigLoader.cs
   - Replace Hashtable with Dictionary<string, Dictionary<string, string>>
   - Remove casts and update method signatures
