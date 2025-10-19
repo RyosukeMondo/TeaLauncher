@@ -29,5 +29,8 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# Distribution output
+dist/
+
 # Spec workflow user data (keep templates and docs, exclude user data)
 .spec-workflow/approvals/

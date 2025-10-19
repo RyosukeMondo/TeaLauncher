@@ -117,7 +117,7 @@
   - _Requirements: 4.1, 5.1, 5.2, 5.3, 8.1_
   - _Prompt: Role: QA Engineer with expertise in integration testing and .NET test frameworks | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create integration tests following requirements 4.1, 5.1-5.3, and 8.1. Test scenarios: load YAML config → register commands → verify HasCommand → execute command. Test !reload special command reloads configuration. Test command with arguments passes arguments correctly. Use in-memory YAML and mock Process.Start where possible. | Restrictions: Must test integration points not individual units, do not test UI in integration tests, mock external dependencies (Process.Start), ensure test isolation and cleanup | Success: Tests verify full workflow from YAML loading to command execution, configuration reload test confirms new commands are registered, tests pass consistently, integration points between components are validated | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 14. Configure build script for Linux cross-compilation
+- [x] 14. Configure build script for Linux cross-compilation
   - File: scripts/build-windows.sh
   - Create build script for compiling Windows binaries on Linux
   - Configure dotnet publish with proper runtime identifiers
