@@ -167,7 +167,15 @@ namespace CommandLauncher
                 else
                 {
                     Debug.WriteLine("Execute : " + filename + " " + args);
-                    Process.Start(filename, args);
+
+                    // .NET 8 requires UseShellExecute = true for URLs and file associations
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = filename,
+                        Arguments = args,
+                        UseShellExecute = true
+                    };
+                    Process.Start(startInfo);
                 }
             }
         }
