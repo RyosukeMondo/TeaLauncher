@@ -20,7 +20,7 @@
   - _Requirements: 2.2, 3.1_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: .NET Test Engineer with expertise in NUnit and SDK-style test projects | Task: Convert TestCommandLauncher/TestCommandLauncher.csproj to SDK-style format targeting net8.0-windows following requirements 2.2 and 3.1. Reference the current file and the updated CommandLauncher.csproj from task 1. Add PackageReference for NUnit 4.2.2, NUnit3TestAdapter 4.6.0, and Microsoft.NET.Test.Sdk 17.11.1. Set OutputType to Library, reference CommandLauncher project using ProjectReference. | Restrictions: Must target net8.0-windows (not net8.0), do not change test framework from NUnit, maintain project reference to CommandLauncher, do not modify test code yet | Success: Test project uses SDK-style format, NUnit 4.x packages added via PackageReference, targets net8.0-windows, project reference to CommandLauncher works, compiles without errors when you run 'dotnet build', Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 3. Update CommandLauncher.sln solution file format
+- [x] 3. Update CommandLauncher.sln solution file format
   - File: CommandLauncher.sln
   - Verify solution file compatibility with .NET 8 SDK
   - Update format version if needed
