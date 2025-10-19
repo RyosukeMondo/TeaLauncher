@@ -45,7 +45,7 @@
   - _Requirements: 5.1, 5.2_
   - _Prompt: Role: .NET Build Engineer specializing in project file management | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Add file links in TeaLauncher.Avalonia.csproj to reuse CommandManager.cs and AutoCompleteMachine.cs from CommandLauncher project following requirements 5.1 and 5.2. Use <Compile Include="../CommandLauncher/CommandManager.cs" Link="Core/CommandManager.cs" /> pattern. | Restrictions: Do not copy files, use Link attribute only, do not modify source files in CommandLauncher, ensure relative paths work from Avalonia project location | Success: Project compiles with linked files visible in Core/ folder, CommandManager and AutoCompleteMachine types are available in Avalonia project, no duplication of code, changes to original files reflect in Avalonia project | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 6. Create WindowsHotkey component
+- [x] 6. Create WindowsHotkey component
   - File: TeaLauncher.Avalonia/Platform/WindowsHotkey.cs
   - Implement global hotkey registration using Windows user32.dll P/Invoke
   - Hook into Avalonia window messages for WM_HOTKEY handling
