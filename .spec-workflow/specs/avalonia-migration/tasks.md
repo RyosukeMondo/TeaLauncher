@@ -72,7 +72,7 @@
   - _Requirements: 1.1, 1.7_
   - _Prompt: Role: UI/UX Developer specializing in Avalonia XAML and desktop application design | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create MainWindow.axaml with Avalonia XAML following requirements 1.1 and 1.7. Use AutoCompleteBox for command input with watermark text. Configure Window properties: Topmost="True", SystemDecorations="None", WindowStartupLocation="CenterScreen", ShowInTaskbar="False", CanResize="False". Set Width="500" Height="80". Apply translucent background with blur effect using Background="#CC000000" and TransparencyLevelHint="Blur". Style AutoCompleteBox with modern Fluent theme. | Restrictions: Do not use Windows Forms controls, must use Avalonia controls only, ensure blur effect works on Windows 10+, keep UI minimal (single input box), do not add unnecessary visual elements | Success: Window displays with blur background effect, AutoCompleteBox is properly styled and functional, window is borderless and topmost, window starts centered on screen, sizing matches design specifications (500x80) | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 9. Implement MainWindow code-behind
+- [x] 9. Implement MainWindow code-behind
   - File: TeaLauncher.Avalonia/Views/MainWindow.axaml.cs
   - Implement ICommandManager interfaces and event handling
   - Wire up keyboard events, hotkey, IME, and command execution
