@@ -21,7 +21,7 @@
 
 using NUnit.Framework;
 using System;
-using TeaLauncher.Avalonia.Platform;
+using TeaLauncher.Avalonia.Infrastructure.Platform;
 
 namespace TeaLauncher.Avalonia.Tests.Platform;
 

@@ -33,13 +33,13 @@ namespace TeaLauncher.Avalonia.Tests.EndToEnd;
 [TestFixture]
 public class EndToEndValidationTests
 {
-    private YamlConfigLoader _configLoader = null!;
+    private IConfigurationLoader _configLoader = null!;
     private string _testDirectory = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _configLoader = new YamlConfigLoader();
+        _configLoader = new YamlConfigLoaderService();
         _testDirectory = Path.Combine(Path.GetTempPath(), "TeaLauncherE2E_" + Guid.NewGuid().ToString());
         Directory.CreateDirectory(_testDirectory);
     }
