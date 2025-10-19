@@ -31,6 +31,8 @@ namespace TeaLauncher.Avalonia.Application.Services;
 /// </summary>
 public class AutoCompleterService : IAutoCompleter
 {
+    private List<string> _words = new List<string>();
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AutoCompleterService"/> class.
     /// No dependencies required as this is a pure logic component.
@@ -42,18 +44,52 @@ public class AutoCompleterService : IAutoCompleter
     /// <inheritdoc />
     public string AutoCompleteWord(string chars)
     {
-        throw new NotImplementedException("Auto-completion logic will be implemented in task 7");
+        var candidates = GetCandidates(chars);
+
+        if (candidates.Count == 0)
+            return "";
+
+        // Find the longest common prefix among all candidates
+        string sample = candidates[0];
+        int length = 0;
+
+        for (int i = 0; i < sample.Length; i++)
+        {
+            bool allMatch = true;
+            string partOfSample = sample.Substring(0, i + 1);
+
+            foreach (string candidate in candidates)
+            {
+                if (!candidate.StartsWith(partOfSample, StringComparison.OrdinalIgnoreCase))
+                {
+                    allMatch = false;
+                    break;
+                }
+            }
+
+            if (allMatch)
+                length = i + 1;
+            else
+                break;
+        }
+
+        return sample.Substring(0, length);
     }
 
     /// <inheritdoc />
     public IReadOnlyList<string> GetCandidates(string prefix)
     {
-        throw new NotImplementedException("Candidate retrieval logic will be implemented in task 7");
+        // Find all words that start with the prefix (case-insensitive)
+        var candidates = _words.FindAll(word =>
+            word.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+        return candidates.AsReadOnly();
     }
 
     /// <inheritdoc />
     public void UpdateWordList(IEnumerable<string> words)
     {
-        throw new NotImplementedException("Word list update logic will be implemented in task 7");
+        _words.Clear();
+        _words.AddRange(words);
     }
 }
