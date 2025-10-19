@@ -2,15 +2,27 @@
 . "$(dirname "$0")/_/husky.sh"
 
 ## Pre-commit hook for TeaLauncher
-## This hook runs build, test, and format verification before each commit
+## This hook runs build, test, coverage, metrics, and format verification before each commit
 ## to ensure code quality and prevent broken commits.
 ##
 ## To bypass this hook in emergency situations (not recommended), use:
 ##   git commit --no-verify
 ##
 ## The hook runs the following tasks (defined in task-runner.json):
-##   1. build: Compile project in Release mode (--no-restore for speed)
-##   2. test: Run all tests (--no-build since we just built)
-##   3. format-check: Verify code formatting is consistent
+##   1. build: Compile main project in Release mode (--no-restore for speed)
+##   2. build-tests: Compile test project in Release mode
+##   3. test: Run all tests (--no-build since we just built)
+##   4. coverage: Collect code coverage data (XPlat Code Coverage)
+##   5. coverage-check: Verify coverage meets 80% threshold (scripts/check-coverage.sh)
+##   6. metrics: Check code metrics using MetricsChecker tool
+##   7. format-check: Verify code formatting is consistent
+##
+## Quality thresholds enforced:
+##   - Code coverage: ≥80% line coverage, ≥70% branch coverage
+##   - File length: ≤500 lines per file
+##   - Method length: ≤50 lines per method
+##   - Cyclomatic complexity: ≤15 per method
+##
+## All tasks should complete within 30 seconds total.
 
 dotnet husky run --group pre-commit

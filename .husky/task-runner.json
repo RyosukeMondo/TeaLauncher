@@ -23,6 +23,27 @@
          "pathMode": "absolute"
       },
       {
+         "name": "coverage",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "test", "TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj", "--no-build", "--collect:XPlat Code Coverage", "--results-directory", "./coverage" ],
+         "pathMode": "absolute"
+      },
+      {
+         "name": "coverage-check",
+         "group": "pre-commit",
+         "command": "bash",
+         "args": [ "scripts/check-coverage.sh" ],
+         "pathMode": "absolute"
+      },
+      {
+         "name": "metrics",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "run", "--project", "tools/MetricsChecker/MetricsChecker.csproj", "--", "TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj" ],
+         "pathMode": "absolute"
+      },
+      {
          "name": "format-check",
          "group": "pre-commit",
          "command": "dotnet",
