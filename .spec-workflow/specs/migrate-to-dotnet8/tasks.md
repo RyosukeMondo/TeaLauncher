@@ -11,7 +11,7 @@
   - _Requirements: 2.1, 2.2_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: .NET Build Engineer with expertise in SDK-style projects and MSBuild | Task: Convert CommandLauncher/CommandLauncher.csproj from legacy format to SDK-style targeting net8.0-windows following requirements 2.1 and 2.2. Reference the current file to extract assembly name, namespace, and build settings. The new format should use Sdk="Microsoft.NET.Sdk", set UseWindowsForms=true, TargetFramework=net8.0-windows, and move assembly metadata (title, description, company, product, copyright, version) from AssemblyInfo.cs to .csproj properties. Set TreatWarningsAsErrors=true, Platforms to x64 and ARM64, and OutputType to WinExe. | Restrictions: Do not change assembly name or namespace, maintain exact version from AssemblyInfo.cs, preserve TreatWarningsAsErrors setting, do not add unnecessary NuGet packages yet | Success: Project file uses SDK-style format, targets net8.0-windows, Windows Forms enabled, all assembly metadata migrated from AssemblyInfo.cs, compiles without warnings when you run 'dotnet build -r win-x64', Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 2. Convert TestCommandLauncher.csproj to SDK-style format
+- [x] 2. Convert TestCommandLauncher.csproj to SDK-style format
   - File: TestCommandLauncher/TestCommandLauncher.csproj
   - Replace legacy test project with SDK-style format targeting net8.0-windows
   - Add NUnit 4.x package references

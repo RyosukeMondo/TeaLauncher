@@ -3,7 +3,6 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>CommandLauncher</AssemblyName>
     <RootNamespace>CommandLauncher</RootNamespace>
@@ -20,6 +19,11 @@
     <Product></Product>
     <Copyright></Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Windows Forms framework reference for cross-platform build support -->
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- Exclude old AssemblyInfo.cs to avoid duplicate attributes -->
