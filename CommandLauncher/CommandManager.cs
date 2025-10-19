@@ -26,11 +26,13 @@ using System.Diagnostics;
 
 namespace CommandLauncher
 {
+#pragma warning disable CS0649 // Field is never assigned - fields are assigned via YAML deserialization
     class Command
     {
         public string command;
         public string execution;
     }
+#pragma warning restore CS0649
 
     interface ICommandManagerInitializer
     {

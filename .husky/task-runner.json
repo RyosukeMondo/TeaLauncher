@@ -1,0 +1,33 @@
+{
+   "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+   "tasks": [
+      {
+         "name": "build",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "build", "TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj", "--configuration", "Release", "--no-restore" ],
+         "pathMode": "absolute"
+      },
+      {
+         "name": "build-tests",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "build", "TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj", "--configuration", "Release", "--no-restore" ],
+         "pathMode": "absolute"
+      },
+      {
+         "name": "test",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "test", "TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj", "--no-build", "--verbosity", "minimal" ],
+         "pathMode": "absolute"
+      },
+      {
+         "name": "format-check",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": [ "format", "TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj", "--verify-no-changes" ],
+         "pathMode": "absolute"
+      }
+   ]
+}

@@ -50,3 +50,6 @@ avalonia-*.lock
 # User configuration (example is tracked)
 commands.yaml
 !TeaLauncher.Avalonia/commands.yaml
+
+# Husky.Net internal files (exclude, but keep hook scripts and task-runner.json)
+.husky/_/

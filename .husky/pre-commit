@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+## Pre-commit hook for TeaLauncher
+## This hook runs build, test, and format verification before each commit
+## to ensure code quality and prevent broken commits.
+##
+## To bypass this hook in emergency situations (not recommended), use:
+##   git commit --no-verify
+##
+## The hook runs the following tasks (defined in task-runner.json):
+##   1. build: Compile project in Release mode (--no-restore for speed)
+##   2. test: Run all tests (--no-build since we just built)
+##   3. format-check: Verify code formatting is consistent
+
+dotnet husky run --group pre-commit
