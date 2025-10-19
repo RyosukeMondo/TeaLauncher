@@ -55,7 +55,7 @@
   - _Requirements: 3.1, 8.1_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Engineer with expertise in NUnit and unit testing | Task: Review and update test files following requirements 3.1 and 8.1 for NUnit 4.x compatibility. Read TestCommandLauncher/Test_AutoCompleteMachine.cs and TestCommandLauncher/Test_ConfigLoader.cs to check if any NUnit attributes or assertions need updates. NUnit 4.x maintains backward compatibility with most NUnit 3.x code, so verify [TestFixture], [Test], Assert.AreEqual, Assert.IsTrue, etc. still work. Only make changes if there are compilation errors related to NUnit. If tests reference ConfigLoader, verify they work with Dictionary instead of Hashtable. | Restrictions: Preserve all test logic and assertions, do not change test coverage, maintain test names and structure, only update if NUnit 4.x requires it | Success: All tests compile without errors, test attributes recognized by NUnit 4.x, 'dotnet test' discovers and runs all tests, ConfigLoader tests work with Dictionary type, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 7. Verify P/Invoke compatibility with .NET 8
+- [x] 7. Verify P/Invoke compatibility with .NET 8
   - File: CommandLauncher/Hotkey.cs
   - Review P/Invoke signatures for .NET 8 interop compatibility
   - Test RegisterHotKey/UnregisterHotKey functionality
