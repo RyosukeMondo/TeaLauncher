@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 using YamlDotNet.Core;
 using TeaLauncher.Avalonia.Configuration;
@@ -365,6 +366,51 @@ commands:
         Assert.That(config.Commands, Has.Count.EqualTo(100));
         Assert.That(config.Commands[0].Name, Is.EqualTo("command0"));
         Assert.That(config.Commands[99].Name, Is.EqualTo("command99"));
+    }
+
+    [Test]
+    public void LoadConfigFile_ExampleCommandsYaml_LoadsSuccessfully()
+    {
+        // Arrange
+        var exampleYamlPath = Path.Combine(
+            TestContext.CurrentContext.TestDirectory,
+            "..", "..", "..", "..",
+            "TeaLauncher.Avalonia",
+            "commands.yaml");
+
+        // Skip test if example file doesn't exist (for CI environments)
+        if (!File.Exists(exampleYamlPath))
+        {
+            Assert.Ignore($"Example commands.yaml not found at {exampleYamlPath}");
+            return;
+        }
+
+        // Act
+        var config = _loader.LoadConfigFile(exampleYamlPath);
+
+        // Assert
+        Assert.That(config, Is.Not.Null);
+        Assert.That(config.Commands, Is.Not.Empty);
+
+        // Verify some expected commands exist
+        var commandNames = config.Commands.Select(c => c.Name).ToList();
+        Assert.That(commandNames, Contains.Item("google"));
+        Assert.That(commandNames, Contains.Item("reload"));
+        Assert.That(commandNames, Contains.Item("exit"));
+        Assert.That(commandNames, Contains.Item("version"));
+
+        // Verify special commands have correct linkto values
+        var reloadCmd = config.Commands.FirstOrDefault(c => c.Name == "reload");
+        Assert.That(reloadCmd, Is.Not.Null);
+        Assert.That(reloadCmd!.LinkTo, Is.EqualTo("!reload"));
+
+        var exitCmd = config.Commands.FirstOrDefault(c => c.Name == "exit");
+        Assert.That(exitCmd, Is.Not.Null);
+        Assert.That(exitCmd!.LinkTo, Is.EqualTo("!exit"));
+
+        var versionCmd = config.Commands.FirstOrDefault(c => c.Name == "version");
+        Assert.That(versionCmd, Is.Not.Null);
+        Assert.That(versionCmd!.LinkTo, Is.EqualTo("!version"));
     }
 
     private string CreateTempYamlFile(string content)

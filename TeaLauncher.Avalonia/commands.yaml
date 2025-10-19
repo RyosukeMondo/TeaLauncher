@@ -1,0 +1,62 @@
+# TeaLauncher Commands Configuration
+# This YAML file defines the commands available in TeaLauncher.
+# Each command has a name (keyword) and a linkto (target URL/executable/path).
+# Optional fields: description and arguments
+
+commands:
+  # Web URLs - Open websites in default browser
+  - name: google
+    linkto: https://www.google.com/
+    description: Open Google search
+
+  - name: github
+    linkto: https://github.com/
+    description: Open GitHub homepage
+
+  - name: mail
+    linkto: https://mail.google.com/?hl=ja
+    description: Open Gmail
+
+  # Applications - Launch executables
+  - name: notepad
+    linkto: notepad
+    description: Open Windows Notepad
+
+  - name: cmd
+    linkto: cmd.exe
+    description: Open Command Prompt
+
+  - name: explorer
+    linkto: explorer.exe
+    description: Open Windows Explorer
+
+  # File paths - Open specific files or folders
+  - name: edit_config
+    linkto: notepad
+    arguments: commands.yaml
+    description: Edit this configuration file
+
+  # Special commands - Built-in TeaLauncher commands
+  - name: reload
+    linkto: "!reload"
+    description: Reload commands.yaml without restarting
+
+  - name: version
+    linkto: "!version"
+    description: Show TeaLauncher version information
+
+  - name: exit
+    linkto: "!exit"
+    description: Exit TeaLauncher application
+
+# YAML Syntax Guide:
+# - Use 2-space indentation (no tabs)
+# - Strings with special characters should be quoted
+# - Required fields: name, linkto
+# - Optional fields: description, arguments
+#
+# Example with arguments:
+# - name: myapp
+#   linkto: C:\Program Files\MyApp\myapp.exe
+#   arguments: --flag value
+#   description: Launch MyApp with specific flags

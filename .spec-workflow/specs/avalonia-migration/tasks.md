@@ -99,7 +99,7 @@
   - _Requirements: 6.2, 6.4_
   - _Prompt: Role: .NET Application Developer specializing in application bootstrapping | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create Program.cs with [STAThread] Main method following requirements 6.2 and 6.4. Use BuildAvaloniaApp().StartWithClassicDesktopLifetime(args). Configure AppBuilder with UsePlatformDetect(), WithInterFont(), LogToTrace(). Ensure proper Windows runtime initialization. | Restrictions: Must use [STAThread] attribute for Windows COM compatibility, do not hardcode platform detection, use InterFont for modern typography, ensure proper error logging | Success: Application starts on Windows successfully, Avalonia initializes with platform detection, InterFont loads correctly, classic desktop lifetime starts properly, logs are written to trace output | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 12. Create example commands.yaml
+- [x] 12. Create example commands.yaml
   - File: TeaLauncher.Avalonia/commands.yaml
   - Create example YAML configuration with common commands
   - Document YAML format with comments
