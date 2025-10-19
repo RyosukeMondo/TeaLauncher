@@ -4,17 +4,19 @@ This document describes the testing strategy, patterns, and practices for TeaLau
 
 ## Overview
 
-TeaLauncher uses a comprehensive testing strategy with three levels of testing:
+TeaLauncher uses a comprehensive testing strategy with four levels of testing:
 
 1. **Unit Tests**: Test individual components in isolation with mocked dependencies
 2. **Integration Tests**: Test service interactions with real implementations
 3. **End-to-End Tests**: Test complete user workflows using Avalonia headless mode
+4. **Performance Tests**: Validate performance requirements for critical operations
 
 Our testing approach emphasizes:
 - **Clean Architecture**: Tests follow the same layered structure as the application
 - **Testability**: All services use dependency injection for easy mocking
 - **Coverage Goals**: ≥80% overall coverage, ≥90% for Domain and Application layers
 - **Quality Gates**: Automated pre-commit hooks and CI/CD checks enforce quality standards
+- **Performance Validation**: Automated tests ensure sub-100ms command execution and sub-50ms autocomplete
 
 ## Test Categories
 
@@ -128,6 +130,51 @@ public void AutoCompletion_TabKey_CompletesCommand()
 }
 ```
 
+### Performance Tests
+
+**When to use**: Validating that critical operations meet performance requirements.
+
+**Characteristics**:
+- Inherit from `PerformanceTestBase` for timing utilities
+- Use high-resolution `Stopwatch` for accurate measurements
+- Include JIT warmup to avoid measurement bias
+- Test against specific thresholds (100ms execution, 50ms autocomplete, 200ms config load)
+- Run in Release mode for accurate performance data
+
+**Location**: `TeaLauncher.Avalonia.Tests/Performance/`
+
+**Performance Requirements**:
+- Command execution: ≤100ms from input to process start
+- Autocomplete: ≤50ms with 1000 words
+- Configuration loading: ≤200ms for 100 commands
+
+**Example**:
+```csharp
+[TestFixture]
+public class AutoCompletePerformanceTests : PerformanceTestBase
+{
+    private IAutoCompleter _autoCompleter;
+
+    [Test]
+    public void AutoComplete_With1000Words_Within50ms()
+    {
+        // Arrange
+        _autoCompleter.UpdateWordList(EdgeCaseTestFixtures.LargeWordList);
+        const string prefix = "word";
+        const int maxAllowedMs = 50;
+
+        // Act - TimeOperation handles warmup and measurement
+        var result = TimeOperation(
+            "AutoComplete with 1000 words",
+            () => _autoCompleter.AutoCompleteWord(prefix),
+            maxAllowedMs);
+
+        // Assert - AssertDuration provides detailed failure message
+        AssertDuration(result);
+    }
+}
+```
+
 ## Running Tests
 
 ### Run All Tests
@@ -145,6 +192,9 @@ dotnet test --filter FullyQualifiedName~Integration
 
 # End-to-End tests only
 dotnet test --filter FullyQualifiedName~EndToEnd
+
+# Performance tests only
+dotnet test --filter FullyQualifiedName~Performance
 ```
 
 ### Run Tests with Coverage
@@ -241,6 +291,240 @@ act.Should().Throw<ArgumentNullException>()
     .WithParameterName("parameter");
 ```
 
+### Testing Dialogs in E2E Tests
+
+TeaLauncher uses the `IDialogService` abstraction to enable testable dialog interactions without requiring a display server.
+
+**Why We Need MockDialogService**:
+- E2E tests run in Avalonia.Headless mode (no display server)
+- Real `AvaloniaDialogService` cannot show dialogs in headless environments
+- `MockDialogService` records dialog calls for verification instead of displaying them
+
+**Using MockDialogService in Tests**:
+
+```csharp
+[Test]
+public async Task CommandExecution_WithError_ShowsErrorDialog()
+{
+    // Arrange
+    var mockDialogService = MockFactory.CreateMockDialogService();
+    var serviceProvider = TestServiceProvider.CreateWithMocks();
+    var window = new MainWindow(testConfigPath, mockDialogService);
+
+    // Act - trigger error condition
+    await window.ExecuteInvalidCommand();
+
+    // Assert - verify error dialog was shown
+    mockDialogService.VerifyErrorShown("Error", "Command execution failed");
+
+    // Alternative: inspect all dialog calls
+    var dialogCalls = mockDialogService.GetDialogCalls();
+    dialogCalls.Should().ContainSingle()
+        .Which.DialogType.Should().Be("Error");
+}
+```
+
+**MockDialogService API**:
+- `ShowMessageAsync(title, message)` - Records message dialog
+- `ShowConfirmAsync(title, message)` - Records confirm dialog, returns pre-configured response
+- `ShowErrorAsync(title, message)` - Records error dialog
+- `SetConfirmResponse(bool)` - Configure response for confirm dialogs
+- `VerifyMessageShown(title, message)` - Assert message was shown
+- `VerifyConfirmShown(title)` - Assert confirmation was requested
+- `VerifyErrorShown(title, message)` - Assert error was shown
+- `GetDialogCalls()` - Get all recorded dialog calls
+- `ClearDialogHistory()` - Reset dialog history between tests
+
+**Important**: Even `TestServiceProvider.CreateWithRealServices()` uses `MockDialogService` for `IDialogService` because headless mode cannot display real dialogs. This is documented in the code with comments explaining the limitation.
+
+### Performance Testing Guidelines
+
+Performance tests validate that TeaLauncher meets its performance requirements using automated, repeatable measurements.
+
+**Performance Requirements**:
+- **Command execution**: ≤100ms from user input to process start
+- **Autocomplete**: ≤50ms with 1000 words in the word list
+- **Configuration loading**: ≤200ms for configuration with 100 commands
+- **Hotkey response**: ≤100ms (not testable in headless mode)
+
+**Creating Performance Tests**:
+
+1. **Inherit from PerformanceTestBase**:
+```csharp
+[TestFixture]
+public class MyPerformanceTests : PerformanceTestBase
+{
+    // Test implementation
+}
+```
+
+2. **Use TimeOperation or TimeOperationAsync**:
+```csharp
+[Test]
+public async Task ConfigLoad_100Commands_Within200ms()
+{
+    // Arrange
+    var configLoader = _serviceProvider.GetRequiredService<IConfigurationLoader>();
+    var configPath = CreateTempConfigWith100Commands();
+    const int maxAllowedMs = 200;
+
+    // Act - TimeOperationAsync handles warmup and measurement
+    var result = await TimeOperationAsync(
+        "Config loading with 100 commands",
+        async () => await configLoader.LoadConfigurationAsync(configPath),
+        maxAllowedMs);
+
+    // Assert - provides detailed failure message with actual vs expected
+    AssertDuration(result);
+}
+```
+
+**PerformanceTestBase Features**:
+- **Automatic JIT warmup**: Runs operation once before measurement to eliminate JIT compilation overhead
+- **High-resolution timing**: Uses `Stopwatch` for accurate measurements
+- **Detailed failure messages**: Shows actual duration, max allowed, and percentage of limit used
+- **Async support**: Both synchronous (`TimeOperation`) and asynchronous (`TimeOperationAsync`) methods
+
+**Best Practices**:
+- Run performance tests in **Release mode** for accurate measurements
+- Mock external dependencies (Process.Start, file I/O) to isolate performance of the code under test
+- Use realistic test data (e.g., `EdgeCaseTestFixtures.LargeWordList` for autocomplete tests)
+- Document known performance variability in comments
+- If tests are flaky due to system load, run multiple iterations and take average
+
+**Example Performance Test**:
+```csharp
+[Test]
+public void AutoComplete_With1000Words_Within50ms()
+{
+    // Arrange
+    _autoCompleter.UpdateWordList(EdgeCaseTestFixtures.LargeWordList);
+    const string prefix = "word";
+    const int maxAllowedMs = 50;
+
+    // Act
+    var result = TimeOperation(
+        "AutoComplete with 1000 words (AutoCompleteWord)",
+        () => _autoCompleter.AutoCompleteWord(prefix),
+        maxAllowedMs);
+
+    // Assert - fails with message like:
+    // "AutoComplete with 1000 words took 75.23ms but should complete
+    //  within 50ms (150.5% of limit used)"
+    AssertDuration(result);
+}
+```
+
+### Edge Case Test Patterns
+
+Edge case tests ensure TeaLauncher handles uncommon scenarios correctly, including unicode input, special characters, large datasets, and malformed configuration.
+
+**EdgeCaseTestFixtures Utility**:
+
+TeaLauncher provides centralized edge case test data in `EdgeCaseTestFixtures.cs`:
+
+```csharp
+// Unicode command names (Chinese, Japanese, Arabic, Emoji, etc.)
+var unicodeCommands = EdgeCaseTestFixtures.UnicodeCommandNames;
+// Contains: "搜索", "検索", "поиск", "🔍search", etc.
+
+// Special characters that may cause parsing issues
+var specialArgs = EdgeCaseTestFixtures.SpecialCharacterArguments;
+// Contains: quotes, backslashes, pipes, unicode filenames, etc.
+
+// 1000 words for autocomplete performance testing
+var largeWordList = EdgeCaseTestFixtures.LargeWordList;
+
+// Malformed YAML samples for error testing
+var malformedYaml = EdgeCaseTestFixtures.MalformedYamlSamples;
+// Contains: missing colons, wrong indentation, invalid escapes, etc.
+```
+
+**Testing Unicode Support**:
+```csharp
+[Test]
+public void RegisterCommand_WithUnicodeNames_StoresCorrectly()
+{
+    // Arrange
+    var registry = new CommandRegistryService(_mockAutoCompleter);
+
+    // Act - test with various unicode scripts
+    foreach (var unicodeName in EdgeCaseTestFixtures.UnicodeCommandNames)
+    {
+        var command = new Command(unicodeName, "https://example.com");
+        registry.RegisterCommand(command);
+    }
+
+    // Assert
+    registry.GetAllCommands().Should().HaveCount(
+        EdgeCaseTestFixtures.UnicodeCommandNames.Count);
+}
+```
+
+**Testing Special Character Handling**:
+```csharp
+[Test]
+public void ExecuteAsync_WithQuotedArguments_ParsesCorrectly()
+{
+    // Arrange
+    var executor = new CommandExecutorService();
+    var testArg = "arg with \"nested quotes\" inside";
+
+    // Act
+    var result = await executor.ExecuteAsync("command", testArg);
+
+    // Assert - verify argument was parsed correctly, quotes preserved
+    result.Arguments.Should().Contain(testArg);
+}
+```
+
+**Testing Large Dataset Performance**:
+```csharp
+[Test]
+public void AutoComplete_With1000Words_ReturnsCorrectly()
+{
+    // Arrange
+    _autoCompleter.UpdateWordList(EdgeCaseTestFixtures.LargeWordList);
+
+    // Act
+    var result = _autoCompleter.GetCandidates("word");
+
+    // Assert - should handle large dataset efficiently
+    result.Should().NotBeEmpty();
+    result.Should().AllSatisfy(word => word.Should().StartWith("word"));
+}
+```
+
+**Testing Malformed Input**:
+```csharp
+[Test]
+public void LoadConfiguration_MalformedYaml_ProvidesLineNumber()
+{
+    // Arrange
+    var configLoader = new YamlConfigLoaderService();
+
+    // Act & Assert - test each malformed YAML sample
+    foreach (var (description, yaml) in EdgeCaseTestFixtures.MalformedYamlSamples)
+    {
+        var tempFile = WriteYamlToTempFile(yaml);
+
+        Func<Task> act = async () => await configLoader.LoadConfigurationAsync(tempFile);
+
+        act.Should().ThrowAsync<YamlException>()
+            .WithMessage($"*{description}*",
+                because: $"malformed YAML ({description}) should throw with helpful error");
+    }
+}
+```
+
+**Edge Case Categories**:
+- **Unicode**: Command names and arguments in various scripts (CJK, Arabic, Cyrillic, Emoji)
+- **Special Characters**: Quotes, backslashes, pipes, shell operators, whitespace
+- **Large Datasets**: 1000+ words for autocomplete stress testing
+- **Malformed Input**: Invalid YAML syntax, structural errors, encoding issues
+- **Empty/Whitespace**: Empty strings, spaces-only, various whitespace characters
+- **Case Sensitivity**: Uppercase, lowercase, mixed case variations
+
 ## Coverage Thresholds
 
 ### Overall Coverage Requirements
@@ -297,12 +581,17 @@ public class FooServiceTests
 ```csharp
 // Create mock instances
 var mockRegistry = MockFactory.CreateMockCommandRegistry(TestFixtures.SampleCommands);
+var mockDialogService = MockFactory.CreateMockDialogService();
 
 // Create service provider with mocks
 var serviceProvider = TestServiceProvider.CreateWithMocks();
 
 // Create service provider with real services
 var serviceProvider = TestServiceProvider.CreateWithRealServices();
+
+// Use edge case test data
+var unicodeCommands = EdgeCaseTestFixtures.UnicodeCommandNames;
+var largeWordList = EdgeCaseTestFixtures.LargeWordList;
 ```
 
 4. **Follow AAA pattern** and use descriptive test names
@@ -349,10 +638,18 @@ TeaLauncher.Avalonia.Tests/
     CommandWorkflowTests.cs            # Integration tests
   EndToEnd/
     UserWorkflowTests.cs               # E2E tests
+  Performance/
+    AutoCompletePerformanceTests.cs    # Performance tests
+    CommandExecutionPerformanceTests.cs
+    ConfigLoadPerformanceTests.cs
+    PerformanceTestBase.cs             # Base class for performance tests
+    PerformanceResult.cs               # Performance result data
   Utilities/
     TestServiceProvider.cs             # Test helpers
     MockFactory.cs
     TestFixtures.cs
+    EdgeCaseTestFixtures.cs            # Edge case test data
+    MockDialogService.cs               # Mock dialog service for E2E tests
 ```
 
 ## Pre-commit Verification
@@ -511,6 +808,30 @@ Key features:
 - Tests complete user journeys
 - Uses [AvaloniaTest] attribute
 - Runs on Linux without display server
+- Uses MockDialogService for dialog verification
+
+### Example Performance Test
+
+See: [AutoCompletePerformanceTests.cs](TeaLauncher.Avalonia.Tests/Performance/AutoCompletePerformanceTests.cs)
+
+Key features:
+- Inherits from PerformanceTestBase
+- Uses TimeOperation/TimeOperationAsync for measurements
+- Includes JIT warmup to avoid measurement bias
+- Tests against specific thresholds (50ms for autocomplete)
+- Uses EdgeCaseTestFixtures.LargeWordList for realistic stress testing
+- Provides detailed failure messages with actual vs expected duration
+
+### Example Edge Case Test
+
+See: [CommandRegistryServiceTests.cs](TeaLauncher.Avalonia.Tests/Application/Services/CommandRegistryServiceTests.cs)
+
+Key features:
+- Uses EdgeCaseTestFixtures for unicode and special character testing
+- Tests boundary conditions and uncommon scenarios
+- Validates error handling for malformed input
+- Ensures robust handling of large datasets
+- Tests case sensitivity with various character sets
 
 ## Test Utilities
 
@@ -549,6 +870,9 @@ var mockAutoCompleter = MockFactory.CreateMockAutoCompleter("google", "github", 
 
 // Create mock configuration loader with test config
 var mockConfigLoader = MockFactory.CreateMockConfigurationLoader(config);
+
+// Create mock dialog service for testing UI interactions
+var mockDialogService = MockFactory.CreateMockDialogService(defaultConfirmResponse: true);
 ```
 
 ### TestFixtures
@@ -564,6 +888,35 @@ var yaml = TestFixtures.SampleYamlConfig;
 
 // Use invalid YAML (for error testing)
 var invalidYaml = TestFixtures.InvalidYamlConfig;
+```
+
+### EdgeCaseTestFixtures
+
+Centralized edge case test data for robust testing:
+
+```csharp
+// Unicode command names (20+ examples in various scripts)
+var unicodeNames = EdgeCaseTestFixtures.UnicodeCommandNames;
+// Contains: "搜索" (Chinese), "検索" (Japanese), "поиск" (Russian), "🔍search" (Emoji), etc.
+
+// Special character arguments for parsing tests
+var specialArgs = EdgeCaseTestFixtures.SpecialCharacterArguments;
+// Contains: quotes, backslashes, pipes, unicode filenames, shell operators
+
+// Large word list (1000 words) for performance testing
+var largeList = EdgeCaseTestFixtures.LargeWordList;
+
+// Malformed YAML samples with descriptions
+foreach (var (description, yaml) in EdgeCaseTestFixtures.MalformedYamlSamples)
+{
+    // Test error handling for each malformed sample
+}
+
+// Empty and whitespace-only inputs
+var emptyInputs = EdgeCaseTestFixtures.EmptyAndWhitespaceInputs;
+
+// Case sensitivity test pairs
+var casePairs = EdgeCaseTestFixtures.CaseSensitivityPairs;
 ```
 
 ## Additional Resources
