@@ -122,7 +122,7 @@
   - _Requirements: 5.1, 8.1_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Tester with expertise in Windows desktop applications | Task: Perform manual startup testing on Windows following requirements 5.1 and 8.1 to verify basic application functionality. Copy CommandLauncher.exe from Linux build to a Windows 10 or Windows 11 machine. Also copy the resource/conf/my.conf file. Run 'CommandLauncher.exe resource\conf\my.conf' from command prompt. Verify that the application starts without errors, a system tray icon appears (TeaLauncher icon in notification area), and startup is fast (feels instant, ideally < 300ms). Check for any error dialogs or console errors. | Restrictions: Test on Windows 10 version 1607+ or Windows 11, use .NET 8 Desktop Runtime (install if needed for framework-dependent build), test both framework-dependent and self-contained builds | Success: Application starts without errors on Windows, system tray icon visible, startup time feels fast (< 300ms subjectively), no error messages or crashes, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 14. Manual testing on Windows - Hotkey and UI interaction
+- [x] 14. Manual testing on Windows - Hotkey and UI interaction
   - Test: Press Ctrl+Space to show input window
   - Test: Type command and verify auto-completion (Tab key)
   - Test: Press Escape to hide window

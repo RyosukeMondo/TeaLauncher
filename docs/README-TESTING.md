@@ -10,6 +10,12 @@ This directory contains testing documentation and scripts for the .NET 8 migrati
 - **Status**: Ready for execution on Windows
 - **Requirements**: Windows 10/11, .NET 8 Desktop Runtime (for framework-dependent build)
 
+### Task 14: Hotkey and UI Interaction Testing
+- **Test Plan**: [manual-test-task14.md](manual-test-task14.md)
+- **Interactive Script**: [test-hotkey-ui.ps1](test-hotkey-ui.ps1)
+- **Status**: Ready for execution on Windows
+- **Requirements**: Windows 10/11, Task 13 completed, real hardware recommended (not VM)
+
 ## How to Execute Tests
 
 ### On Windows
@@ -19,13 +25,17 @@ This directory contains testing documentation and scripts for the .NET 8 migrati
    - OR copy `CommandLauncher/bin/Release/net8.0-windows/win-x64/CommandLauncher.exe` + DLLs (framework-dependent)
    - Copy `resource/conf/my.conf` maintaining directory structure
 
-2. **Run automated test**:
+2. **Run automated tests**:
    ```powershell
+   # Task 13 - Startup testing
    .\test-startup.ps1
+
+   # Task 14 - Hotkey and UI testing (requires TeaLauncher running)
+   .\test-hotkey-ui.ps1
    ```
 
 3. **Manual verification**:
-   - Follow checklist in `manual-test-task13.md`
+   - Follow checklist in respective test plan (e.g., `manual-test-task13.md`)
    - Document results in the test plan
 
 ## Test Files Location
