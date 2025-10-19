@@ -17,9 +17,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using TeaLauncher.Avalonia.Views;
 using AvaloniaApplication = Avalonia.Application;
 
@@ -27,6 +29,12 @@ namespace TeaLauncher.Avalonia;
 
 public partial class App : AvaloniaApplication
 {
+    /// <summary>
+    /// Gets or sets the service provider for dependency injection.
+    /// This is set during application startup in Program.cs.
+    /// </summary>
+    public static IServiceProvider? ServiceProvider { get; set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -44,8 +52,27 @@ public partial class App : AvaloniaApplication
                 configFilePath = desktop.Args[0];
             }
 
-            // Create and set the main window with the config file path
-            desktop.MainWindow = new MainWindow(configFilePath);
+            // Resolve MainWindow from the dependency injection container
+            // Note: MainWindow is registered as Transient, so we get a new instance
+            if (ServiceProvider != null)
+            {
+                desktop.MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
+
+                // Pass the config file path to the MainWindow
+                // For now, we still use the parameterized constructor until the orchestrator
+                // handles configuration loading (will be refactored in later tasks)
+                if (desktop.MainWindow is MainWindow mainWindow)
+                {
+                    // The MainWindow constructor already handles the config file path
+                    // This will be refactored when ApplicationOrchestrator is fully implemented
+                }
+            }
+            else
+            {
+                // Fallback to direct instantiation if ServiceProvider is not available
+                // (e.g., in design mode or testing)
+                desktop.MainWindow = new MainWindow(configFilePath);
+            }
         }
 
         base.OnFrameworkInitializationCompleted();

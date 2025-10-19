@@ -99,7 +99,7 @@ namespace CommandLauncher
         {
             // 前方一致する文字列をリストで取得
             List<string> list = m_WordList.FindAll(
-                delegate(string str)
+                delegate (string str)
                 {
                     return str.StartsWith(chars);
                 }
@@ -111,7 +111,7 @@ namespace CommandLauncher
         public bool HasItem(string item)
         {
             return m_WordList.Exists(
-                delegate(string str)
+                delegate (string str)
                 {
                     return str == item;
                 }

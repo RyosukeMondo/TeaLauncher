@@ -72,7 +72,7 @@ namespace CommandLauncher
         {
             // 無ければ登録
             if (!m_Commands.Exists(
-                delegate(Command cmd)
+                delegate (Command cmd)
                 {
                     return (command.command == cmd.command);
                 }
@@ -90,7 +90,7 @@ namespace CommandLauncher
 
             // 見つけ出して取り除く
             m_Commands.ForEach(
-                delegate(Command cmd)
+                delegate (Command cmd)
                 {
                     if (item == cmd.command)
                     {
@@ -149,7 +149,7 @@ namespace CommandLauncher
 
                     // コマンドを探す
                     Command finding_cmd = m_Commands.Find(
-                         delegate(Command cmd)
+                         delegate (Command cmd)
                          {
                              return (item == cmd.command);
                          }

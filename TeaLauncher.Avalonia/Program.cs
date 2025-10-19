@@ -20,6 +20,7 @@
 using System;
 using Avalonia;
 using Avalonia.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TeaLauncher.Avalonia;
 
@@ -29,8 +30,19 @@ internal class Program
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        // Configure dependency injection
+        var services = new ServiceCollection();
+        services.ConfigureServices();
+        var serviceProvider = services.BuildServiceProvider();
+
+        // Store the service provider in the App instance for access throughout the application
+        App.ServiceProvider = serviceProvider;
+
+        BuildAvaloniaApp()
+            .StartWithClassicDesktopLifetime(args);
+    }
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
