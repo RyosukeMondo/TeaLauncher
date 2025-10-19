@@ -90,7 +90,7 @@
   - _Requirements: 5.1_
   - _Prompt: Role: .NET Application Developer specializing in Avalonia application lifecycle | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create App.axaml with Avalonia Application definition using FluentTheme (Dark variant) following requirement 5.1. Create App.axaml.cs with OnFrameworkInitializationCompleted override. Read command-line arguments from IClassicDesktopStyleApplicationLifetime.Args, default to "commands.yaml" if no args provided. Instantiate MainWindow with config file path. Set desktop.MainWindow. | Restrictions: Do not use Windows Forms Application class, must use Avalonia application lifecycle, ensure theme is properly loaded, handle missing command-line args with default | Success: Application starts successfully with Fluent Dark theme, MainWindow receives config file path from args or default, application initializes properly on Windows, theme is applied to all controls | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 11. Create Program.cs entry point
+- [x] 11. Create Program.cs entry point
   - File: TeaLauncher.Avalonia/Program.cs
   - Implement Main method with Avalonia AppBuilder configuration
   - Configure platform detection and InterFont
