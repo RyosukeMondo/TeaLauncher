@@ -5,39 +5,15 @@ Windows Simple Keystroke Launcher.
 
 = Building with .NET 8 =
 
-== Installation ==
+TeaLauncher requires .NET 8 SDK to build.
 
-Install .NET 8 SDK:
+Quick start:
+  dotnet build -r win-x64              # Build on Linux
+  dotnet test                           # Run tests
+  dotnet publish -c Release -r win-x64  # Publish release
 
-Linux:
-  wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
-  chmod +x ./dotnet-install.sh
-  ./dotnet-install.sh --channel 8.0
-
-Windows:
-  Download and install .NET 8 SDK from:
-  https://dotnet.microsoft.com/download/dotnet/8.0
-
-== Build Commands ==
-
-Linux (cross-compile to Windows):
-  dotnet build -r win-x64
-
-Windows:
-  dotnet build
-
-== Test Commands ==
-
-Run unit tests:
-  dotnet test
-
-== Publish Commands ==
-
-Framework-dependent deployment (requires .NET 8 Desktop Runtime on target):
-  dotnet publish -c Release -r win-x64 -f net8.0-windows CommandLauncher/CommandLauncher.csproj
-
-Self-contained deployment (no runtime required, larger size):
-  dotnet publish -c Release -r win-x64 -f net8.0-windows --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true CommandLauncher/CommandLauncher.csproj
+For comprehensive build instructions, deployment options, testing workflows,
+and troubleshooting, see BUILD.md
 
 
 == Usage ==
