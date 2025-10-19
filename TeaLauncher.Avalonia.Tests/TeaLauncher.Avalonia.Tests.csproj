@@ -25,9 +25,4 @@
     <ProjectReference Include="..\TeaLauncher.Avalonia\TeaLauncher.Avalonia.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\TeaLauncher.Avalonia\Configuration\CommandConfig.cs" Link="Configuration\CommandConfig.cs" />
-    <Compile Include="..\TeaLauncher.Avalonia\Infrastructure\Configuration\YamlConfigLoaderService.cs" Link="Infrastructure\Configuration\YamlConfigLoaderService.cs" />
-  </ItemGroup>
-
 </Project>

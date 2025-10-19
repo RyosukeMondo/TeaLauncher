@@ -90,7 +90,7 @@
 
 ## Phase 3: Testing Infrastructure
 
-- [ ] 9. Set up unit test structure with NSubstitute
+- [x] 9. Set up unit test structure with NSubstitute
   - Files:
     - TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj
     - TeaLauncher.Avalonia.Tests/GlobalUsings.cs
