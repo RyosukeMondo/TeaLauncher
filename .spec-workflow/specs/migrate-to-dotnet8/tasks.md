@@ -178,7 +178,7 @@
   - _Requirements: All_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Documentation Specialist with expertise in developer guides | Task: Create comprehensive build and deployment documentation covering all requirements for .NET 8 migration. Expand the README updates from task 10 into detailed documentation. Include: (1) Linux development setup (installing .NET 8 SDK, git clone, dotnet build -r win-x64), (2) Windows testing workflow (transferring .exe, installing .NET 8 Desktop Runtime, running tests), (3) Deployment options comparison table (framework-dependent vs self-contained: size, runtime requirement, use cases). Keep documentation concise following KISS principle but thorough enough for new developers. Use simple text format matching README style. | Restrictions: Use existing README format, keep language simple and direct, do not add unnecessary complexity, focus on practical instructions | Success: Documentation is clear and complete, covers Linux development and Windows testing, deployment options well-explained, new developers can follow instructions successfully, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 20. Migration completion and cleanup
+- [x] 20. Migration completion and cleanup
   - Verify: All migration tasks completed successfully
   - Verify: No legacy .NET Framework references remain
   - Verify: Build and test succeed on both Linux and Windows
