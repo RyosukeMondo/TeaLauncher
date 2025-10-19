@@ -30,7 +30,7 @@ public class YamlConfigLoaderTests
     }
 
     [Test]
-    public void LoadConfigFile_ValidYaml_ReturnsCommandsConfig()
+    public void LoadConfiguration_ValidYaml_ReturnsCommandsConfig()
     {
         // Arrange
         var yaml = @"
@@ -58,7 +58,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_EmptyCommandsList_ReturnsConfigWithEmptyList()
+    public void LoadConfiguration_EmptyCommandsList_ReturnsConfigWithEmptyList()
     {
         // Arrange
         var yaml = @"
@@ -75,7 +75,7 @@ commands: []
     }
 
     [Test]
-    public void LoadConfigFile_MissingFile_ThrowsFileNotFoundException()
+    public void LoadConfiguration_MissingFile_ThrowsFileNotFoundException()
     {
         // Arrange
         var nonExistentPath = Path.Combine(_testDirectory, "nonexistent.yaml");
@@ -87,7 +87,7 @@ commands: []
     }
 
     [Test]
-    public void LoadConfigFile_InvalidYamlSyntax_ThrowsYamlException()
+    public void LoadConfiguration_InvalidYamlSyntax_ThrowsYamlException()
     {
         // Arrange
         var invalidYaml = @"
@@ -106,7 +106,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_MissingNameField_ThrowsInvalidOperationException()
+    public void LoadConfiguration_MissingNameField_ThrowsInvalidOperationException()
     {
         // Arrange
         var yaml = @"
@@ -123,7 +123,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_MissingLinkToField_ThrowsInvalidOperationException()
+    public void LoadConfiguration_MissingLinkToField_ThrowsInvalidOperationException()
     {
         // Arrange
         var yaml = @"
@@ -141,7 +141,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_EmptyNameField_ThrowsInvalidOperationException()
+    public void LoadConfiguration_EmptyNameField_ThrowsInvalidOperationException()
     {
         // Arrange
         var yaml = @"
@@ -157,7 +157,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_EmptyLinkToField_ThrowsInvalidOperationException()
+    public void LoadConfiguration_EmptyLinkToField_ThrowsInvalidOperationException()
     {
         // Arrange
         var yaml = @"
@@ -174,7 +174,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_WhitespaceOnlyName_ThrowsInvalidOperationException()
+    public void LoadConfiguration_WhitespaceOnlyName_ThrowsInvalidOperationException()
     {
         // Arrange
         var yaml = @"
@@ -190,7 +190,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_UnknownFields_AreIgnored()
+    public void LoadConfiguration_UnknownFields_AreIgnored()
     {
         // Arrange
         var yaml = @"
@@ -213,7 +213,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_WithComments_IgnoresComments()
+    public void LoadConfiguration_WithComments_IgnoresComments()
     {
         // Arrange
         var yaml = @"
@@ -242,7 +242,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_OptionalFields_CanBeOmitted()
+    public void LoadConfiguration_OptionalFields_CanBeOmitted()
     {
         // Arrange
         var yaml = @"
@@ -265,7 +265,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_AllFields_AreDeserialized()
+    public void LoadConfiguration_AllFields_AreDeserialized()
     {
         // Arrange
         var yaml = @"
@@ -290,7 +290,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_EmptyFile_ThrowsInvalidOperationException()
+    public void LoadConfiguration_EmptyFile_ThrowsInvalidOperationException()
     {
         // Arrange
         var filePath = CreateTempYamlFile("");
@@ -301,7 +301,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_MissingCommandsKey_ReturnsEmptyCommands()
+    public void LoadConfiguration_MissingCommandsKey_ReturnsEmptyCommands()
     {
         // Arrange
         // When commands key is missing, the default value (empty list) is used
@@ -320,7 +320,7 @@ some_other_key: value
     }
 
     [Test]
-    public void LoadConfigFile_MultipleCommandsWithMixedValidation_ValidatesAll()
+    public void LoadConfiguration_MultipleCommandsWithMixedValidation_ValidatesAll()
     {
         // Arrange
         var yaml = @"
@@ -344,7 +344,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_LargeConfigFile_LoadsSuccessfully()
+    public void LoadConfiguration_LargeConfigFile_LoadsSuccessfully()
     {
         // Arrange
         var yamlBuilder = new System.Text.StringBuilder();
@@ -370,7 +370,7 @@ commands:
     }
 
     [Test]
-    public void LoadConfigFile_ExampleCommandsYaml_LoadsSuccessfully()
+    public void LoadConfiguration_ExampleCommandsYaml_LoadsSuccessfully()
     {
         // Arrange
         var exampleYamlPath = Path.Combine(
@@ -387,7 +387,7 @@ commands:
         }
 
         // Act
-        var config = _loader.LoadConfigFile(exampleYamlPath);
+        var config = _loader.LoadConfiguration(exampleYamlPath);
 
         // Assert
         Assert.That(config, Is.Not.Null);

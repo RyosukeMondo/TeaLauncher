@@ -58,6 +58,14 @@ public class CommandExecutorService : ICommandExecutor
             string filename;
             string args;
 
+            // Check for special commands first (before registry lookup)
+            string commandName = GetExecution(commandInput);
+            if (IsSpecialCommand(commandName))
+            {
+                Debug.WriteLine($"SpecialCommand: {commandName}");
+                throw new NotSupportedException($"Special commands like '{commandName}' must be handled by ApplicationOrchestrator.");
+            }
+
             if (IsPath(commandInput))
             {
                 // Direct path or URL - execute as-is
@@ -67,8 +75,6 @@ public class CommandExecutorService : ICommandExecutor
             else
             {
                 // Registered command - look up in registry
-                string commandName = GetExecution(commandInput);
-
                 // Find command in registry
                 var commands = _commandRegistry.GetAllCommands();
                 var foundCommand = commands.FirstOrDefault(cmd =>
@@ -81,6 +87,14 @@ public class CommandExecutorService : ICommandExecutor
 
                 // Get the execution target and combine arguments
                 filename = GetExecution(foundCommand.LinkTo);
+
+                // Check if the LinkTo is a special command
+                if (IsSpecialCommand(filename))
+                {
+                    Debug.WriteLine($"SpecialCommand from registry: {filename}");
+                    throw new NotSupportedException($"Special commands like '{filename}' must be handled by ApplicationOrchestrator.");
+                }
+
                 var commandArgs = GetArguments(foundCommand.LinkTo).ToList();
                 var inputArgs = GetArguments(commandInput).ToList();
 
@@ -93,13 +107,6 @@ public class CommandExecutorService : ICommandExecutor
                 // Combine command arguments and input arguments
                 commandArgs.AddRange(inputArgs);
                 args = string.Join(" ", commandArgs);
-            }
-
-            // Check for special commands (delegate to orchestrator)
-            if (IsSpecialCommand(filename))
-            {
-                Debug.WriteLine($"SpecialCommand: {filename}");
-                throw new NotSupportedException($"Special commands like '{filename}' must be handled by ApplicationOrchestrator.");
             }
 
             // Execute regular command

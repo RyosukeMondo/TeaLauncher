@@ -27,19 +27,19 @@ using TeaLauncher.Avalonia.Infrastructure.Platform;
 namespace TeaLauncher.Avalonia.Tests.Platform;
 
 /// <summary>
-/// Tests for WindowsHotkey component.
+/// Tests for WindowsHotkeyService component.
 /// Note: Full integration tests require an actual Avalonia window and Windows environment.
 /// These tests focus on testable aspects like argument validation and event handling.
 /// </summary>
 [TestFixture]
-public class WindowsHotkeyTests
+public class WindowsHotkeyServiceTests
 {
     [Test]
     public void Constructor_WithNullWindow_ThrowsArgumentNullException()
     {
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            new WindowsHotkey(null!, ModifierKeys.Control, Key.Space));
+            new WindowsHotkeyService(null!, ModifierKeys.Control, Key.Space));
     }
 
     [Test]
@@ -66,13 +66,13 @@ public class WindowsHotkeyTests
     [Test]
     public void Dispose_CanBeCalledMultipleTimes()
     {
-        // We can't easily create a real WindowsHotkey instance in unit tests without a window,
+        // We can't easily create a real WindowsHotkeyService instance in unit tests without a window,
         // but we can test that the IDisposable pattern is implemented correctly by checking
         // that Dispose can be called multiple times without throwing (this is a requirement
         // of the IDisposable pattern).
 
         // This is more of a design validation test
-        Assert.Pass("WindowsHotkey implements IDisposable pattern correctly");
+        Assert.Pass("WindowsHotkeyService implements IDisposable pattern correctly");
     }
 
     // Note: The following tests would require a real Avalonia window and Windows environment:

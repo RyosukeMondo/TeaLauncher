@@ -141,7 +141,7 @@ public class AutoCompleterServiceTests
     public void GetCandidates_WithCaseInsensitiveMatch_ShouldReturnMatches()
     {
         // Arrange
-        _service.UpdateWordList(new[] { "Google", "GitHub", "Gmail" });
+        _service.UpdateWordList(new[] { "Google", "GitHub", "GitLab" });
 
         // Act
         var candidates = _service.GetCandidates("gi");
@@ -149,14 +149,14 @@ public class AutoCompleterServiceTests
         // Assert
         candidates.Should().HaveCount(2);
         candidates.Should().Contain("GitHub");
-        candidates.Should().Contain("Gmail");
+        candidates.Should().Contain("GitLab");
     }
 
     [Test]
     public void GetCandidates_WithUpperCasePrefix_ShouldMatchCaseInsensitively()
     {
         // Arrange
-        _service.UpdateWordList(new[] { "google", "github", "gmail" });
+        _service.UpdateWordList(new[] { "google", "github", "gitlab" });
 
         // Act
         var candidates = _service.GetCandidates("GI");
@@ -164,7 +164,7 @@ public class AutoCompleterServiceTests
         // Assert
         candidates.Should().HaveCount(2);
         candidates.Should().Contain("github");
-        candidates.Should().Contain("gmail");
+        candidates.Should().Contain("gitlab");
     }
 
     [Test]
@@ -323,7 +323,7 @@ public class AutoCompleterServiceTests
     public void UpdateWordList_ThenAutoComplete_ShouldWorkCorrectly()
     {
         // Arrange
-        var words = new[] { "google", "github", "gmail", "yahoo", "youtube" };
+        var words = new[] { "google", "github", "gitlab", "yahoo", "youtube" };
         _service.UpdateWordList(words);
 
         // Act
@@ -333,7 +333,7 @@ public class AutoCompleterServiceTests
 
         // Assert
         googleCompletion.Should().Be("google");
-        gitCompletion.Should().Be("g"); // Common prefix of gmail, github
+        gitCompletion.Should().Be("git"); // Common prefix of github, gitlab
         youtubeCompletion.Should().Be("youtube");
     }
 

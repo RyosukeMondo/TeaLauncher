@@ -66,7 +66,7 @@ commands:
     linkto: https://example.com
 ";
         var filePath = CreateTempYamlFile("commands.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config, Is.Not.Null, "Configuration should be loaded");
         Assert.That(config.Commands, Is.Not.Empty, "Commands should be loaded from YAML");
@@ -80,7 +80,7 @@ commands:
         var nonExistentPath = Path.Combine(_testDirectory, "missing.yaml");
 
         var ex = Assert.Throws<FileNotFoundException>(() =>
-            _configLoader.LoadConfigFile(nonExistentPath));
+            _configLoader.LoadConfiguration(nonExistentPath));
 
         Assert.That(ex!.Message, Does.Contain("missing.yaml"),
             "Error message should contain the expected file path");
@@ -101,7 +101,7 @@ commands:
         var filePath = CreateTempYamlFile("invalid.yaml", invalidYaml);
 
         var ex = Assert.Throws<YamlDotNet.Core.YamlException>(() =>
-            _configLoader.LoadConfigFile(filePath));
+            _configLoader.LoadConfiguration(filePath));
 
         Assert.That(ex, Is.Not.Null, "Should throw YamlException");
         Assert.That(ex!.Message, Is.Not.Empty, "Error message should be clear");
@@ -120,7 +120,7 @@ commands:
         var filePath = CreateTempYamlFile("missing-field.yaml", missingLinkTo);
 
         var ex = Assert.Throws<InvalidOperationException>(() =>
-            _configLoader.LoadConfigFile(filePath));
+            _configLoader.LoadConfiguration(filePath));
 
         Assert.That(ex!.Message, Does.Contain("required"),
             "Error should indicate missing required field");
@@ -140,7 +140,7 @@ commands:
 ";
         var filePath = CreateTempYamlFile("unknown-fields.yaml", yamlWithUnknownFields);
 
-        Assert.DoesNotThrow(() => _configLoader.LoadConfigFile(filePath),
+        Assert.DoesNotThrow(() => _configLoader.LoadConfiguration(filePath),
             "Unknown fields should be ignored without error");
     }
 
@@ -155,7 +155,7 @@ commands:
     linkto: https://example.com
 ";
         var filePath = CreateTempYamlFile("minimal.yaml", yamlMinimal);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config.Commands[0].Description, Is.Null,
             "Optional description should be null when not provided");
@@ -176,7 +176,7 @@ commands:
     arguments: --new-window
 ";
         var filePath = CreateTempYamlFile("valid.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config, Is.InstanceOf<CommandsConfig>(), "Should be strongly-typed CommandsConfig");
         Assert.That(config.Commands[0], Is.InstanceOf<CommandEntry>(), "Commands should be strongly-typed");
@@ -200,7 +200,7 @@ commands:
     # description: commented out field
 ";
         var filePath = CreateTempYamlFile("with-comments.yaml", yamlWithComments);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config.Commands, Has.Count.EqualTo(1), "Comments should not affect parsing");
         Assert.That(config.Commands[0].Name, Is.EqualTo("test"));
@@ -225,7 +225,7 @@ commands:
     linkto: '!version'
 ";
         var filePath = CreateTempYamlFile("special.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config.Commands.Any(c => c.LinkTo == "!reload"), Is.True);
         Assert.That(config.Commands.Any(c => c.LinkTo == "!exit"), Is.True);
@@ -244,7 +244,7 @@ commands:
     arguments: test.txt
 ";
         var filePath = CreateTempYamlFile("args.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config.Commands[0].Arguments, Is.EqualTo("test.txt"));
     }
@@ -265,7 +265,7 @@ commands:
     linkto: https://example1.com
 ";
         var filePath = CreateTempYamlFile("config.yaml", yaml1);
-        var config1 = _configLoader.LoadConfigFile(filePath);
+        var config1 = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config1.Commands, Has.Count.EqualTo(1));
         Assert.That(config1.Commands[0].Name, Is.EqualTo("cmd1"));
@@ -279,7 +279,7 @@ commands:
     linkto: https://example2.com
 ";
         File.WriteAllText(filePath, yaml2);
-        var config2 = _configLoader.LoadConfigFile(filePath);
+        var config2 = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config2.Commands, Has.Count.EqualTo(2),
             "Reloaded configuration should have new commands");
@@ -293,7 +293,7 @@ commands:
         var missingFile = Path.Combine(_testDirectory, "missing-on-reload.yaml");
 
         var ex = Assert.Throws<FileNotFoundException>(() =>
-            _configLoader.LoadConfigFile(missingFile));
+            _configLoader.LoadConfiguration(missingFile));
 
         Assert.That(ex!.Message, Does.Contain("missing-on-reload.yaml"));
     }
@@ -311,7 +311,7 @@ commands:
         var filePath = CreateTempYamlFile("syntax-error-reload.yaml", invalidYaml);
 
         Assert.Throws<YamlDotNet.Core.YamlException>(() =>
-            _configLoader.LoadConfigFile(filePath));
+            _configLoader.LoadConfiguration(filePath));
     }
 
     #endregion
@@ -357,7 +357,7 @@ commands:
     description: Show version
 ";
         var filePath = CreateTempYamlFile("full-workflow.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         // Verify all command types loaded correctly
         Assert.That(config.Commands, Has.Count.EqualTo(7));
@@ -395,7 +395,7 @@ commands:
         var filePath = CreateTempYamlFile("large-config.yaml", yaml);
 
         var startTime = DateTime.Now;
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
         var elapsed = DateTime.Now - startTime;
 
         Assert.That(config.Commands, Has.Count.EqualTo(100));
@@ -411,7 +411,7 @@ commands:
 commands: []
 ";
         var filePath = CreateTempYamlFile("empty.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config.Commands, Is.Not.Null);
         Assert.That(config.Commands, Is.Empty);
@@ -432,7 +432,7 @@ commands:
     description: Test with emoji 🚀 🎉
 ";
         var filePath = CreateTempYamlFile("unicode.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config.Commands, Has.Count.EqualTo(2));
         Assert.That(config.Commands[0].Name, Is.EqualTo("日本語"));
@@ -453,7 +453,7 @@ commands:
     linkto: {longPath}
 ";
         var filePath = CreateTempYamlFile("long-values.yaml", yaml);
-        var config = _configLoader.LoadConfigFile(filePath);
+        var config = _configLoader.LoadConfiguration(filePath);
 
         Assert.That(config.Commands[0].Name, Is.EqualTo(longName));
         Assert.That(config.Commands[0].LinkTo, Is.EqualTo(longPath));
