@@ -4,6 +4,22 @@ This document provides comprehensive instructions for building, testing, and
 deploying TeaLauncher with .NET 8.
 
 
+== Quick Start ==
+
+For Linux developers (cross-compiling to Windows):
+
+1. Initial setup:
+   ./scripts/linux/setup.sh
+
+2. Build:
+   ./scripts/linux/build-windows.sh -c Release
+
+3. Create release package:
+   ./scripts/linux/publish-windows.sh -t self-contained
+
+For detailed instructions, see sections below.
+
+
 == Prerequisites ==
 
 === .NET 8 SDK ===
@@ -38,6 +54,24 @@ Windows installation:
 
 === Initial Setup ===
 
+==== Automated Setup (Recommended) ====
+
+Use the provided setup script to automatically install .NET 8 SDK and dependencies:
+
+  ./scripts/linux/setup.sh
+
+This script will:
+  - Detect your Linux distribution
+  - Install required system dependencies (with sudo)
+  - Install .NET 8 SDK to ~/.dotnet (no sudo)
+  - Configure PATH in ~/.bashrc
+  - Restore project dependencies
+
+After running, either restart your terminal or run:
+  source ~/.bashrc
+
+==== Manual Setup ====
+
 1. Clone repository:
    git clone https://github.com/YOUR_USERNAME/TeaLauncher.git
    cd TeaLauncher
@@ -50,6 +84,25 @@ Windows installation:
    dotnet restore
 
 === Building ===
+
+==== Using Build Scripts (Recommended) ====
+
+Quick build for Windows:
+  ./scripts/linux/build-windows.sh
+
+Build release version:
+  ./scripts/linux/build-windows.sh -c Release
+
+Clean release build:
+  ./scripts/linux/build-windows.sh -c Release --clean
+
+Build for Windows ARM64:
+  ./scripts/linux/build-windows.sh -r win-arm64
+
+Show all options:
+  ./scripts/linux/build-windows.sh --help
+
+==== Manual Build Commands ====
 
 Build for Windows x64 (cross-compile from Linux):
   dotnet build -r win-x64
@@ -76,6 +129,25 @@ Note: UI tests and P/Invoke tests will be skipped on Linux as they require
 Windows Forms and Windows API.
 
 === Publishing ===
+
+==== Using Publish Script (Recommended) ====
+
+Framework-dependent build (small, requires .NET runtime):
+  ./scripts/linux/publish-windows.sh
+
+Self-contained build (large, no runtime required):
+  ./scripts/linux/publish-windows.sh -t self-contained
+
+Build for Windows ARM64:
+  ./scripts/linux/publish-windows.sh -r win-arm64
+
+The script will:
+  - Build the release version
+  - Show output location
+  - List files to distribute
+  - Optionally create a zip package
+
+==== Manual Publish Commands ====
 
 See "Deployment Options" section below for detailed publish commands.
 
