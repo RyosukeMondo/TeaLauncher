@@ -140,7 +140,7 @@
   - _Requirements: 5.6, 6.1, 6.2, 6.3_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Tester with expertise in application functionality testing | Task: Perform command execution testing on Windows following requirements 5.6 and 6.1-6.3 to verify Process.Start and configuration handling work correctly. Test URL execution: Enter a URL command (e.g., if my.conf has [github] linkto=http://github.com, type 'github' and press Enter). Verify the default browser opens the URL. Test file execution: If my.conf has a file path command, execute it and verify the file/application opens. Test special commands: Type '!version' and press Enter, verify version dialog appears. Type '!reload' to test configuration reload. Type '!exit' to quit the application gracefully. | Restrictions: Use commands defined in resource/conf/my.conf, test on Windows with default browser configured, verify each command type works | Success: URL commands open in browser correctly, file path commands execute applications, !version shows version info dialog, !reload refreshes configuration without errors, !exit closes application cleanly, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 16. Manual testing on Windows - Configuration file parsing
+- [x] 16. Manual testing on Windows - Configuration file parsing
   - Test: Modify resource/conf/my.conf to add new command
   - Test: Execute !reload command
   - Verify: New command is available via auto-completion
