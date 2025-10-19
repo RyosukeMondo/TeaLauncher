@@ -112,7 +112,7 @@
 
 ## Testing and Verification Tasks
 
-- [ ] 13. Manual testing on Windows - Application startup
+- [x] 13. Manual testing on Windows - Application startup
   - Test: Transfer published executable to Windows machine
   - Test: Run CommandLauncher.exe with conf/my.conf
   - Verify: Application starts in < 300ms
