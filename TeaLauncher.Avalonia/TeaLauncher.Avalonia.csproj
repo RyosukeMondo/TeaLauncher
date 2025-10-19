@@ -10,6 +10,8 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <!-- Suppress nullable warnings for linked legacy files that don't use nullable reference types -->
+    <NoWarn>$(NoWarn);CS8600;CS8602;CS8603;CS8618;CS0649</NoWarn>
 
     <!-- Assembly metadata -->
     <AssemblyTitle>TeaLauncher</AssemblyTitle>
@@ -39,6 +41,12 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Link to existing business logic files from CommandLauncher project -->
+    <Compile Include="..\CommandLauncher\CommandManager.cs" Link="Core\CommandManager.cs" />
+    <Compile Include="..\CommandLauncher\AutoCompleteMachine.cs" Link="Core\AutoCompleteMachine.cs" />
   </ItemGroup>
 
 </Project>

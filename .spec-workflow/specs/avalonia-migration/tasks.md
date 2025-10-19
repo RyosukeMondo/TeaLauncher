@@ -36,7 +36,7 @@
   - _Requirements: 4.3, 4.4, 8.3_
   - _Prompt: Role: QA Engineer with expertise in unit testing and NUnit framework | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create comprehensive NUnit tests for YamlConfigLoader covering requirements 4.3, 4.4, and 8.3. Test scenarios: valid YAML deserialization, missing file handling, invalid YAML syntax with line number checking, missing required fields validation, unknown fields being ignored. Use in-memory YAML strings and temporary test files. | Restrictions: Must test both success and failure paths, do not test YamlDotNet library itself, ensure test isolation with proper cleanup, use Assert statements not console output | Success: All test cases pass, test coverage includes happy path and all error scenarios, tests verify exception types and error messages, tests clean up temporary files, tests run independently and consistently | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 5. Link existing business logic files
+- [x] 5. Link existing business logic files
   - File: TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj (modify)
   - Add <Compile Include="..."> links to CommandManager.cs and AutoCompleteMachine.cs
   - Create Core/ directory structure for linked files
