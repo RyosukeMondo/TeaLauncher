@@ -46,7 +46,7 @@
   - _Requirements: 2.2_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: .NET Build Engineer with expertise in SDK-style project conventions | Task: Delete AssemblyInfo.cs files following requirement 2.2 after verifying that all assembly metadata has been migrated to .csproj files in tasks 1 and 2. Remove CommandLauncher/Properties/AssemblyInfo.cs and TestCommandLauncher/Properties/AssemblyInfo.cs. Verify that assembly title, description, company, product, copyright, and version are all defined in the respective .csproj files. | Restrictions: Only delete AssemblyInfo.cs files after confirming metadata is in .csproj, do not delete other files in Properties folder (Resources.Designer.cs, Settings.Designer.cs should remain), do not modify .csproj files in this task | Success: AssemblyInfo.cs files deleted, assembly metadata remains accessible via .csproj properties, build succeeds with 'dotnet build', assembly version shows correctly in output, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 6. Update NUnit test code for compatibility
+- [x] 6. Update NUnit test code for compatibility
   - Files: TestCommandLauncher/Test_AutoCompleteMachine.cs, TestCommandLauncher/Test_ConfigLoader.cs
   - Verify test code works with NUnit 4.x
   - Update any deprecated NUnit attributes if needed
