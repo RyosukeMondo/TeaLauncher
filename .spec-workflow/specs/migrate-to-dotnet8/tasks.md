@@ -92,7 +92,7 @@
   - _Requirements: All_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Writer with expertise in developer documentation | Task: Update README file covering all requirements to provide clear .NET 8 build instructions for both Linux and Windows developers. Add a section "= Building with .NET 8 =" that includes: (1) Installation instructions for .NET 8 SDK on Linux (wget script) and Windows (download link), (2) Build commands on Linux ('dotnet build -r win-x64') and Windows ('dotnet build'), (3) Test commands ('dotnet test'), (4) Publish commands for framework-dependent and self-contained deployments. Update the existing "== Usage ==" section to note that .NET 8 Desktop Runtime is required for framework-dependent builds. Keep the existing format style (= for headers, indentation with spaces). | Restrictions: Preserve existing README content and format, use same text style (simple ASCII), do not change usage instructions for end users, keep it concise (KISS principle) | Success: README includes .NET 8 build instructions, Linux and Windows commands documented, SDK installation steps clear, deployment options explained, existing content preserved, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 11. Create framework-dependent publish configuration
+- [x] 11. Create framework-dependent publish configuration
   - Test framework-dependent deployment build
   - Verify output size and runtime requirements
   - Document publish command
