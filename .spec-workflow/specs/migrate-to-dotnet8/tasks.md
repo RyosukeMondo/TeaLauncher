@@ -73,7 +73,7 @@
   - _Requirements: 2.2, 2.5_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: DevOps Engineer with expertise in .NET SDK and cross-platform builds | Task: Execute build verification on Linux following requirements 2.2 and 2.5 to confirm cross-compilation to Windows works. Run 'dotnet build -r win-x64' from the solution directory. Verify that CommandLauncher.exe is produced in bin/Debug/net8.0-windows/win-x64/ directory. Check that there are zero compilation warnings (TreatWarningsAsErrors is enabled). Verify the executable is a Windows PE file (use 'file' command to check). | Restrictions: Must build on Linux (not Windows), use 'dotnet build -r win-x64' command, do not suppress warnings, do not modify code to fix build errors in this task (go back to previous tasks if needed) | Success: 'dotnet build -r win-x64' succeeds with zero warnings, CommandLauncher.exe created in correct output directory, file type is 'PE32+ executable (console) x86-64, for MS Windows', build time is reasonable (< 30 seconds clean build), Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 9. Run unit tests on Linux
+- [x] 9. Run unit tests on Linux
   - Execute 'dotnet test' on Linux
   - Verify non-UI tests pass
   - Review test output for any failures

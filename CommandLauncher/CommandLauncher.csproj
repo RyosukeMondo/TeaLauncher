@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>CommandLauncher</AssemblyName>
     <RootNamespace>CommandLauncher</RootNamespace>
@@ -20,9 +19,30 @@
     <Copyright></Copyright>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- Windows Forms framework reference for cross-platform build support -->
+  <!-- Windows-only configuration -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <!-- Cross-platform configuration (for testing logic classes) -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <!-- Windows Forms reference only for net8.0-windows -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
+  </ItemGroup>
+
+  <!-- Exclude Windows-specific files for net8.0 build -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <Compile Remove="Form1.cs" />
+    <Compile Remove="Form1.Designer.cs" />
+    <Compile Remove="Hotkey.cs" />
+    <Compile Remove="IMEController.cs" />
+    <Compile Remove="Program.cs" />
+    <Compile Remove="CommandManager.cs" />
+    <Compile Remove="Properties\Resources.Designer.cs" />
   </ItemGroup>
 
 </Project>
