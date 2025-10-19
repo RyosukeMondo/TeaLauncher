@@ -2,19 +2,20 @@ using System.Linq;
 using NUnit.Framework;
 using YamlDotNet.Core;
 using TeaLauncher.Avalonia.Configuration;
+using TeaLauncher.Avalonia.Infrastructure.Configuration;
 
 namespace TeaLauncher.Avalonia.Tests.Configuration;
 
 [TestFixture]
 public class YamlConfigLoaderTests
 {
-    private YamlConfigLoader _loader = null!;
+    private YamlConfigLoaderService _loader = null!;
     private string _testDirectory = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _loader = new YamlConfigLoader();
+        _loader = new YamlConfigLoaderService();
         _testDirectory = Path.Combine(Path.GetTempPath(), "TeaLauncherTests_" + Guid.NewGuid().ToString());
         Directory.CreateDirectory(_testDirectory);
     }
@@ -44,7 +45,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);
@@ -66,7 +67,7 @@ commands: []
         var filePath = CreateTempYamlFile(yaml);
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);
@@ -80,7 +81,7 @@ commands: []
         var nonExistentPath = Path.Combine(_testDirectory, "nonexistent.yaml");
 
         // Act & Assert
-        var ex = Assert.Throws<FileNotFoundException>(() => _loader.LoadConfigFile(nonExistentPath));
+        var ex = Assert.Throws<FileNotFoundException>(() => _loader.LoadConfiguration(nonExistentPath));
         Assert.That(ex!.Message, Does.Contain(nonExistentPath));
         Assert.That(ex.FileName, Is.EqualTo(nonExistentPath));
     }
@@ -99,7 +100,7 @@ commands:
         var filePath = CreateTempYamlFile(invalidYaml);
 
         // Act & Assert
-        var ex = Assert.Throws<YamlException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<YamlException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("syntax error"));
         Assert.That(ex.Message, Does.Contain(Path.GetFileName(filePath)));
     }
@@ -116,7 +117,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("missing required field 'name'"));
         Assert.That(ex.Message, Does.Contain("index 0"));
     }
@@ -133,7 +134,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("missing required field 'linkto'"));
         Assert.That(ex.Message, Does.Contain("google"));
         Assert.That(ex.Message, Does.Contain("index 0"));
@@ -151,7 +152,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("missing required field 'name'"));
     }
 
@@ -167,7 +168,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("missing required field 'linkto'"));
         Assert.That(ex.Message, Does.Contain("google"));
     }
@@ -184,7 +185,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("missing required field 'name'"));
     }
 
@@ -202,7 +203,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);
@@ -231,7 +232,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);
@@ -252,7 +253,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);
@@ -277,7 +278,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);
@@ -295,7 +296,7 @@ commands:
         var filePath = CreateTempYamlFile("");
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("Failed to parse YAML"));
     }
 
@@ -310,7 +311,7 @@ some_other_key: value
         var filePath = CreateTempYamlFile(yaml);
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);
@@ -336,7 +337,7 @@ commands:
         var filePath = CreateTempYamlFile(yaml);
 
         // Act & Assert
-        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfigFile(filePath));
+        var ex = Assert.Throws<InvalidOperationException>(() => _loader.LoadConfiguration(filePath));
         Assert.That(ex!.Message, Does.Contain("invalid"));
         Assert.That(ex.Message, Does.Contain("index 1"));
         Assert.That(ex.Message, Does.Contain("missing required field 'linkto'"));
@@ -359,7 +360,7 @@ commands:
         var filePath = CreateTempYamlFile(yamlBuilder.ToString());
 
         // Act
-        var config = _loader.LoadConfigFile(filePath);
+        var config = _loader.LoadConfiguration(filePath);
 
         // Assert
         Assert.That(config, Is.Not.Null);

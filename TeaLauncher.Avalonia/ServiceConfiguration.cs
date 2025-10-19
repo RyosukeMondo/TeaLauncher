@@ -21,7 +21,12 @@ using Microsoft.Extensions.DependencyInjection;
 using TeaLauncher.Avalonia.Application.Orchestration;
 using TeaLauncher.Avalonia.Application.Services;
 using TeaLauncher.Avalonia.Domain.Interfaces;
+using TeaLauncher.Avalonia.Infrastructure.Configuration;
 using TeaLauncher.Avalonia.Views;
+
+#if WINDOWS
+using TeaLauncher.Avalonia.Infrastructure.Platform;
+#endif
 
 namespace TeaLauncher.Avalonia;
 
@@ -43,13 +48,13 @@ public static class ServiceConfiguration
         services.AddSingleton<ICommandRegistry, CommandRegistryService>();
         services.AddSingleton<ICommandExecutor, CommandExecutorService>();
 
-        // Infrastructure services will be registered in Task 4 after they are refactored
-        // to implement the Domain interfaces. Until then, these remain commented out.
+        // Register Infrastructure services as Singletons
+        services.AddSingleton<IConfigurationLoader, YamlConfigLoaderService>();
 
-        // Placeholder registrations for when Task 4 is completed:
-        // services.AddSingleton<IConfigurationLoader, YamlConfigLoaderService>();
-        // services.AddSingleton<IHotkeyManager, WindowsHotkeyService>();
-        // services.AddSingleton<IIMEController, WindowsIMEControllerService>();
+#if WINDOWS
+        services.AddSingleton<IHotkeyManager, WindowsHotkeyService>();
+        services.AddSingleton<IIMEController, WindowsIMEControllerService>();
+#endif
 
         // Register Orchestration and UI components as Transient (per-operation/request)
         services.AddTransient<ApplicationOrchestrator>();

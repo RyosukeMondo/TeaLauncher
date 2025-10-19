@@ -19,24 +19,28 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
+using TeaLauncher.Avalonia.Configuration;
+using TeaLauncher.Avalonia.Domain.Interfaces;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace TeaLauncher.Avalonia.Configuration;
+namespace TeaLauncher.Avalonia.Infrastructure.Configuration;
 
 /// <summary>
 /// Loads and parses YAML configuration files for TeaLauncher commands.
 /// Provides validation and clear error messages for configuration issues.
+/// Implements IConfigurationLoader interface for dependency injection.
 /// </summary>
-public class YamlConfigLoader
+public class YamlConfigLoaderService : IConfigurationLoader
 {
     private readonly IDeserializer _deserializer;
 
     /// <summary>
-    /// Initializes a new instance of the YamlConfigLoader with default settings.
+    /// Initializes a new instance of the YamlConfigLoaderService with default settings.
     /// </summary>
-    public YamlConfigLoader()
+    public YamlConfigLoaderService()
     {
         _deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -45,14 +49,14 @@ public class YamlConfigLoader
     }
 
     /// <summary>
-    /// Loads a YAML configuration file from the specified path.
+    /// Loads a configuration file from the specified path.
     /// </summary>
-    /// <param name="filePath">The path to the YAML configuration file.</param>
+    /// <param name="filePath">The path to the configuration file.</param>
     /// <returns>A CommandsConfig object containing the parsed configuration.</returns>
-    /// <exception cref="FileNotFoundException">Thrown when the configuration file does not exist at the specified path.</exception>
-    /// <exception cref="YamlException">Thrown when the YAML file contains syntax errors or invalid structure.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when required fields are missing or validation fails.</exception>
-    public CommandsConfig LoadConfigFile(string filePath)
+    /// <exception cref="FileNotFoundException">Thrown when the configuration file does not exist.</exception>
+    /// <exception cref="YamlException">Thrown when the configuration file contains syntax errors.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when validation fails.</exception>
+    public CommandsConfig LoadConfiguration(string filePath)
     {
         // Check if file exists
         if (!File.Exists(filePath))
@@ -114,6 +118,20 @@ public class YamlConfigLoader
                 $"Unexpected error while loading configuration from '{filePath}': {ex.Message}",
                 ex);
         }
+    }
+
+    /// <summary>
+    /// Asynchronously loads a configuration file from the specified path.
+    /// </summary>
+    /// <param name="filePath">The path to the configuration file.</param>
+    /// <returns>A task representing the asynchronous operation, containing the parsed configuration.</returns>
+    /// <exception cref="FileNotFoundException">Thrown when the configuration file does not exist.</exception>
+    /// <exception cref="YamlException">Thrown when the configuration file contains syntax errors.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when validation fails.</exception>
+    public Task<CommandsConfig> LoadConfigurationAsync(string filePath)
+    {
+        // Wrap synchronous method in Task for async interface
+        return Task.Run(() => LoadConfiguration(filePath));
     }
 
     /// <summary>

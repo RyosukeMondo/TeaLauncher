@@ -19,14 +19,16 @@
 
 using System;
 using System.Runtime.InteropServices;
+using TeaLauncher.Avalonia.Domain.Interfaces;
 
-namespace TeaLauncher.Avalonia.Platform;
+namespace TeaLauncher.Avalonia.Infrastructure.Platform;
 
 /// <summary>
 /// Controls Windows Input Method Editor (IME) state for a window.
 /// Provides methods to turn IME on and off programmatically.
+/// Implements IIMEController interface for dependency injection.
 /// </summary>
-public sealed class WindowsIMEController : IDisposable
+public sealed class WindowsIMEControllerService : IIMEController, IDisposable
 {
     [DllImport("Imm32.dll")]
     private static extern IntPtr ImmGetContext(IntPtr hWnd);
@@ -41,11 +43,11 @@ public sealed class WindowsIMEController : IDisposable
     private bool _disposed;
 
     /// <summary>
-    /// Initializes a new instance of the WindowsIMEController class.
+    /// Initializes a new instance of the WindowsIMEControllerService class.
     /// </summary>
     /// <param name="windowHandle">The window handle (HWND) to control IME for.</param>
     /// <exception cref="ArgumentException">Thrown when windowHandle is IntPtr.Zero.</exception>
-    public WindowsIMEController(IntPtr windowHandle)
+    public WindowsIMEControllerService(IntPtr windowHandle)
     {
         if (windowHandle == IntPtr.Zero)
         {
@@ -56,40 +58,13 @@ public sealed class WindowsIMEController : IDisposable
     }
 
     /// <summary>
-    /// Turns the IME on (opens the IME).
+    /// Disables the IME (turns it off).
     /// </summary>
-    public void On()
+    public void DisableIME()
     {
         if (_disposed)
         {
-            throw new ObjectDisposedException(nameof(WindowsIMEController));
-        }
-
-        IntPtr imeHandle = ImmGetContext(_windowHandle);
-        try
-        {
-            if (imeHandle != IntPtr.Zero)
-            {
-                ImmSetOpenStatus(imeHandle, true);
-            }
-        }
-        finally
-        {
-            if (imeHandle != IntPtr.Zero)
-            {
-                ImmReleaseContext(_windowHandle, imeHandle);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Turns the IME off (closes the IME).
-    /// </summary>
-    public void Off()
-    {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(nameof(WindowsIMEController));
+            throw new ObjectDisposedException(nameof(WindowsIMEControllerService));
         }
 
         IntPtr imeHandle = ImmGetContext(_windowHandle);
@@ -110,7 +85,34 @@ public sealed class WindowsIMEController : IDisposable
     }
 
     /// <summary>
-    /// Releases all resources used by the WindowsIMEController.
+    /// Enables the IME (turns it on).
+    /// </summary>
+    public void EnableIME()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(WindowsIMEControllerService));
+        }
+
+        IntPtr imeHandle = ImmGetContext(_windowHandle);
+        try
+        {
+            if (imeHandle != IntPtr.Zero)
+            {
+                ImmSetOpenStatus(imeHandle, true);
+            }
+        }
+        finally
+        {
+            if (imeHandle != IntPtr.Zero)
+            {
+                ImmReleaseContext(_windowHandle, imeHandle);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Releases all resources used by the WindowsIMEControllerService.
     /// </summary>
     public void Dispose()
     {

@@ -23,15 +23,16 @@ using System;
 using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Input;
+using TeaLauncher.Avalonia.Domain.Interfaces;
 
-namespace TeaLauncher.Avalonia.Platform;
+namespace TeaLauncher.Avalonia.Infrastructure.Platform;
 
 /// <summary>
-/// Windows global hotkey registration component for Avalonia.
+/// Windows global hotkey registration service implementing IHotkeyManager.
 /// Registers system-wide hotkeys using Windows user32.dll APIs.
 /// Must be disposed to unregister the hotkey.
 /// </summary>
-public class WindowsHotkey : IDisposable
+public class WindowsHotkeyService : IHotkeyManager, IDisposable
 {
     [DllImport("user32.dll", SetLastError = true)]
     private static extern int RegisterHotKey(IntPtr hWnd, int id, ModifierKeys modifiers, int vk);
@@ -50,31 +51,55 @@ public class WindowsHotkey : IDisposable
     private const int MIN_HOTKEY_ID = 0x0000;
     private const int MAX_HOTKEY_ID = 0xBFFF;
 
-    private readonly IntPtr _hwnd;
+    private IntPtr _hwnd;
     private int _hotkeyId = -1;
     private bool _disposed = false;
-    private readonly WndProcDelegate? _newWndProc;
+    private WndProcDelegate? _newWndProc;
     private IntPtr _oldWndProc = IntPtr.Zero;
+    private Action? _callback;
+    private Window? _window;
 
     private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
     /// <summary>
-    /// Event raised when the registered hotkey is pressed.
+    /// Gets a value indicating whether a hotkey is currently registered.
     /// </summary>
-    public event EventHandler? HotKeyPressed;
+    public bool IsRegistered => _hotkeyId >= 0;
 
     /// <summary>
-    /// Initializes a new instance of WindowsHotkey and registers the global hotkey.
+    /// Registers a global hotkey with the specified key and modifiers.
     /// </summary>
-    /// <param name="window">The Avalonia window to receive hotkey messages</param>
-    /// <param name="modifiers">Modifier keys (Ctrl, Alt, Shift)</param>
-    /// <param name="key">The key to register</param>
-    /// <exception cref="ArgumentNullException">Thrown when window is null</exception>
-    /// <exception cref="InvalidOperationException">Thrown when hotkey registration fails</exception>
-    public WindowsHotkey(Window window, ModifierKeys modifiers, Key key)
+    /// <param name="key">The key to register.</param>
+    /// <param name="modifiers">The modifier keys (e.g., Ctrl, Alt, Shift).</param>
+    /// <param name="callback">The action to execute when the hotkey is pressed.</param>
+    /// <exception cref="InvalidOperationException">Thrown when hotkey registration fails.</exception>
+    public void RegisterHotkey(Key key, KeyModifiers modifiers, Action callback)
+    {
+        if (callback == null)
+            throw new ArgumentNullException(nameof(callback));
+
+        _callback = callback;
+
+        // For initial registration, we need a window handle
+        // This will be set when the window is available
+        if (_window == null)
+        {
+            throw new InvalidOperationException("Window must be set before registering hotkey. Use SetWindow method.");
+        }
+
+        RegisterHotkeyInternal(key, modifiers);
+    }
+
+    /// <summary>
+    /// Sets the window for hotkey registration. Must be called before RegisterHotkey.
+    /// </summary>
+    /// <param name="window">The Avalonia window to receive hotkey messages.</param>
+    public void SetWindow(Window window)
     {
         if (window == null)
             throw new ArgumentNullException(nameof(window));
+
+        _window = window;
 
         // Get the native Windows handle (HWND) from the Avalonia window
         var platformHandle = window.TryGetPlatformHandle();
@@ -88,6 +113,12 @@ public class WindowsHotkey : IDisposable
         {
             throw new InvalidOperationException("Window handle is zero. Ensure the window is created before registering hotkey.");
         }
+    }
+
+    private void RegisterHotkeyInternal(Key key, KeyModifiers modifiers)
+    {
+        // Convert Avalonia KeyModifiers to Windows ModifierKeys
+        ModifierKeys winModifiers = ConvertKeyModifiers(modifiers);
 
         // Convert Avalonia Key to Windows virtual key code
         int vkCode = ConvertKeyToVirtualKey(key);
@@ -96,7 +127,7 @@ public class WindowsHotkey : IDisposable
         bool registered = false;
         for (int id = MIN_HOTKEY_ID; id <= MAX_HOTKEY_ID; id++)
         {
-            if (RegisterHotKey(_hwnd, id, modifiers, vkCode) != 0)
+            if (RegisterHotKey(_hwnd, id, winModifiers, vkCode) != 0)
             {
                 _hotkeyId = id;
                 registered = true;
@@ -116,6 +147,27 @@ public class WindowsHotkey : IDisposable
     }
 
     /// <summary>
+    /// Unregisters the currently registered hotkey.
+    /// </summary>
+    public void UnregisterHotkey()
+    {
+        if (_hotkeyId >= 0 && _hwnd != IntPtr.Zero)
+        {
+            UnregisterHotKey(_hwnd, _hotkeyId);
+            _hotkeyId = -1;
+        }
+
+        // Restore the original window procedure
+        if (_oldWndProc != IntPtr.Zero && _hwnd != IntPtr.Zero)
+        {
+            SetWindowLongPtr(_hwnd, GWL_WNDPROC, _oldWndProc);
+            _oldWndProc = IntPtr.Zero;
+        }
+
+        _callback = null;
+    }
+
+    /// <summary>
     /// Window procedure to intercept WM_HOTKEY messages.
     /// </summary>
     private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
@@ -125,12 +177,31 @@ public class WindowsHotkey : IDisposable
             int id = wParam.ToInt32();
             if (id == _hotkeyId)
             {
-                HotKeyPressed?.Invoke(this, EventArgs.Empty);
+                _callback?.Invoke();
             }
         }
 
         // Call the original window procedure
         return CallWindowProc(_oldWndProc, hWnd, msg, wParam, lParam);
+    }
+
+    /// <summary>
+    /// Converts Avalonia KeyModifiers to Windows ModifierKeys.
+    /// </summary>
+    private ModifierKeys ConvertKeyModifiers(KeyModifiers modifiers)
+    {
+        ModifierKeys result = ModifierKeys.None;
+
+        if ((modifiers & KeyModifiers.Alt) != 0)
+            result |= ModifierKeys.Alt;
+        if ((modifiers & KeyModifiers.Control) != 0)
+            result |= ModifierKeys.Control;
+        if ((modifiers & KeyModifiers.Shift) != 0)
+            result |= ModifierKeys.Shift;
+        if ((modifiers & KeyModifiers.Meta) != 0)
+            result |= ModifierKeys.Win;
+
+        return result;
     }
 
     /// <summary>
@@ -191,24 +262,13 @@ public class WindowsHotkey : IDisposable
         if (_disposed)
             return;
 
-        if (_hotkeyId >= 0 && _hwnd != IntPtr.Zero)
-        {
-            UnregisterHotKey(_hwnd, _hotkeyId);
-            _hotkeyId = -1;
-        }
-
-        // Restore the original window procedure
-        if (_oldWndProc != IntPtr.Zero && _hwnd != IntPtr.Zero)
-        {
-            SetWindowLongPtr(_hwnd, GWL_WNDPROC, _oldWndProc);
-            _oldWndProc = IntPtr.Zero;
-        }
+        UnregisterHotkey();
 
         _disposed = true;
         GC.SuppressFinalize(this);
     }
 
-    ~WindowsHotkey()
+    ~WindowsHotkeyService()
     {
         Dispose();
     }
@@ -218,7 +278,7 @@ public class WindowsHotkey : IDisposable
 /// Modifier keys for hotkey registration (matches Windows MOD_* constants).
 /// </summary>
 [Flags]
-public enum ModifierKeys
+internal enum ModifierKeys
 {
     None = 0x0000,
     Alt = 0x0001,

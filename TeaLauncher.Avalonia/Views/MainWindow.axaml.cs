@@ -30,10 +30,11 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommandLauncher;
 using TeaLauncher.Avalonia.Configuration;
+using TeaLauncher.Avalonia.Infrastructure.Configuration;
 
 #if WINDOWS
-using TeaLauncher.Avalonia.Platform;
-using ModifierKeys = TeaLauncher.Avalonia.Platform.ModifierKeys;
+using TeaLauncher.Avalonia.Infrastructure.Platform;
+using ModifierKeys = TeaLauncher.Avalonia.Infrastructure.Platform.ModifierKeys;
 #endif
 
 namespace TeaLauncher.Avalonia.Views;
@@ -58,13 +59,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
 
     private readonly CommandManager _commandManager;
-    private readonly YamlConfigLoader _configLoader;
+    private readonly YamlConfigLoaderService _configLoader;
     private string _configFileName;
     private AutoCompleteBox? _commandBox;
 
 #if WINDOWS
-    private WindowsHotkey? _hotkey;
-    private WindowsIMEController? _imeController;
+    private WindowsHotkeyService? _hotkey;
+    private WindowsIMEControllerService? _imeController;
 #endif
 
     public MainWindow() : this("commands.yaml")
@@ -74,7 +75,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
     public MainWindow(string configFileName)
     {
         _commandManager = new CommandManager(this, this, this);
-        _configLoader = new YamlConfigLoader();
+        _configLoader = new YamlConfigLoaderService();
         _configFileName = configFileName;
 
         InitializeComponent();
@@ -132,11 +133,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
                 try
                 {
 #if DEBUG
-                    _hotkey = new WindowsHotkey(this, ModifierKeys.Alt, Key.Space);
+                    _hotkey = new WindowsHotkeyService();
+                    _hotkey.SetWindow(this);
+                    _hotkey.RegisterHotkey(Key.Space, KeyModifiers.Alt, () => Hotkey_Pressed(null, EventArgs.Empty));
 #else
-                    _hotkey = new WindowsHotkey(this, ModifierKeys.Control, Key.Space);
+                    _hotkey = new WindowsHotkeyService();
+                    _hotkey.SetWindow(this);
+                    _hotkey.RegisterHotkey(Key.Space, KeyModifiers.Control, () => Hotkey_Pressed(null, EventArgs.Empty));
 #endif
-                    _hotkey.HotKeyPressed += Hotkey_Pressed;
                 }
                 catch (Exception ex)
                 {
@@ -156,7 +160,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
         _configFileName = fileName;
         _commandManager.ClearCommands();
 
-        var config = _configLoader.LoadConfigFile(fileName);
+        var config = _configLoader.LoadConfiguration(fileName);
 
         foreach (var entry in config.Commands)
         {
@@ -312,7 +316,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
             var handle = this.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
             if (handle != IntPtr.Zero)
             {
-                _imeController = new WindowsIMEController(handle);
+                _imeController = new WindowsIMEControllerService(handle);
             }
         }
 
@@ -320,9 +324,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
         {
             try
             {
-                _imeController.Off();
-                _imeController.On();
-                _imeController.Off();
+                _imeController.DisableIME();
+                _imeController.EnableIME();
+                _imeController.DisableIME();
             }
             catch (Exception ex)
             {
