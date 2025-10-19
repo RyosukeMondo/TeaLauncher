@@ -26,6 +26,7 @@ using Avalonia.Input;
 using Avalonia.VisualTree;
 using FluentAssertions;
 using NUnit.Framework;
+using TeaLauncher.Avalonia.Tests.Utilities;
 using TeaLauncher.Avalonia.Views;
 
 namespace TeaLauncher.Avalonia.Tests.EndToEnd;
@@ -69,7 +70,7 @@ public class UserWorkflowTests
     public void AutoCompletion_TabKey_CompletesCommand()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -104,7 +105,7 @@ public class UserWorkflowTests
     public void CommandInput_EnterKey_ExecutesAndHides()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
         window.IsVisible.Should().BeTrue("window should be visible initially");
 
@@ -147,7 +148,7 @@ public class UserWorkflowTests
     public void EscapeKey_ClearsInput_WindowRemainsVisible()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -182,7 +183,7 @@ public class UserWorkflowTests
     public void EscapeKey_HidesWindow_WhenInputEmpty()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
         window.IsVisible.Should().BeTrue("window should be visible initially");
 
@@ -212,7 +213,7 @@ public class UserWorkflowTests
     public void MultipleCommands_Sequential_ShouldWork()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
         commandBox.Should().NotBeNull("CommandBox control should exist");
@@ -263,7 +264,7 @@ public class UserWorkflowTests
     public void AutoComplete_GetCandidates_ReturnsMultipleMatches()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -302,7 +303,7 @@ public class UserWorkflowTests
     public void InvalidCommand_DoesNotExecute()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");

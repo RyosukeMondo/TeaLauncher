@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -30,6 +31,7 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CommandLauncher;
 using TeaLauncher.Avalonia.Configuration;
+using TeaLauncher.Avalonia.Domain.Interfaces;
 using TeaLauncher.Avalonia.Infrastructure.Configuration;
 
 #if WINDOWS
@@ -60,6 +62,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
 
     private readonly CommandManager _commandManager;
     private readonly YamlConfigLoaderService _configLoader;
+    private readonly IDialogService _dialogService;
     private string _configFileName;
     private AutoCompleteBox? _commandBox;
 
@@ -68,14 +71,39 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
     private WindowsIMEControllerService? _imeController;
 #endif
 
-    public MainWindow() : this("commands.yaml")
+    /// <summary>
+    /// Initializes a new instance of the MainWindow class for design-time use.
+    /// </summary>
+    public MainWindow() : this("commands.yaml", null!)
     {
     }
 
-    public MainWindow(string configFileName)
+    /// <summary>
+    /// Initializes a new instance of the MainWindow class with a custom config file path.
+    /// </summary>
+    /// <param name="configFileName">Path to the configuration file.</param>
+    public MainWindow(string configFileName) : this(configFileName, null!)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the MainWindow class with dependency injection.
+    /// </summary>
+    /// <param name="dialogService">Service for displaying dialogs.</param>
+    public MainWindow(IDialogService dialogService) : this("commands.yaml", dialogService)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the MainWindow class.
+    /// </summary>
+    /// <param name="configFileName">Path to the configuration file.</param>
+    /// <param name="dialogService">Service for displaying dialogs.</param>
+    public MainWindow(string configFileName, IDialogService dialogService)
     {
         _commandManager = new CommandManager(this, this, this);
         _configLoader = new YamlConfigLoaderService();
+        _dialogService = dialogService;
         _configFileName = configFileName;
 
         InitializeComponent();
@@ -420,36 +448,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
                         "--------------------------------\n" +
                         LICENSE;
 
-        ShowMessageBox(version.FileDescription ?? "TeaLauncher", message);
+        // Fire and forget - we don't need to await this
+        _ = _dialogService.ShowMessageAsync(version.FileDescription ?? "TeaLauncher", message);
     }
 
     public void ShowError(string message)
     {
-        ShowMessageBox("Error", message);
-    }
-
-    private void ShowMessageBox(string title, string message)
-    {
-        // Use Avalonia's message box
-        Dispatcher.UIThread.Post(async () =>
-        {
-            var msgBox = new Window
-            {
-                Title = title,
-                Width = 500,
-                Height = 300,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                CanResize = false,
-                Content = new TextBlock
-                {
-                    Text = message,
-                    TextWrapping = TextWrapping.Wrap,
-                    Margin = new Thickness(20)
-                }
-            };
-
-            await msgBox.ShowDialog(this);
-        });
+        // Fire and forget - we don't need to await this
+        _ = _dialogService.ShowErrorAsync("Error", message);
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

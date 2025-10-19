@@ -45,7 +45,7 @@
 
 ## Phase 2: MainWindow Refactoring
 
-- [ ] 5. Refactor MainWindow to inject and use IDialogService
+- [x] 5. Refactor MainWindow to inject and use IDialogService
   - File: TeaLauncher.Avalonia/Views/MainWindow.axaml.cs
   - Add IDialogService constructor parameter
   - Replace all MessageBox.Show calls with IDialogService methods

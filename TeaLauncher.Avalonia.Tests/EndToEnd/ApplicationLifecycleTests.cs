@@ -27,6 +27,7 @@ using Avalonia.Headless.NUnit;
 using CommandLauncher;
 using FluentAssertions;
 using NUnit.Framework;
+using TeaLauncher.Avalonia.Tests.Utilities;
 using TeaLauncher.Avalonia.Views;
 
 namespace TeaLauncher.Avalonia.Tests.EndToEnd;
@@ -76,7 +77,7 @@ public class ApplicationLifecycleTests
         try
         {
             // Act - Create and initialize the MainWindow with test config
-            window = new MainWindow(_testConfigPath);
+            window = new MainWindow(_testConfigPath, new MockDialogService());
 
             // Assert - Window should be created successfully
             window.Should().NotBeNull("the window should be created successfully");
@@ -126,7 +127,7 @@ public class ApplicationLifecycleTests
             // Act - Try to create MainWindow with invalid config
             // Note: The current implementation shows an error dialog but doesn't throw
             // We're testing that the window is still created (error handling is graceful)
-            window = new MainWindow(invalidConfigPath);
+            window = new MainWindow(_testConfigPath, new MockDialogService());
 
             // Assert - Window should still be created (error is shown via dialog, not exception)
             window.Should().NotBeNull("the window should be created even with invalid config");
@@ -167,7 +168,7 @@ public class ApplicationLifecycleTests
     public void WindowVisibility_Toggle_ShouldUpdateState()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
 
         // Act & Assert - Initial state
         window.IsVisible.Should().BeFalse("window should be hidden on creation");
@@ -203,7 +204,7 @@ public class ApplicationLifecycleTests
     public void Configuration_Reload_ShouldSucceed()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
 
         // Act - Trigger reinitialize (simulates !reload command behavior)
         Exception? exception = null;

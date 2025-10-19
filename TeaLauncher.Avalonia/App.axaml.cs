@@ -22,6 +22,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using TeaLauncher.Avalonia.Domain.Interfaces;
 using TeaLauncher.Avalonia.Views;
 using AvaloniaApplication = Avalonia.Application;
 
@@ -45,6 +46,8 @@ public partial class App : AvaloniaApplication
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Read command-line arguments, default to "commands.yaml" if not provided
+            // TODO: Pass config file path to MainWindow when refactoring is complete
+            // For now, MainWindow uses the default "commands.yaml"
             string configFilePath = "commands.yaml";
 
             if (desktop.Args != null && desktop.Args.Length > 0)
@@ -57,21 +60,13 @@ public partial class App : AvaloniaApplication
             if (ServiceProvider != null)
             {
                 desktop.MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-
-                // Pass the config file path to the MainWindow
-                // For now, we still use the parameterized constructor until the orchestrator
-                // handles configuration loading (will be refactored in later tasks)
-                if (desktop.MainWindow is MainWindow mainWindow)
-                {
-                    // The MainWindow constructor already handles the config file path
-                    // This will be refactored when ApplicationOrchestrator is fully implemented
-                }
             }
             else
             {
                 // Fallback to direct instantiation if ServiceProvider is not available
                 // (e.g., in design mode or testing)
-                desktop.MainWindow = new MainWindow(configFilePath);
+                // Note: This will use the parameterless constructor which has null! for dialogService
+                desktop.MainWindow = new MainWindow();
             }
         }
 

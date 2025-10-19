@@ -24,6 +24,7 @@ using Avalonia.Headless.NUnit;
 using Avalonia.Input;
 using FluentAssertions;
 using NUnit.Framework;
+using TeaLauncher.Avalonia.Tests.Utilities;
 using TeaLauncher.Avalonia.Views;
 
 namespace TeaLauncher.Avalonia.Tests.EndToEnd;
@@ -67,7 +68,7 @@ public class SpecialCommandsTests
     public void ReloadCommand_UpdatesCommands_ShouldSucceed()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -124,7 +125,7 @@ public class SpecialCommandsTests
     public void VersionCommand_ShowsVersion_ShouldExecute()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -166,7 +167,7 @@ public class SpecialCommandsTests
     public void ExitCommand_ClosesApp_ShouldExit()
     {
         // Arrange
-        MainWindow? window = new MainWindow(_testConfigPath);
+        MainWindow? window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -211,7 +212,7 @@ public class SpecialCommandsTests
     public void SpecialCommand_ClearsInputAndHidesWindow()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
         window.IsVisible.Should().BeTrue("window should be visible initially");
 
@@ -253,7 +254,7 @@ public class SpecialCommandsTests
     public void InvalidSpecialCommand_DoesNotExecute()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
@@ -294,7 +295,7 @@ public class SpecialCommandsTests
     public void ReloadCommand_WithInvalidConfig_HandlesError()
     {
         // Arrange
-        var window = new MainWindow(_testConfigPath);
+        var window = new MainWindow(_testConfigPath, new MockDialogService());
         window.Show();
 
         var commandBox = window.FindControl<AutoCompleteBox>("CommandBox");
