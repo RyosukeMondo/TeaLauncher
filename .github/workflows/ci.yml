@@ -1,0 +1,84 @@
+name: CI Build
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+
+    - name: Restore test dependencies
+      run: dotnet restore TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj
+
+    - name: Build application
+      run: dotnet build TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --configuration Release --no-restore
+
+    - name: Build tests
+      run: dotnet build TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --no-build --verbosity minimal --configuration Release
+
+    - name: Run tests with coverage
+      run: dotnet test TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+    - name: Install coverage report generator
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool || dotnet tool update --global dotnet-reportgenerator-globaltool
+
+    - name: Generate coverage report
+      shell: bash
+      run: |
+        reportgenerator \
+          -reports:./coverage/**/coverage.cobertura.xml \
+          -targetdir:./coverage-report \
+          -reporttypes:"Html;Cobertura"
+
+    - name: Check coverage threshold (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: bash scripts/check-coverage.sh
+
+    - name: Check coverage threshold (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      run: bash scripts/check-coverage.sh
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report-${{ matrix.os }}
+        path: ./coverage-report
+        retention-days: 30
+
+    - name: Check code metrics
+      run: dotnet run --project tools/MetricsChecker/MetricsChecker.csproj -- TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+
+    - name: Check code formatting
+      run: dotnet format TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --verify-no-changes
