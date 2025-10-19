@@ -54,7 +54,7 @@
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 7.1, 7.2, 7.3, 7.4, 7.5_
   - _Prompt: Role: Windows Platform Developer with expertise in P/Invoke and native API integration | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create WindowsHotkey class that registers global hotkey using RegisterHotKey/UnregisterHotKey from user32.dll following requirements 2.1-2.5 and 7.1-7.5. Get HWND from Avalonia window using TryGetPlatformHandle().Handle. Implement ID range search (0x0000-0xBFFF). Hook WM_HOTKEY (0x0312) messages. Expose HotKeyPressed event. Implement IDisposable for cleanup. Support ModifierKeys and Key parameters. | Restrictions: Do not use Windows Forms, must work with Avalonia Window directly, must try alternative IDs if registration fails, must unregister on Dispose, do not create abstraction layers | Success: RegisterHotKey succeeds with valid HWND, hotkey press triggers HotKeyPressed event, alternative IDs tried if first fails, UnregisterHotKey called on Dispose, supports both Ctrl+Space and Alt+Space configurations, compiles with win-x64 target | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 7. Create WindowsIMEController component
+- [x] 7. Create WindowsIMEController component
   - File: TeaLauncher.Avalonia/Platform/WindowsIMEController.cs
   - Implement IME control using Windows Imm32.dll P/Invoke
   - Remove Form inheritance, use standalone class with HWND
