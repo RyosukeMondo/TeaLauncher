@@ -22,6 +22,7 @@ using TeaLauncher.Avalonia.Application.Orchestration;
 using TeaLauncher.Avalonia.Application.Services;
 using TeaLauncher.Avalonia.Domain.Interfaces;
 using TeaLauncher.Avalonia.Infrastructure.Configuration;
+using TeaLauncher.Avalonia.Infrastructure.UI;
 using TeaLauncher.Avalonia.Views;
 
 #if WINDOWS
@@ -59,6 +60,9 @@ public static class ServiceConfiguration
         // Register Orchestration and UI components as Transient (per-operation/request)
         services.AddTransient<ApplicationOrchestrator>();
         services.AddTransient<MainWindow>();
+
+        // Register UI services as Transient (dialogs are stateless, per-operation)
+        services.AddTransient<IDialogService, AvaloniaDialogService>();
 
         return services;
     }

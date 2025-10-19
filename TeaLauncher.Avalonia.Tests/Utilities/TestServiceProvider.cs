@@ -18,6 +18,7 @@
  */
 
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using TeaLauncher.Avalonia.Application.Orchestration;
 using TeaLauncher.Avalonia.Application.Services;
 using TeaLauncher.Avalonia.Domain.Interfaces;
@@ -48,6 +49,9 @@ public static class TestServiceProvider
         services.AddSingleton(Substitute.For<IHotkeyManager>());
         services.AddSingleton(Substitute.For<IIMEController>());
 
+        // Register MockDialogService for headless test compatibility
+        services.AddTransient<IDialogService, MockDialogService>();
+
         // Register orchestrator as transient (will receive mocked dependencies)
         services.AddTransient<ApplicationOrchestrator>();
 
@@ -75,6 +79,9 @@ public static class TestServiceProvider
         // Mock platform-specific services for cross-platform test compatibility
         services.AddSingleton(Substitute.For<IHotkeyManager>());
         services.AddSingleton(Substitute.For<IIMEController>());
+
+        // Register MockDialogService (headless mode cannot show real Avalonia dialogs)
+        services.AddTransient<IDialogService, MockDialogService>();
 
         // Register orchestrator
         services.AddTransient<ApplicationOrchestrator>();
