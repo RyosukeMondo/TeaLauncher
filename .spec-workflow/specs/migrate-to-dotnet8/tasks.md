@@ -149,7 +149,7 @@
   - _Requirements: 6.1, 6.2, 8.3_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Tester with expertise in configuration and data handling | Task: Perform configuration testing on Windows following requirements 6.1, 6.2, and 8.3 to verify ConfigLoader with Dictionary works correctly. While TeaLauncher is running, open resource/conf/my.conf in a text editor. Add a new command section like '[test_command]\nlinkto = http://example.com'. Save the file. In TeaLauncher, type '!reload' and press Enter. Verify no errors occur. Type 'test' and press Tab to trigger auto-completion. Verify 'test_command' appears as an option. Execute the command to verify it works. This confirms that Dictionary-based ConfigLoader parses and loads configuration correctly. | Restrictions: Use the [section] and key=value format from existing my.conf, do not introduce syntax errors intentionally, test reload functionality specifically | Success: Configuration file modifications are detected via !reload, new commands are loaded and available, auto-completion includes newly added commands, Dictionary-based ConfigLoader works identically to Hashtable version, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 17. Performance and memory verification
+- [x] 17. Performance and memory verification
   - Measure: Application startup time (target: ≤ 300ms)
   - Measure: Hotkey response time (target: < 100ms)
   - Measure: Memory footprint after 60s idle (target: ≤ 20MB)

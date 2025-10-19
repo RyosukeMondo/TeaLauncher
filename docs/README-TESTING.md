@@ -16,6 +16,25 @@ This directory contains testing documentation and scripts for the .NET 8 migrati
 - **Status**: Ready for execution on Windows
 - **Requirements**: Windows 10/11, Task 13 completed, real hardware recommended (not VM)
 
+### Task 15: Command Execution Testing
+- **Test Plan**: [manual-test-task15.md](manual-test-task15.md)
+- **Interactive Script**: [test-command-execution.ps1](test-command-execution.ps1)
+- **Status**: Ready for execution on Windows
+- **Requirements**: Windows 10/11, Tasks 13-14 completed
+
+### Task 16: Configuration File Parsing Testing
+- **Test Plan**: [manual-test-task16.md](manual-test-task16.md)
+- **Interactive Script**: [test-config-parsing.ps1](test-config-parsing.ps1)
+- **Status**: Ready for execution on Windows
+- **Requirements**: Windows 10/11, Tasks 13-15 completed
+
+### Task 17: Performance and Memory Verification
+- **Test Plan**: [manual-test-task17.md](manual-test-task17.md)
+- **Automated Script**: [test-performance.ps1](test-performance.ps1)
+- **Status**: Ready for execution on Windows
+- **Requirements**: Windows 10/11, Release build (not Debug), real hardware recommended
+- **Targets**: Startup ≤ 300ms, Hotkey response < 100ms, Memory ≤ 20MB idle
+
 ## How to Execute Tests
 
 ### On Windows
@@ -32,6 +51,15 @@ This directory contains testing documentation and scripts for the .NET 8 migrati
 
    # Task 14 - Hotkey and UI testing (requires TeaLauncher running)
    .\test-hotkey-ui.ps1
+
+   # Task 15 - Command execution testing
+   .\test-command-execution.ps1
+
+   # Task 16 - Configuration parsing testing
+   .\test-config-parsing.ps1
+
+   # Task 17 - Performance and memory verification (Release build required)
+   .\test-performance.ps1
    ```
 
 3. **Manual verification**:
