@@ -9,7 +9,7 @@
   - _Requirements: 6.1, 6.2_
   - _Prompt: Role: .NET Build Engineer specializing in cross-platform compilation and project configuration | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create a new .NET 8 Avalonia project configured for Windows targeting (net8.0-windows) with cross-compilation support from Linux, following requirements 6.1 and 6.2. Configure NuGet packages for Avalonia 11.2.2 and YamlDotNet 16.3.0. Set up build properties for single-file executable output with win-x64 runtime identifier. | Restrictions: Do not modify existing CommandLauncher project, use separate project directory, ensure PublishSingleFile and SelfContained are enabled, do not include cross-platform abstractions | Success: Project compiles successfully on Linux with `dotnet build -r win-x64`, all Avalonia and YamlDotNet packages restore correctly, project file includes proper Windows targeting, output is configured for single-file deployment | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 2. Create YAML configuration models
+- [x] 2. Create YAML configuration models
   - File: TeaLauncher.Avalonia/Configuration/CommandConfig.cs
   - Define strongly-typed C# records for YAML configuration structure
   - Add YamlDotNet attributes and validation
