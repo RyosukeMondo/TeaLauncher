@@ -23,6 +23,7 @@ using FluentAssertions;
 using TeaLauncher.Avalonia.Application.Services;
 using TeaLauncher.Avalonia.Domain.Interfaces;
 using TeaLauncher.Avalonia.Domain.Models;
+using TeaLauncher.Avalonia.Tests.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -497,6 +498,111 @@ public class CommandExecutorServiceTests
         execution.Should().Be("C:\\Windows\\notepad.exe");
         arguments.Should().ContainSingle()
             .Which.Should().Be("myfile.txt");
+    }
+
+    #endregion
+
+    #region Edge Case Tests
+
+    /// <summary>
+    /// Tests that GetArguments correctly parses arguments containing embedded double quotes.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithEmbeddedQuotes_ParsesCorrectly()
+    {
+        // Arrange
+        var input = "cmd arg with \"nested quotes\" inside";
+
+        // Act
+        var result = _service.GetArguments(input);
+
+        // Assert
+        result.Should().Contain("nested quotes");
+    }
+
+    /// <summary>
+    /// Tests that GetArguments handles Windows-style backslash paths with quotes correctly.
+    /// Backslash paths with spaces need to be quoted to be treated as a single argument.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithQuotedBackslashPaths_HandlesCorrectly()
+    {
+        // Arrange
+        var input = "notepad \"C:\\Program Files\\My App\\app.exe\"";
+
+        // Act
+        var result = _service.GetArguments(input);
+
+        // Assert
+        result.Should().ContainSingle()
+            .Which.Should().Be("C:\\Program Files\\My App\\app.exe");
+    }
+
+    /// <summary>
+    /// Tests that GetArguments handles unicode filenames in arguments correctly.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithUnicodeInArguments_ExecutesCorrectly()
+    {
+        // Arrange
+        var input = $"notepad {EdgeCaseTestFixtures.SpecialCharacterArguments[14]}"; // файл.txt
+
+        // Act
+        var result = _service.GetArguments(input);
+
+        // Assert
+        result.Should().ContainSingle()
+            .Which.Should().Be("файл.txt");
+    }
+
+    /// <summary>
+    /// Tests that GetExecution handles unicode command names correctly.
+    /// </summary>
+    [Test]
+    public void GetExecution_WithUnicodeCommandName_ReturnsCorrectly()
+    {
+        // Arrange
+        var unicodeCommand = EdgeCaseTestFixtures.UnicodeCommandNames[0]; // 搜索
+
+        // Act
+        var result = _service.GetExecution(unicodeCommand);
+
+        // Assert
+        result.Should().Be("搜索");
+    }
+
+    /// <summary>
+    /// Tests that GetArguments handles arguments with pipes correctly (not as shell redirection).
+    /// </summary>
+    [Test]
+    public void GetArguments_WithPipeCharacters_TreatsAsLiteral()
+    {
+        // Arrange
+        var input = "cmd arg|with|pipes";
+
+        // Act
+        var result = _service.GetArguments(input);
+
+        // Assert
+        result.Should().ContainSingle()
+            .Which.Should().Be("arg|with|pipes");
+    }
+
+    /// <summary>
+    /// Tests that GetArguments handles arguments with ampersands correctly.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithAmpersandCharacters_TreatsAsLiteral()
+    {
+        // Arrange
+        var input = "cmd arg&with&ampersand";
+
+        // Act
+        var result = _service.GetArguments(input);
+
+        // Assert
+        result.Should().ContainSingle()
+            .Which.Should().Be("arg&with&ampersand");
     }
 
     #endregion

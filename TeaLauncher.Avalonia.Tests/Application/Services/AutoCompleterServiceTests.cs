@@ -20,6 +20,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using TeaLauncher.Avalonia.Application.Services;
+using TeaLauncher.Avalonia.Tests.Utilities;
 
 namespace TeaLauncher.Avalonia.Tests.Application.Services;
 
@@ -351,6 +352,103 @@ public class AutoCompleterServiceTests
         candidates.Should().HaveCount(3);
         candidates.Should().NotContain("old1");
         candidates.Should().NotContain("old2");
+    }
+
+    #endregion
+
+    #region Edge Case Tests
+
+    /// <summary>
+    /// Tests that GetCandidates returns unicode words correctly.
+    /// </summary>
+    [Test]
+    public void GetCandidates_UnicodeWords_ReturnsCorrectly()
+    {
+        // Arrange
+        var unicodeWords = new[] {
+            EdgeCaseTestFixtures.UnicodeCommandNames[0], // 搜索
+            EdgeCaseTestFixtures.UnicodeCommandNames[4], // 検索
+            "search"
+        };
+        _service.UpdateWordList(unicodeWords);
+
+        // Act
+        var candidates = _service.GetCandidates("搜");
+
+        // Assert
+        candidates.Should().ContainSingle()
+            .Which.Should().Be("搜索");
+    }
+
+    /// <summary>
+    /// Tests that AutoCompleteWord returns empty string when word list is empty.
+    /// </summary>
+    [Test]
+    public void AutoComplete_EmptyWordList_ReturnsEmptyString()
+    {
+        // Arrange
+        _service.UpdateWordList(Array.Empty<string>());
+
+        // Act
+        var result = _service.AutoCompleteWord("test");
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    /// <summary>
+    /// Tests that UpdateWordList throws ArgumentNullException for null input.
+    /// </summary>
+    [Test]
+    public void UpdateWordList_WithNull_ThrowsArgumentNullException()
+    {
+        // Arrange & Act
+        Action act = () => _service.UpdateWordList(null!);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    /// <summary>
+    /// Tests that GetCandidates handles unicode prefix correctly.
+    /// </summary>
+    [Test]
+    public void GetCandidates_WithUnicodePrefix_MatchesCorrectly()
+    {
+        // Arrange
+        var unicodeWords = new[] {
+            EdgeCaseTestFixtures.UnicodeCommandNames[11], // café
+            EdgeCaseTestFixtures.UnicodeCommandNames[12], // naïve
+            "cabin"
+        };
+        _service.UpdateWordList(unicodeWords);
+
+        // Act
+        var candidates = _service.GetCandidates("ca");
+
+        // Assert
+        candidates.Should().Contain("café");
+        candidates.Should().Contain("cabin");
+    }
+
+    /// <summary>
+    /// Tests that AutoCompleteWord handles emoji correctly.
+    /// </summary>
+    [Test]
+    public void AutoCompleteWord_WithEmoji_HandlesCorrectly()
+    {
+        // Arrange
+        var emojiWords = new[] {
+            EdgeCaseTestFixtures.UnicodeCommandNames[9],  // 🔍search
+            EdgeCaseTestFixtures.UnicodeCommandNames[10]  // search🚀
+        };
+        _service.UpdateWordList(emojiWords);
+
+        // Act
+        var result = _service.AutoCompleteWord("🔍");
+
+        // Assert
+        result.Should().Be("🔍search");
     }
 
     #endregion

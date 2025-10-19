@@ -23,6 +23,7 @@ using FluentAssertions;
 using TeaLauncher.Avalonia.Application.Services;
 using TeaLauncher.Avalonia.Domain.Interfaces;
 using TeaLauncher.Avalonia.Domain.Models;
+using TeaLauncher.Avalonia.Tests.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -534,6 +535,102 @@ public class CommandRegistryServiceTests
         _service.ClearCommands();
         _mockAutoCompleter.Received(1).UpdateWordList(
             Arg.Is<IEnumerable<string>>(words => !words.Any()));
+    }
+
+    #endregion
+
+    #region Edge Case Tests
+
+    /// <summary>
+    /// Tests that RegisterCommand stores unicode command names correctly.
+    /// </summary>
+    [Test]
+    public void RegisterCommand_WithUnicodeNames_StoresCorrectly()
+    {
+        // Arrange
+        var unicodeName = EdgeCaseTestFixtures.UnicodeCommandNames[0]; // 搜索
+        var command = new Command(unicodeName, "https://www.google.com");
+
+        // Act
+        _service.RegisterCommand(command);
+
+        // Assert
+        _service.HasCommand(unicodeName).Should().BeTrue();
+        _service.GetAllCommands().Should().ContainSingle()
+            .Which.Name.Should().Be(unicodeName);
+    }
+
+    /// <summary>
+    /// Tests that HasCommand finds unicode commands correctly (case-insensitive where applicable).
+    /// </summary>
+    [Test]
+    public void HasCommand_WithUnicodeLookup_FindsCorrectly()
+    {
+        // Arrange
+        var unicodeName = EdgeCaseTestFixtures.UnicodeCommandNames[11]; // café
+        var command = new Command(unicodeName, "https://www.example.com");
+        _service.RegisterCommand(command);
+
+        // Act
+        var result = _service.HasCommand("café");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    /// <summary>
+    /// Tests that GetAllCommands returns empty list when registry is empty.
+    /// This verifies the edge case of an empty registry.
+    /// </summary>
+    [Test]
+    public void GetAllCommands_EmptyRegistry_ReturnsEmpty()
+    {
+        // Arrange - registry is already empty from SetUp
+
+        // Act
+        var commands = _service.GetAllCommands();
+
+        // Assert
+        commands.Should().NotBeNull();
+        commands.Should().BeEmpty();
+    }
+
+    /// <summary>
+    /// Tests that RegisterCommand handles emoji in command names correctly.
+    /// </summary>
+    [Test]
+    public void RegisterCommand_WithEmojiInName_StoresCorrectly()
+    {
+        // Arrange
+        var emojiCommand = EdgeCaseTestFixtures.UnicodeCommandNames[9]; // 🔍search
+        var command = new Command(emojiCommand, "https://www.google.com");
+
+        // Act
+        _service.RegisterCommand(command);
+
+        // Assert
+        _service.HasCommand(emojiCommand).Should().BeTrue();
+        _service.GetAllCommands().Should().ContainSingle()
+            .Which.Name.Should().Be(emojiCommand);
+    }
+
+    /// <summary>
+    /// Tests that RegisterCommand handles mixed-script command names correctly.
+    /// </summary>
+    [Test]
+    public void RegisterCommand_WithMixedScriptName_StoresCorrectly()
+    {
+        // Arrange
+        var mixedScript = EdgeCaseTestFixtures.UnicodeCommandNames[15]; // search検索
+        var command = new Command(mixedScript, "https://www.example.com");
+
+        // Act
+        _service.RegisterCommand(command);
+
+        // Assert
+        _service.HasCommand(mixedScript).Should().BeTrue();
+        _service.GetAllCommands().Should().ContainSingle()
+            .Which.Name.Should().Be(mixedScript);
     }
 
     #endregion

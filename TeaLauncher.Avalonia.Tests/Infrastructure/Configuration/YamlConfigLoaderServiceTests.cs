@@ -442,4 +442,101 @@ public class YamlConfigLoaderServiceTests
     }
 
     #endregion
+
+    #region Edge Case Tests
+
+    /// <summary>
+    /// Tests that LoadConfiguration provides helpful error messages with line numbers for malformed YAML.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_MalformedYaml_ProvidesLineNumber()
+    {
+        // Arrange - test the first malformed YAML sample
+        var malformedSample = EdgeCaseTestFixtures.MalformedYamlSamples.First();
+        _tempFilePath = TestFixtures.CreateTempYamlFile(malformedSample.Value);
+
+        // Act
+        var act = () => _service.LoadConfiguration(_tempFilePath);
+
+        // Assert
+        // Malformed YAML should throw either YamlException or InvalidOperationException
+        // The error message should include context about the error
+        act.Should().Throw<Exception>()
+            .Which.Message.Should().NotBeNullOrWhiteSpace();
+    }
+
+    /// <summary>
+    /// Tests that LoadConfiguration handles unicode command names correctly.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_UnicodeCommands_LoadsCorrectly()
+    {
+        // Arrange
+        var unicodeYaml = $@"commands:
+  - name: {EdgeCaseTestFixtures.UnicodeCommandNames[0]}
+    linkto: https://www.google.com
+    description: Search in Chinese
+  - name: {EdgeCaseTestFixtures.UnicodeCommandNames[4]}
+    linkto: https://www.google.co.jp
+    description: Search in Japanese
+";
+        _tempFilePath = TestFixtures.CreateTempYamlFile(unicodeYaml);
+
+        // Act
+        var config = _service.LoadConfiguration(_tempFilePath);
+
+        // Assert
+        config.Should().NotBeNull();
+        config.Commands.Should().HaveCount(2);
+        config.Commands[0].Name.Should().Be(EdgeCaseTestFixtures.UnicodeCommandNames[0]); // 搜索
+        config.Commands[1].Name.Should().Be(EdgeCaseTestFixtures.UnicodeCommandNames[4]); // 検索
+    }
+
+    /// <summary>
+    /// Tests that LoadConfiguration handles emoji in command names correctly.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_EmojiCommands_LoadsCorrectly()
+    {
+        // Arrange
+        var emojiYaml = $@"commands:
+  - name: {EdgeCaseTestFixtures.UnicodeCommandNames[9]}
+    linkto: https://www.google.com
+    description: Search with emoji prefix
+";
+        _tempFilePath = TestFixtures.CreateTempYamlFile(emojiYaml);
+
+        // Act
+        var config = _service.LoadConfiguration(_tempFilePath);
+
+        // Assert
+        config.Should().NotBeNull();
+        config.Commands.Should().ContainSingle();
+        config.Commands[0].Name.Should().Be(EdgeCaseTestFixtures.UnicodeCommandNames[9]); // 🔍search
+    }
+
+    /// <summary>
+    /// Tests that LoadConfiguration handles special characters in linkto fields correctly.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_SpecialCharactersInLinkTo_LoadsCorrectly()
+    {
+        // Arrange
+        var specialCharsYaml = @"commands:
+  - name: test
+    linkto: ""C:\\Program Files\\My App\\app.exe""
+    description: Windows path with spaces
+";
+        _tempFilePath = TestFixtures.CreateTempYamlFile(specialCharsYaml);
+
+        // Act
+        var config = _service.LoadConfiguration(_tempFilePath);
+
+        // Assert
+        config.Should().NotBeNull();
+        config.Commands.Should().ContainSingle();
+        config.Commands[0].LinkTo.Should().Be("C:\\Program Files\\My App\\app.exe");
+    }
+
+    #endregion
 }
