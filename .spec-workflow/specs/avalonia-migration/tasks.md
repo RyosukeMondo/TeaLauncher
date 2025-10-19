@@ -27,7 +27,7 @@
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 8.2, 8.3_
   - _Prompt: Role: Backend Developer with expertise in configuration parsing and error handling | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Implement YamlConfigLoader class that loads commands.yaml using YamlDotNet following requirements 4.1-4.4 and 8.2-8.3. Include methods LoadConfigFile(string filePath) returning CommandsConfig, with proper exception handling for FileNotFoundException, YamlException, and validation errors. Provide clear error messages with line numbers for syntax errors. | Restrictions: Do not catch all exceptions generically, provide specific error messages for each failure type, do not modify YamlDotNet behavior, ensure line number reporting works | Success: Successfully deserializes valid YAML files, throws meaningful exceptions for missing files with file paths, throws YamlException with line/column information for syntax errors, validates required fields and reports missing field names, ignores unknown fields gracefully | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 4. Create unit tests for YamlConfigLoader
+- [x] 4. Create unit tests for YamlConfigLoader
   - File: TeaLauncher.Avalonia.Tests/Configuration/YamlConfigLoaderTests.cs
   - Write comprehensive tests for YAML parsing and error scenarios
   - Test valid configuration, invalid syntax, missing fields
