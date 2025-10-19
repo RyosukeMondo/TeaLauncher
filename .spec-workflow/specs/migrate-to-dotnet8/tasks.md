@@ -82,7 +82,7 @@
   - _Requirements: 8.1, 8.2_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Automation Engineer with expertise in .NET testing and CI/CD | Task: Execute unit tests on Linux following requirements 8.1 and 8.2 to verify that logic-based tests run successfully. Run 'dotnet test' from the solution directory. Verify that Test_AutoCompleteMachine and Test_ConfigLoader tests are discovered and executed. Check that all tests pass. Note: UI tests and P/Invoke tests will not run on Linux (Windows Forms and user32.dll are Windows-specific), so expect those to be skipped or fail if they exist. Focus on AutoCompleteMachine and ConfigLoader tests passing. | Restrictions: Run on Linux only, use 'dotnet test' command, do not modify test code to make them pass, do not skip tests manually | Success: 'dotnet test' discovers all test classes, AutoCompleteMachine tests pass (prefix matching, word registration), ConfigLoader tests pass (configuration parsing with Dictionary), test summary shows pass rate, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 10. Update README with .NET 8 build instructions
+- [x] 10. Update README with .NET 8 build instructions
   - File: README
   - Add .NET 8 SDK installation instructions
   - Document build commands for Linux and Windows

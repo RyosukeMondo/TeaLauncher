@@ -3,9 +3,47 @@
 Windows Simple Keystroke Launcher.
 
 
+= Building with .NET 8 =
+
+== Installation ==
+
+Install .NET 8 SDK:
+
+Linux:
+  wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+  chmod +x ./dotnet-install.sh
+  ./dotnet-install.sh --channel 8.0
+
+Windows:
+  Download and install .NET 8 SDK from:
+  https://dotnet.microsoft.com/download/dotnet/8.0
+
+== Build Commands ==
+
+Linux (cross-compile to Windows):
+  dotnet build -r win-x64
+
+Windows:
+  dotnet build
+
+== Test Commands ==
+
+Run unit tests:
+  dotnet test
+
+== Publish Commands ==
+
+Framework-dependent deployment (requires .NET 8 Desktop Runtime on target):
+  dotnet publish -c Release -r win-x64
+
+Self-contained deployment (no runtime required, larger size):
+  dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+
 == Usage ==
 
-install .NET Framework 3.5 (+)
+For framework-dependent builds, install .NET 8 Desktop Runtime:
+  https://dotnet.microsoft.com/download/dotnet/8.0
 
 run:
 TeaLauncher.exe conf/my.conf
