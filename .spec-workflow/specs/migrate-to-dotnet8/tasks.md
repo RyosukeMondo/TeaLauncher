@@ -64,7 +64,7 @@
   - _Requirements: 5.4_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Windows Interop Specialist with expertise in P/Invoke and .NET runtime | Task: Review CommandLauncher/Hotkey.cs following requirement 5.4 to verify P/Invoke declarations are compatible with .NET 8. Check DllImport attributes for user32.dll RegisterHotKey and UnregisterHotKey. Verify IntPtr, MOD_KEY enum, Keys enum, and WM_HOTKEY constant are correctly declared. .NET 8 maintains backward compatibility with .NET Framework P/Invoke, so changes should only be needed if there are compilation errors. The code should work as-is, but verify marshalling of types is correct. | Restrictions: Do not change P/Invoke signatures unless compilation fails, maintain exact Windows API calling convention, preserve MOD_KEY enum values, do not modify hotkey registration logic | Success: Hotkey.cs compiles without P/Invoke warnings, no marshalling errors, code structure unchanged unless .NET 8 requires it, ready for runtime testing on Windows, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 8. Build verification on Linux
+- [x] 8. Build verification on Linux
   - Run full build on Linux development environment
   - Verify Windows executable is produced
   - Check build output and warnings
