@@ -131,7 +131,7 @@
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Tester with expertise in UI testing and keyboard interactions | Task: Perform manual UI and hotkey testing on Windows following requirements 5.1 through 5.5 to verify Windows Forms and P/Invoke functionality. With TeaLauncher running, press Ctrl+Space from any application (e.g., Notepad, browser). Verify the input window appears quickly (< 100ms). Type a partial command name and press Tab to test auto-completion. Verify that matching commands appear. Press Escape to hide the window. Verify window disappears immediately. Test that you can show the window again with Ctrl+Space. Check that focus returns to the textbox when window appears. | Restrictions: Test on real Windows hardware (not Wine or VM if possible for accurate hotkey testing), verify both show and hide behavior, test auto-completion with commands from my.conf | Success: Ctrl+Space shows input window in < 100ms, auto-completion works with Tab key, Escape hides window immediately, window can be shown/hidden repeatedly, textbox receives focus correctly, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 15. Manual testing on Windows - Command execution
+- [x] 15. Manual testing on Windows - Command execution
   - Test: Execute URL command (http://, https://, ftp://)
   - Test: Execute file path command
   - Test: Execute special commands (!reload, !exit, !version)
