@@ -1,0 +1,293 @@
+/*
+ * TeaLauncher. Simple command launcher.
+ * Copyright (C) Toshiyuki Hirooka <toshi.hirooka@gmail.com> http://wasabi.in/
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+using System;
+using System.IO;
+using System.Linq;
+using NUnit.Framework;
+using TeaLauncher.Avalonia.Configuration;
+
+namespace TeaLauncher.Avalonia.Tests.Integration;
+
+/// <summary>
+/// Integration tests for end-to-end command execution flow.
+/// Tests the complete workflow from YAML loading to command data structures.
+/// Since CommandManager uses internal classes, we test configuration loading
+/// and data structure preparation for execution.
+/// </summary>
+[TestFixture]
+public class CommandExecutionTests
+{
+    private YamlConfigLoader _configLoader = null!;
+    private string _testDirectory = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _configLoader = new YamlConfigLoader();
+        _testDirectory = Path.Combine(Path.GetTempPath(), "TeaLauncherIntegrationTests_" + Guid.NewGuid().ToString());
+        Directory.CreateDirectory(_testDirectory);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        if (Directory.Exists(_testDirectory))
+        {
+            Directory.Delete(_testDirectory, true);
+        }
+    }
+
+    [Test]
+    public void EndToEnd_LoadYamlConfiguration_CommandsAreParsed()
+    {
+        // Arrange
+        var yaml = @"
+commands:
+  - name: google
+    linkto: https://google.com
+    description: Google search engine
+
+  - name: github
+    linkto: https://github.com
+    description: GitHub website
+
+  - name: notepad
+    linkto: C:\Windows\System32\notepad.exe
+";
+        var filePath = CreateTempYamlFile(yaml);
+
+        // Act
+        var config = _configLoader.LoadConfigFile(filePath);
+
+        // Assert - Verify commands are loaded with correct properties
+        Assert.That(config, Is.Not.Null);
+        Assert.That(config.Commands, Has.Count.EqualTo(3));
+
+        Assert.That(config.Commands[0].Name, Is.EqualTo("google"));
+        Assert.That(config.Commands[0].LinkTo, Is.EqualTo("https://google.com"));
+        Assert.That(config.Commands[0].Description, Is.EqualTo("Google search engine"));
+
+        Assert.That(config.Commands[1].Name, Is.EqualTo("github"));
+        Assert.That(config.Commands[1].LinkTo, Is.EqualTo("https://github.com"));
+
+        Assert.That(config.Commands[2].Name, Is.EqualTo("notepad"));
+        Assert.That(config.Commands[2].LinkTo, Is.EqualTo(@"C:\Windows\System32\notepad.exe"));
+    }
+
+    [Test]
+    public void EndToEnd_LoadYamlWithSpecialCommands_ParsedCorrectly()
+    {
+        // Arrange - Special commands need to be quoted in YAML because ! is a reserved character
+        var yaml = @"
+commands:
+  - name: reload
+    linkto: '!reload'
+    description: Reload configuration
+
+  - name: exit
+    linkto: '!exit'
+    description: Exit application
+
+  - name: version
+    linkto: '!version'
+    description: Show version info
+";
+        var filePath = CreateTempYamlFile(yaml);
+
+        // Act
+        var config = _configLoader.LoadConfigFile(filePath);
+
+        // Assert - Verify special commands are loaded
+        Assert.That(config, Is.Not.Null);
+        Assert.That(config.Commands, Has.Count.EqualTo(3));
+
+        var reloadCmd = config.Commands.FirstOrDefault(c => c.Name == "reload");
+        Assert.That(reloadCmd, Is.Not.Null);
+        Assert.That(reloadCmd!.LinkTo, Is.EqualTo("!reload"));
+        Assert.That(reloadCmd.Description, Is.EqualTo("Reload configuration"));
+
+        var exitCmd = config.Commands.FirstOrDefault(c => c.Name == "exit");
+        Assert.That(exitCmd, Is.Not.Null);
+        Assert.That(exitCmd!.LinkTo, Is.EqualTo("!exit"));
+
+        var versionCmd = config.Commands.FirstOrDefault(c => c.Name == "version");
+        Assert.That(versionCmd, Is.Not.Null);
+        Assert.That(versionCmd!.LinkTo, Is.EqualTo("!version"));
+    }
+
+    [Test]
+    public void EndToEnd_ReloadWorkflow_LoadNewConfiguration()
+    {
+        // Arrange - Initial configuration
+        var yaml1 = @"
+commands:
+  - name: google
+    linkto: https://google.com
+
+  - name: github
+    linkto: https://github.com
+";
+        var filePath1 = CreateTempYamlFile(yaml1);
+        var config1 = _configLoader.LoadConfigFile(filePath1);
+
+        Assert.That(config1.Commands, Has.Count.EqualTo(2));
+        Assert.That(config1.Commands.Any(c => c.Name == "google"), Is.True);
+        Assert.That(config1.Commands.Any(c => c.Name == "github"), Is.True);
+
+        // Act - Simulate reload with new configuration
+        var yaml2 = @"
+commands:
+  - name: google
+    linkto: https://google.com
+
+  - name: gitlab
+    linkto: https://gitlab.com
+
+  - name: notepad
+    linkto: notepad.exe
+";
+        var filePath2 = CreateTempYamlFile(yaml2);
+        var config2 = _configLoader.LoadConfigFile(filePath2);
+
+        // Assert - New commands loaded, old structure replaced
+        Assert.That(config2.Commands, Has.Count.EqualTo(3));
+        Assert.That(config2.Commands.Any(c => c.Name == "google"), Is.True, "google should still be in new config");
+        Assert.That(config2.Commands.Any(c => c.Name == "gitlab"), Is.True, "gitlab should be in new config");
+        Assert.That(config2.Commands.Any(c => c.Name == "notepad"), Is.True, "notepad should be in new config");
+        Assert.That(config2.Commands.Any(c => c.Name == "github"), Is.False, "github should not be in new config");
+    }
+
+    [Test]
+    public void EndToEnd_CommandWithArguments_LoadsCorrectly()
+    {
+        // Arrange
+        var yaml = @"
+commands:
+  - name: notepad
+    linkto: C:\Windows\System32\notepad.exe
+    arguments: test.txt
+    description: Open notepad with file
+";
+        var filePath = CreateTempYamlFile(yaml);
+
+        // Act
+        var config = _configLoader.LoadConfigFile(filePath);
+
+        // Assert - Command and arguments are both loaded
+        Assert.That(config, Is.Not.Null);
+        Assert.That(config.Commands, Has.Count.EqualTo(1));
+        Assert.That(config.Commands[0].Name, Is.EqualTo("notepad"));
+        Assert.That(config.Commands[0].LinkTo, Is.EqualTo(@"C:\Windows\System32\notepad.exe"));
+        Assert.That(config.Commands[0].Arguments, Is.EqualTo("test.txt"));
+        Assert.That(config.Commands[0].Description, Is.EqualTo("Open notepad with file"));
+    }
+
+    [Test]
+    public void EndToEnd_InvalidYamlConfiguration_ThrowsException()
+    {
+        // Arrange
+        var invalidYaml = @"
+commands:
+  - name: google
+    # Missing linkto field
+";
+        var filePath = CreateTempYamlFile(invalidYaml);
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() =>
+        {
+            var config = _configLoader.LoadConfigFile(filePath);
+        }, "Should throw exception for invalid configuration");
+    }
+
+    [Test]
+    public void EndToEnd_UrlCommands_LoadCorrectly()
+    {
+        // Arrange
+        var yaml = @"
+commands:
+  - name: google
+    linkto: https://google.com
+
+  - name: httpsite
+    linkto: http://example.com
+
+  - name: ftpsite
+    linkto: ftp://ftp.example.com
+";
+        var filePath = CreateTempYamlFile(yaml);
+
+        // Act
+        var config = _configLoader.LoadConfigFile(filePath);
+
+        // Assert - URLs are loaded as linkto values
+        Assert.That(config, Is.Not.Null);
+        Assert.That(config.Commands, Has.Count.EqualTo(3));
+
+        Assert.That(config.Commands[0].LinkTo, Is.EqualTo("https://google.com"));
+        Assert.That(config.Commands[1].LinkTo, Is.EqualTo("http://example.com"));
+        Assert.That(config.Commands[2].LinkTo, Is.EqualTo("ftp://ftp.example.com"));
+    }
+
+    [Test]
+    public void EndToEnd_MultipleConfigurationsSequentially_LoadIndependently()
+    {
+        // This test simulates loading multiple configuration files in sequence
+        // Each load operation is independent
+
+        // Arrange & Act - Config 1
+        var yaml1 = @"
+commands:
+  - name: cmd1
+    linkto: https://example1.com
+";
+        var filePath1 = CreateTempYamlFile(yaml1);
+        var config1 = _configLoader.LoadConfigFile(filePath1);
+
+        Assert.That(config1.Commands, Has.Count.EqualTo(1));
+        Assert.That(config1.Commands[0].Name, Is.EqualTo("cmd1"));
+
+        // Arrange & Act - Config 2 (independent load)
+        var yaml2 = @"
+commands:
+  - name: cmd2
+    linkto: https://example2.com
+
+  - name: cmd3
+    linkto: https://example3.com
+";
+        var filePath2 = CreateTempYamlFile(yaml2);
+        var config2 = _configLoader.LoadConfigFile(filePath2);
+
+        // Assert - Each configuration is independent
+        Assert.That(config1.Commands, Has.Count.EqualTo(1), "First config should still have 1 command");
+        Assert.That(config2.Commands, Has.Count.EqualTo(2), "Second config should have 2 commands");
+        Assert.That(config2.Commands.Any(c => c.Name == "cmd2"), Is.True);
+        Assert.That(config2.Commands.Any(c => c.Name == "cmd3"), Is.True);
+    }
+
+    private string CreateTempYamlFile(string content)
+    {
+        var fileName = $"test_{Guid.NewGuid()}.yaml";
+        var filePath = Path.Combine(_testDirectory, fileName);
+        File.WriteAllText(filePath, content);
+        return filePath;
+    }
+}

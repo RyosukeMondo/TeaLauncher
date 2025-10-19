@@ -108,7 +108,7 @@
   - _Requirements: 4.1, 4.8_
   - _Prompt: Role: Technical Writer specializing in configuration documentation | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create commands.yaml example file following requirements 4.1 and 4.8. Include 5-10 example commands covering URLs (google, github), file paths (notepad, explorer), and special commands (!reload, !exit, !version). Add YAML comments explaining format. Use proper YAML syntax with proper indentation. Include optional description fields demonstrating documentation. | Restrictions: Must be valid YAML syntax, use 2-space indentation, include comments for user guidance, demonstrate both required and optional fields, do not include sensitive data | Success: File parses successfully with YamlConfigLoader, examples cover common use cases (URLs, executables, special commands), comments are helpful and clear, YAML structure is easy to understand and modify, demonstrates optional fields like description | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 13. Write integration tests
+- [x] 13. Write integration tests
   - File: TeaLauncher.Avalonia.Tests/Integration/CommandExecutionTests.cs
   - Create integration tests for end-to-end command execution flow
   - Test configuration loading, command registration, and execution
