@@ -135,7 +135,7 @@
   - _Requirements: 4.1, 6.1, 8.1_
   - _Prompt: Role: Technical Writer specializing in software documentation and user guides | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create MIGRATION.md documentation following requirements 4.1, 6.1, and 8.1. Include sections: Overview of changes, Configuration format comparison (old .conf vs YAML), YAML syntax guide with examples, Building from source on Linux, Deployment instructions, Troubleshooting common issues (missing file, invalid YAML, hotkey conflicts). Use markdown formatting with code blocks. | Restrictions: Must be user-friendly for non-technical users, provide clear examples for each section, include both Windows usage and Linux build instructions, do not assume prior YAML knowledge | Success: Documentation is clear and comprehensive, includes side-by-side .conf to YAML examples, build instructions work on Linux, troubleshooting covers common issues, code examples are properly formatted and tested | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 16. End-to-end testing and validation
+- [x] 16. End-to-end testing and validation
   - Test complete application on Windows 10/11
   - Verify hotkey registration, command execution, and configuration reload
   - Fix any issues discovered during testing

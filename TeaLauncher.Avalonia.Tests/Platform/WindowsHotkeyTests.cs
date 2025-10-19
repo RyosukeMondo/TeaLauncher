@@ -46,10 +46,10 @@ public class WindowsHotkeyTests
     public void ModifierKeys_HasCorrectValues()
     {
         // This test verifies that the ModifierKeys enum matches Windows MOD_* constants
-        Assert.AreEqual(0x0001, (int)ModifierKeys.Alt, "Alt should be 0x0001");
-        Assert.AreEqual(0x0002, (int)ModifierKeys.Control, "Control should be 0x0002");
-        Assert.AreEqual(0x0004, (int)ModifierKeys.Shift, "Shift should be 0x0004");
-        Assert.AreEqual(0x0008, (int)ModifierKeys.Win, "Win should be 0x0008");
+        Assert.That((int)ModifierKeys.Alt, Is.EqualTo(0x0001), "Alt should be 0x0001");
+        Assert.That((int)ModifierKeys.Control, Is.EqualTo(0x0002), "Control should be 0x0002");
+        Assert.That((int)ModifierKeys.Shift, Is.EqualTo(0x0004), "Shift should be 0x0004");
+        Assert.That((int)ModifierKeys.Win, Is.EqualTo(0x0008), "Win should be 0x0008");
     }
 
     [Test]
@@ -57,10 +57,10 @@ public class WindowsHotkeyTests
     {
         // Test that modifier keys can be combined with bitwise OR
         var combined = ModifierKeys.Control | ModifierKeys.Shift;
-        Assert.AreEqual(0x0006, (int)combined, "Control + Shift should be 0x0006");
+        Assert.That((int)combined, Is.EqualTo(0x0006), "Control + Shift should be 0x0006");
 
         var tripleCombo = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift;
-        Assert.AreEqual(0x0007, (int)tripleCombo, "Control + Alt + Shift should be 0x0007");
+        Assert.That((int)tripleCombo, Is.EqualTo(0x0007), "Control + Alt + Shift should be 0x0007");
     }
 
     [Test]
