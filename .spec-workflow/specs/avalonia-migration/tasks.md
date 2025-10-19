@@ -63,7 +63,7 @@
   - _Requirements: 3.1, 3.2, 3.3_
   - _Prompt: Role: Windows Platform Developer with expertise in IME and P/Invoke | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create WindowsIMEController class that controls IME state using Imm32.dll following requirements 3.1-3.3. Use ImmGetContext, ImmSetOpenStatus, ImmReleaseContext P/Invoke. Constructor takes IntPtr windowHandle. Implement On() and Off() methods. Implement IDisposable. Remove Form inheritance from original implementation. | Restrictions: Do not inherit from Form, use IntPtr for window handle directly, must properly release IME context after operations, do not expose IME conversion status methods if not needed | Success: IME can be turned on and off programmatically, properly releases IME context resources, compiles with win-x64 target, works with Avalonia window handle, implements IDisposable correctly | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 8. Create MainWindow XAML
+- [x] 8. Create MainWindow XAML
   - File: TeaLauncher.Avalonia/Views/MainWindow.axaml
   - Design Avalonia XAML UI with AutoCompleteBox for command input
   - Configure window properties: topmost, borderless, blur background

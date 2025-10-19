@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="80"
+        x:Class="TeaLauncher.Avalonia.Views.MainWindow"
+        Title="TeaLauncher"
+        Width="500"
+        Height="80"
+        Topmost="True"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
+        CanResize="False"
+        Background="#CC000000"
+        TransparencyLevelHint="Blur">
+
+    <Window.Styles>
+        <Style Selector="AutoCompleteBox">
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="AutoCompleteBox /template/ TextBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CaretBrush" Value="White"/>
+        </Style>
+        <Style Selector="AutoCompleteBox /template/ Border">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#40FFFFFF"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#60FFFFFF"/>
+        </Style>
+        <Style Selector="AutoCompleteBox /template/ Popup">
+            <Setter Property="PlacementTarget" Value="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+        </Style>
+        <Style Selector="AutoCompleteBox ListBox">
+            <Setter Property="Background" Value="#CC000000"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#40FFFFFF"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid>
+        <AutoCompleteBox x:Name="CommandBox"
+                         Watermark="Type a command..."
+                         MinimumPrefixLength="0"
+                         FilterMode="StartsWith"
+                         VerticalAlignment="Center"
+                         HorizontalAlignment="Stretch"/>
+    </Grid>
+</Window>
