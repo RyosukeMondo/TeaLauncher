@@ -19,7 +19,10 @@
 
 using System;
 using System.IO;
+using Avalonia.Headless.NUnit;
+using FluentAssertions;
 using NUnit.Framework;
+using TeaLauncher.Avalonia.Tests.Utilities;
 using TeaLauncher.Avalonia.Views;
 
 namespace TeaLauncher.Avalonia.Tests.Views;
@@ -193,6 +196,51 @@ public class MainWindowTests
         // The MainWindow should handle this gracefully without crashing
         // In a full UI test, we would verify the error is shown to the user
         Assert.Pass("MainWindow handles missing config files gracefully as per design");
+    }
+
+    /// <summary>
+    /// Smoke test verifying that MainWindow can be constructed with MockDialogService.
+    /// This ensures the dialog service integration is working correctly.
+    /// </summary>
+    [AvaloniaTest]
+    public void Constructor_WithDialogService_ShouldSucceed()
+    {
+        // Arrange
+        var mockDialogService = MockFactory.CreateMockDialogService();
+
+        // Act
+        MainWindow? window = null;
+        Assert.DoesNotThrow(() =>
+        {
+            window = new MainWindow(_testConfigFile!, mockDialogService);
+        });
+
+        // Assert
+        window.Should().NotBeNull();
+    }
+
+    /// <summary>
+    /// Smoke test verifying that ShowError method calls the dialog service.
+    /// This ensures MainWindow properly uses the injected IDialogService.
+    /// </summary>
+    [AvaloniaTest]
+    public void ShowErrorDialog_CallsDialogService()
+    {
+        // Arrange
+        var mockDialogService = MockFactory.CreateMockDialogService();
+        var window = new MainWindow(_testConfigFile!, mockDialogService);
+        const string errorMessage = "Test error message";
+
+        // Act
+        window.ShowError(errorMessage);
+
+        // Assert
+        var dialogCalls = mockDialogService.GetDialogCalls();
+        dialogCalls.Should().ContainSingle();
+        dialogCalls.Should().Contain(call =>
+            call.DialogType == "Error" &&
+            call.Title == "Error" &&
+            call.Message == errorMessage);
     }
 }
 
