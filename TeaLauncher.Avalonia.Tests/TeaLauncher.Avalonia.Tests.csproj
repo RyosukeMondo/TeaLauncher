@@ -25,4 +25,10 @@
     <ProjectReference Include="..\TeaLauncher.Avalonia\TeaLauncher.Avalonia.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Integration\Fixtures\*.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

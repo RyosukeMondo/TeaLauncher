@@ -1,0 +1,16 @@
+commands:
+  - name: google
+    linkto: https://www.google.com
+    description: Opens Google search
+  - name: docs
+    linkto: https://docs.microsoft.com
+    description: Opens Microsoft documentation
+  - name: github
+    linkto: https://github.com
+    description: Opens GitHub
+  - name: notepad
+    linkto: notepad.exe
+    description: Opens Notepad
+  - name: calc
+    linkto: calc.exe
+    description: Opens Calculator

@@ -1,0 +1,6 @@
+commands:
+  - name: google
+    linkto: https://www.google.com
+  - name: invalid
+    this is a syntax error at line 4
+    description: This should fail
