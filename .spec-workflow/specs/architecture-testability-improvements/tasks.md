@@ -185,7 +185,7 @@
 
 ## Phase 5: Advanced Testing
 
-- [ ] 17. Create end-to-end tests with Avalonia headless
+- [x] 17. Create end-to-end tests with Avalonia headless
   - Files:
     - TeaLauncher.Avalonia.Tests/EndToEnd/ApplicationLifecycleTests.cs
     - TeaLauncher.Avalonia.Tests/EndToEnd/UserWorkflowTests.cs

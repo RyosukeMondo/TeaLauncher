@@ -1,0 +1,13 @@
+commands:
+  - name: test-command
+    linkto: https://example.com
+    description: Test command for E2E tests
+  - name: test-app
+    linkto: notepad.exe
+    description: Test application command
+  - name: test-url
+    linkto: https://www.example.org
+    description: Test URL command
+  - name: calculator
+    linkto: calc.exe
+    description: Test calculator command
