@@ -31,6 +31,22 @@ artifacts/
 
 # Distribution output
 dist/
+*.zip
+
+# Avalonia specific
+*.axaml.g.cs
+avalonia-*.lock
 
 # Spec workflow user data (keep templates and docs, exclude user data)
 .spec-workflow/approvals/
+
+# IDE - Rider
+.idea/
+*.sln.iml
+
+# IDE - VS Code
+.vscode/
+
+# User configuration (example is tracked)
+commands.yaml
+!TeaLauncher.Avalonia/commands.yaml
