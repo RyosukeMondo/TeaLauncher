@@ -126,7 +126,7 @@
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
   - _Prompt: Role: DevOps Engineer with expertise in .NET build automation and cross-compilation | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create build-windows.sh script following requirements 6.1-6.5. Use `dotnet publish TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false`. Create output directory structure with TeaLauncher.exe, commands.yaml, and README.md. Make script executable with proper error handling. | Restrictions: Must work on Linux without Windows SDK, ensure single-file output, strip debug symbols for size, verify output directory exists before build, clean old artifacts | Success: Script runs successfully on Linux, produces single-file TeaLauncher.exe for Windows, includes all necessary runtime dependencies, output size is optimized (no debug symbols), script handles errors gracefully, creates proper output directory structure | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 15. Create migration documentation
+- [x] 15. Create migration documentation
   - File: docs/MIGRATION.md
   - Document migration process, configuration format changes, and setup
   - Provide YAML examples and troubleshooting guide
