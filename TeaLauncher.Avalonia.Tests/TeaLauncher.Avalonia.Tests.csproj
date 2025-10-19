@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Compile Include="..\TeaLauncher.Avalonia\Configuration\CommandConfig.cs" Link="Configuration\CommandConfig.cs" />
+    <Compile Include="..\TeaLauncher.Avalonia\Configuration\YamlConfigLoader.cs" Link="Configuration\YamlConfigLoader.cs" />
   </ItemGroup>
 
 </Project>

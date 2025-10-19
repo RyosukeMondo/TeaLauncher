@@ -18,7 +18,7 @@
   - _Requirements: 4.1, 4.7_
   - _Prompt: Role: C# Developer specializing in data modeling and serialization | Task: Implement the task for spec avalonia-migration, first run spec-workflow-guide to get the workflow guide then implement the task: Create strongly-typed C# record models (CommandsConfig, CommandEntry) for YAML configuration following requirements 4.1 and 4.7. Use YamlDotNet attributes ([YamlMember]) for property mapping and required keyword for mandatory fields. Include properties: Name, LinkTo, Description (optional), Arguments (optional). | Restrictions: Use record types not classes, apply required keyword for Name and LinkTo, use nullable reference types for optional fields, do not include business logic in models | Success: Models compile without errors, YamlDotNet can deserialize YAML to these models, required fields throw exceptions when missing, code uses modern C# features (records, required, nullable reference types) | Instructions: Mark this task as in-progress [-] in .spec-workflow/specs/avalonia-migration/tasks.md before starting, then mark as completed [x] when done_
 
-- [ ] 3. Implement YamlConfigLoader
+- [x] 3. Implement YamlConfigLoader
   - File: TeaLauncher.Avalonia/Configuration/YamlConfigLoader.cs
   - Create YAML parser using YamlDotNet to load commands.yaml
   - Add validation and error handling with clear messages
