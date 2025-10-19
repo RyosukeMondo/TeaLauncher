@@ -125,9 +125,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
 
         public void ShowVersionInfo()
         {
+            // Use Environment.ProcessPath for single-file publish compatibility
+            // Assembly.Location returns empty string in single-file apps
+#pragma warning disable IL3000 // Avoid accessing Assembly file path when publishing as a single file
+            string executablePath = Environment.ProcessPath ??
+                System.Reflection.Assembly.GetExecutingAssembly().Location;
+#pragma warning restore IL3000
+
             System.Diagnostics.FileVersionInfo version =
-                System.Diagnostics.FileVersionInfo.GetVersionInfo(
-                System.Reflection.Assembly.GetExecutingAssembly().Location);
+                System.Diagnostics.FileVersionInfo.GetVersionInfo(executablePath);
 
             MessageBox.Show(version.FileDescription + " version " + version.FileVersion + "\n" +
                 "--------------------------------" + "\n" +

@@ -101,7 +101,7 @@
   - _Requirements: 7.1, 7.4_
   - _Prompt: Implement the task for spec migrate-to-dotnet8, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Release Engineer with expertise in .NET deployment and packaging | Task: Test framework-dependent deployment following requirements 7.1 and 7.4 to verify that the publish process produces a lightweight executable. Run 'dotnet publish -c Release -r win-x64 CommandLauncher/CommandLauncher.csproj' and verify the output in CommandLauncher/bin/Release/net8.0-windows/win-x64/publish/. Check that CommandLauncher.exe is created, the total output size is small (< 5MB for framework-dependent), and the publish folder contains minimal dependencies. The executable should require .NET 8 Desktop Runtime to run on Windows. Document this command in a comment or note. | Restrictions: Use Release configuration only, target win-x64 runtime, do not use --self-contained flag (framework-dependent is the default), do not modify .csproj file | Success: 'dotnet publish' succeeds for framework-dependent deployment, executable size is reasonable (< 5MB), output directory structure is clean, CommandLauncher.exe present in publish folder, command documented, Edit tasks.md to mark this task [-] when starting and [x] when complete_
 
-- [ ] 12. Create self-contained publish configuration
+- [x] 12. Create self-contained publish configuration
   - Test self-contained single-file deployment
   - Verify output size and runtime bundling
   - Document publish command
