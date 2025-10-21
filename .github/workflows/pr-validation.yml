@@ -40,8 +40,14 @@ jobs:
     - name: Restore test dependencies
       run: dotnet restore TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj
 
-    - name: Build application
-      run: dotnet build TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --configuration Release --no-restore
+    - name: Build application (with runtime specified)
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          dotnet build TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --configuration Release --no-restore -r win-x64
+        else
+          dotnet build TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --configuration Release --no-restore -r linux-x64
+        fi
+      shell: bash
 
     - name: Build tests
       run: dotnet build TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --configuration Release --no-restore

@@ -15,13 +15,24 @@ Modern Windows Command Launcher built with Avalonia UI and .NET 8.
 
 ## Quick Start
 
-### Using Pre-built Binary
+### Download Pre-built Binary
 
-1. Download the latest release
-2. Extract `TeaLauncher.exe` and `commands.yaml`
-3. Edit `commands.yaml` to add your commands
+**Windows:**
+1. Download `TeaLauncher-windows-x64-vX.X.X.zip` from the [latest release](../../releases/latest)
+2. Extract the archive
+3. Create a `commands.yaml` configuration file (see below)
 4. Run `TeaLauncher.exe`
 5. Press `Ctrl+Space` to activate
+
+**Linux:**
+1. Download `TeaLauncher-linux-x64-vX.X.X.tar.gz` from the [latest release](../../releases/latest)
+2. Extract: `tar -xzf TeaLauncher-linux-x64-vX.X.X.tar.gz`
+3. Make executable: `chmod +x TeaLauncher`
+4. Create a `commands.yaml` configuration file (see below)
+5. Run `./TeaLauncher`
+6. Press `Ctrl+Space` to activate
+
+> **Note:** All releases are self-contained and do not require .NET installation.
 
 ### Configuration
 
@@ -64,6 +75,8 @@ dotnet test TeaLauncher.Avalonia.Tests
 ```
 
 For comprehensive build instructions and troubleshooting, see [BUILD.md](BUILD.md).
+
+For release process and creating new releases, see [docs/RELEASE.md](docs/RELEASE.md).
 
 For migration from v1.x, see [docs/MIGRATION.md](docs/MIGRATION.md).
 

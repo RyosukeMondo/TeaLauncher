@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <TargetFramework>net8.0</TargetFramework>
+    <!-- RuntimeIdentifier removed to support multiple platforms - specify via -r flag -->
     <Nullable>enable</Nullable>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationManifest Condition="$([MSBuild]::IsOSPlatform('Windows'))">app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
