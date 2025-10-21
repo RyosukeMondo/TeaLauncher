@@ -151,7 +151,7 @@ jobs:
 
     - name: Rename executable and set permissions
       run: |
-        cd TeaLauncher.Avalonia/bin/Release/net8.0/linux-x64/publish
+        cd TeaLauncher.Avalonia/bin/Release/net8.0-windows/linux-x64/publish
         mv TeaLauncher.Avalonia TeaLauncher-${{ steps.version.outputs.version }}-linux-x64
         chmod +x TeaLauncher-${{ steps.version.outputs.version }}-linux-x64
 
@@ -159,7 +159,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: linux-build
-        path: TeaLauncher.Avalonia/bin/Release/net8.0/linux-x64/publish/TeaLauncher-${{ steps.version.outputs.version }}-linux-x64
+        path: TeaLauncher.Avalonia/bin/Release/net8.0-windows/linux-x64/publish/TeaLauncher-${{ steps.version.outputs.version }}-linux-x64
         retention-days: 1
 
   create-release:
