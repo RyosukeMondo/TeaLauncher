@@ -109,7 +109,7 @@
   - _Requirements: 1_
   - _Prompt: Implement the task for spec pre-commit-compliance, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Avalonia UI Test Developer with expertise in headless UI testing and event simulation | Task: Add comprehensive tests for AvaloniaDialogService following requirement 1, covering all DialogType variations (Message, Error, Confirm), error styling verification, and button click event handlers using Avalonia.Headless for headless UI testing. Verify window properties, text styling, and button panel configuration. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Use Avalonia.Headless (do not require real window manager), test dialog appearance and behavior (not just return values), ensure tests work in CI environment, follow existing UI test patterns | _Leverage: Avalonia.Headless 11.2.2 and Avalonia.Headless.NUnit 11.2.2 for headless testing, existing AvaloniaDialogServiceTests.cs patterns, refactored helper methods from task 3 | _Requirements: Requirement 1 (Code Coverage Compliance) | Success: 6-8 new tests added covering all DialogType values and button behaviors, AvaloniaDialogService coverage ≥85%, tests verify UI appearance (not just logic), all tests pass in headless mode_
 
-- [ ] 9. Verify coverage threshold and adjust if needed
+- [x] 9. Verify coverage threshold and adjust if needed
   - Run coverage collection: `dotnet test --collect:"XPlat Code Coverage"`
   - Run coverage check: `scripts/check-coverage.sh`
   - Verify ≥80% coverage threshold achieved

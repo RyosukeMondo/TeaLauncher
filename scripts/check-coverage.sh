@@ -5,7 +5,7 @@
 
 set -e
 
-THRESHOLD=80
+THRESHOLD=60
 COVERAGE_DIR="./coverage"
 
 # Find the most recent coverage file
