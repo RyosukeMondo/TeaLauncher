@@ -87,7 +87,10 @@ jobs:
       run: |
         VERSION="${{ github.ref_name }}"
         VERSION="${VERSION#v}"
+        # For assembly version, strip prerelease suffix (e.g., 0.0.1-test -> 0.0.1)
+        ASSEMBLY_VERSION="${VERSION%%-*}"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "assembly_version=$ASSEMBLY_VERSION" >> $GITHUB_OUTPUT
 
     - name: Publish Windows binary
       run: |
@@ -96,8 +99,8 @@ jobs:
           -r win-x64 `
           --self-contained true `
           -p:PublishSingleFile=true `
-          -p:AssemblyVersion=${{ steps.version.outputs.version }}.0 `
-          -p:FileVersion=${{ steps.version.outputs.version }}.0
+          -p:AssemblyVersion=${{ steps.version.outputs.assembly_version }}.0 `
+          -p:FileVersion=${{ steps.version.outputs.assembly_version }}.0
 
     - name: Rename executable
       shell: bash
@@ -131,7 +134,10 @@ jobs:
       run: |
         VERSION="${{ github.ref_name }}"
         VERSION="${VERSION#v}"
+        # For assembly version, strip prerelease suffix (e.g., 0.0.1-test -> 0.0.1)
+        ASSEMBLY_VERSION="${VERSION%%-*}"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "assembly_version=$ASSEMBLY_VERSION" >> $GITHUB_OUTPUT
 
     - name: Publish Linux binary
       run: |
@@ -140,8 +146,8 @@ jobs:
           -r linux-x64 \
           --self-contained true \
           -p:PublishSingleFile=true \
-          -p:AssemblyVersion=${{ steps.version.outputs.version }}.0 \
-          -p:FileVersion=${{ steps.version.outputs.version }}.0
+          -p:AssemblyVersion=${{ steps.version.outputs.assembly_version }}.0 \
+          -p:FileVersion=${{ steps.version.outputs.assembly_version }}.0
 
     - name: Rename executable and set permissions
       run: |
