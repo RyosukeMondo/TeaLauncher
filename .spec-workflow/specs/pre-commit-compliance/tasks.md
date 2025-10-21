@@ -28,7 +28,7 @@
   - _Requirements: 2_
   - _Prompt: Implement the task for spec pre-commit-compliance, first run spec-workflow-guide to get the workflow guide then implement the task: Role: C# Refactoring Specialist with expertise in SOLID principles and code maintainability | Task: Refactor CommandExecutorService.ExecuteAsync (currently 68 lines) following requirement 2 by extracting three private helper methods: ResolveCommandTarget, BuildProcessStartInfo, and LaunchProcess. Each helper must be ≤50 lines and have a single responsibility. Preserve exact functionality - all existing unit tests must pass. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Do not change public API or method signature, do not alter any business logic or behavior, maintain existing exception handling patterns, do not modify ICommandExecutor interface | _Leverage: Existing helper methods (IsPath, GetExecution, GetArguments, IsSpecialCommand) in CommandExecutorService.cs, existing unit tests in TeaLauncher.Avalonia.Tests/Application/Services/CommandExecutorServiceTests.cs | _Requirements: Requirement 2 (Code Metrics Compliance) | Success: MetricsChecker reports zero violations for ExecuteAsync method, all 267 existing tests pass, extracted methods are well-named and ≤50 lines each, no performance regression_
 
-- [ ] 3. Refactor AvaloniaDialogService.ShowDialogInternalAsync method
+- [x] 3. Refactor AvaloniaDialogService.ShowDialogInternalAsync method
   - File: TeaLauncher.Avalonia/Infrastructure/UI/AvaloniaDialogService.cs
   - Extract helper methods from 81-line ShowDialogInternalAsync:
     - `CreateDialogWindow(string title)` - creates base Window with properties
