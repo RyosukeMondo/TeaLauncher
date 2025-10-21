@@ -7,3 +7,62 @@ on:
 
 permissions:
   contents: write
+
+jobs:
+  quality-checks:
+    name: Quality Validation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+
+    - name: Restore test dependencies
+      run: dotnet restore TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj
+
+    - name: Build application
+      run: dotnet build TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --configuration Release --no-restore
+
+    - name: Build tests
+      run: dotnet build TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --no-build --verbosity minimal --configuration Release
+
+    - name: Run tests with coverage
+      run: dotnet test TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+    - name: Install coverage report generator
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool || dotnet tool update --global dotnet-reportgenerator-globaltool
+
+    - name: Generate coverage report
+      run: |
+        reportgenerator \
+          -reports:./coverage/**/coverage.cobertura.xml \
+          -targetdir:./coverage-report \
+          -reporttypes:"Html;Cobertura"
+
+    - name: Check coverage threshold
+      run: bash scripts/check-coverage.sh
+
+    - name: Check code metrics
+      run: dotnet run --project tools/MetricsChecker/MetricsChecker.csproj -- TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+
+    - name: Check code formatting
+      run: dotnet format TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --verify-no-changes

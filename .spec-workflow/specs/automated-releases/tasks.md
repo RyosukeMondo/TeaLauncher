@@ -11,7 +11,7 @@
   - _Requirements: 1_
   - _Prompt: Implement the task for spec automated-releases, first run spec-workflow-guide to get the workflow guide then implement the task: Role: DevOps Engineer with expertise in GitHub Actions and CI/CD workflows | Task: Create `.github/workflows/release.yml` file following requirement 1 with trigger configuration for version tags (pattern: v*.*.*), workflow name "Release Build", and permissions set to `contents: write` for GitHub Release creation. Use existing `.github/workflows/ci.yml` as structural reference. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Do not add job definitions yet (skeleton only), ensure YAML syntax is valid, follow existing workflow naming conventions (lowercase, hyphenated), do not modify existing workflows (ci.yml, pr-validation.yml) | _Leverage: .github/workflows/ci.yml for workflow structure reference, GitHub Actions documentation for trigger syntax | _Requirements: Requirement 1 (Version Tag Triggered Releases) | Success: File created at `.github/workflows/release.yml`, triggers only on tags matching v*.*.*, YAML validates with `yamllint` or GitHub's validator, workflow appears in Actions tab_
 
-- [ ] 2. Implement quality-checks job in release workflow
+- [x] 2. Implement quality-checks job in release workflow
   - File: .github/workflows/release.yml
   - Copy quality validation steps from ci.yml:
     - Checkout, setup .NET, cache NuGet
