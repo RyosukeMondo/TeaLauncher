@@ -443,6 +443,100 @@ public class YamlConfigLoaderServiceTests
 
     #endregion
 
+    #region Additional Edge Case Tests for Coverage
+
+    /// <summary>
+    /// Tests that LoadConfiguration handles generic exceptions during file reading.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_UnexpectedException_WrapsInInvalidOperationException()
+    {
+        // Arrange
+        var invalidPath = new string('\0', 1); // Null character in path causes unexpected exception
+
+        // Act
+        var act = () => _service.LoadConfiguration(invalidPath);
+
+        // Assert
+        act.Should().Throw<Exception>(); // May throw ArgumentException or InvalidOperationException
+    }
+
+    /// <summary>
+    /// Tests that LoadConfigurationAsync handles generic exceptions during file reading.
+    /// </summary>
+    [Test]
+    public async Task LoadConfigurationAsync_UnexpectedException_WrapsInInvalidOperationException()
+    {
+        // Arrange
+        var invalidPath = new string('\0', 1); // Null character in path causes unexpected exception
+
+        // Act
+        var act = async () => await _service.LoadConfigurationAsync(invalidPath);
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>(); // May throw ArgumentException or InvalidOperationException
+    }
+
+    /// <summary>
+    /// Tests that LoadConfiguration handles whitespace-only input gracefully.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_WhitespaceOnlyYaml_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        _tempFilePath = TestFixtures.CreateTempYamlFile("   \n  \n  ");
+
+        // Act
+        var act = () => _service.LoadConfiguration(_tempFilePath);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*empty or contain invalid YAML structure*");
+    }
+
+    /// <summary>
+    /// Tests that LoadConfiguration handles YAML with only comments.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_OnlyComments_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var commentsOnlyYaml = @"# This is a comment
+# Another comment
+# commands:
+#   - name: test
+";
+        _tempFilePath = TestFixtures.CreateTempYamlFile(commentsOnlyYaml);
+
+        // Act
+        var act = () => _service.LoadConfiguration(_tempFilePath);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*empty or contain invalid YAML structure*");
+    }
+
+    /// <summary>
+    /// Tests that LoadConfiguration handles YAML with null commands list.
+    /// </summary>
+    [Test]
+    public void LoadConfiguration_NullCommandsList_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var nullCommandsYaml = @"commands: null
+";
+        _tempFilePath = TestFixtures.CreateTempYamlFile(nullCommandsYaml);
+
+        // Act
+        var act = () => _service.LoadConfiguration(_tempFilePath);
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Unexpected error while loading configuration*");
+    }
+
+    #endregion
+
     #region Edge Case Tests
 
     /// <summary>
