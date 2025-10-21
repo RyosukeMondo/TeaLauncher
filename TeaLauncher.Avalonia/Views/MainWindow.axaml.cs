@@ -160,15 +160,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
             {
                 try
                 {
-#if DEBUG
+                    // Load hotkey preference from settings
+                    var settingsService = new Infrastructure.Settings.SettingsService();
+                    var modifier = settingsService.GetHotkeyModifier();
+
                     _hotkey = new WindowsHotkeyService();
                     _hotkey.SetWindow(this);
-                    _hotkey.RegisterHotkey(Key.Space, KeyModifiers.Alt, () => Hotkey_Pressed(null, EventArgs.Empty));
-#else
-                    _hotkey = new WindowsHotkeyService();
-                    _hotkey.SetWindow(this);
-                    _hotkey.RegisterHotkey(Key.Space, KeyModifiers.Control, () => Hotkey_Pressed(null, EventArgs.Empty));
-#endif
+                    _hotkey.RegisterHotkey(Key.Space, modifier, () => Hotkey_Pressed(null, EventArgs.Empty));
                 }
                 catch (Exception ex)
                 {

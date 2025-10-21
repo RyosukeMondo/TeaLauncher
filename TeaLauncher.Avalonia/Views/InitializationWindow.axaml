@@ -1,0 +1,123 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="TeaLauncher.Avalonia.Views.InitializationWindow"
+        Title="TeaLauncher - First Time Setup"
+        Width="600"
+        Height="500"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/icon.ico">
+
+    <Window.Styles>
+        <Style Selector="TextBlock.heading">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        <Style Selector="TextBlock.subheading">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,20,0,10"/>
+        </Style>
+        <Style Selector="TextBlock.body">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,5,0,5"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style Selector="Button.primary">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </Window.Styles>
+
+    <Border Padding="40">
+        <StackPanel Spacing="10">
+            <!-- Header -->
+            <TextBlock Classes="heading" Text="Welcome to TeaLauncher!" />
+
+            <TextBlock Classes="body" TextWrapping="Wrap">
+                TeaLauncher is a keyboard-driven command launcher for Windows.
+                This appears to be your first time running it!
+            </TextBlock>
+
+            <!-- Config File Section -->
+            <TextBlock Classes="subheading" Text="Configuration File" />
+
+            <TextBlock Classes="body" TextWrapping="Wrap">
+                TeaLauncher uses a YAML configuration file to store your commands.
+            </TextBlock>
+
+            <Border Background="#F5F5F5"
+                    Padding="15"
+                    CornerRadius="5"
+                    Margin="0,10,0,10">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Config file will be created at:"
+                               FontWeight="SemiBold"
+                               FontSize="12"/>
+                    <TextBlock x:Name="ConfigPathText"
+                               FontFamily="Consolas,Courier New,monospace"
+                               FontSize="12"
+                               Foreground="#0066CC"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Keyboard Shortcut Section -->
+            <TextBlock Classes="subheading" Text="Keyboard Shortcut" />
+
+            <TextBlock Classes="body" TextWrapping="Wrap">
+                Press the keyboard shortcut from anywhere to activate TeaLauncher:
+            </TextBlock>
+
+            <Border Background="#F5F5F5"
+                    Padding="15"
+                    CornerRadius="5"
+                    Margin="0,10,0,10">
+                <StackPanel Spacing="10">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <RadioButton x:Name="CtrlSpaceRadio"
+                                     Content="Ctrl + Space"
+                                     IsChecked="True"
+                                     GroupName="Hotkey"/>
+                        <RadioButton x:Name="AltSpaceRadio"
+                                     Content="Alt + Space"
+                                     GroupName="Hotkey"/>
+                    </StackPanel>
+                    <TextBlock Text="Note: You can change this later by editing the code"
+                               FontSize="11"
+                               Foreground="#666666"
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Instructions -->
+            <TextBlock Classes="subheading" Text="After Setup" />
+
+            <TextBlock Classes="body" TextWrapping="Wrap">
+                After clicking Start, TeaLauncher will:
+            </TextBlock>
+
+            <StackPanel Margin="20,5,0,5" Spacing="5">
+                <TextBlock Classes="body" Text="• Create a sample configuration file"/>
+                <TextBlock Classes="body" Text="• Register the global keyboard shortcut"/>
+                <TextBlock Classes="body" Text="• Run in the background (hidden)"/>
+                <TextBlock Classes="body" Text="• Activate when you press the shortcut"/>
+            </StackPanel>
+
+            <TextBlock Classes="body"
+                       TextWrapping="Wrap"
+                       Margin="0,10,0,0">
+                To customize your commands, edit the configuration file with any text editor.
+            </TextBlock>
+
+            <!-- Start Button -->
+            <Button x:Name="StartButton"
+                    Classes="primary"
+                    Content="Start TeaLauncher"
+                    Click="StartButton_Click"
+                    Margin="0,20,0,0"/>
+        </StackPanel>
+    </Border>
+</Window>

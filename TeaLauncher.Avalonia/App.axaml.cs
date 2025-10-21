@@ -46,13 +46,52 @@ public partial class App : AvaloniaApplication
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Read command-line arguments, default to "commands.yaml" if not provided
-            // TODO: Pass config file path to MainWindow when refactoring is complete
-            // For now, MainWindow uses the default "commands.yaml"
             string configFilePath = "commands.yaml";
 
             if (desktop.Args != null && desktop.Args.Length > 0)
             {
                 configFilePath = desktop.Args[0];
+            }
+
+            // Check if initialization is needed (first-time setup)
+            var initService = new Infrastructure.Initialization.InitializationService();
+            if (initService.IsInitializationNeeded(configFilePath))
+            {
+                // Show initialization window
+                var settingsService = new Infrastructure.Settings.SettingsService();
+                var initWindow = new Views.InitializationWindow(initService, settingsService);
+
+                // Use Show() instead of ShowDialog() to avoid null owner issue
+                initWindow.Show();
+                initWindow.Activate();
+
+                // Wait for the window to close
+                initWindow.Closed += (s, e) =>
+                {
+                    // If initialization was not completed (user closed window), exit the app
+                    if (!initWindow.InitializationCompleted)
+                    {
+                        desktop.Shutdown();
+                        return;
+                    }
+
+                    // Resolve MainWindow from the dependency injection container
+                    // Note: MainWindow is registered as Transient, so we get a new instance
+                    if (ServiceProvider != null)
+                    {
+                        desktop.MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
+                    }
+                    else
+                    {
+                        // Fallback to direct instantiation if ServiceProvider is not available
+                        // (e.g., in design mode or testing)
+                        // Note: This will use the parameterless constructor which has null! for dialogService
+                        desktop.MainWindow = new MainWindow();
+                    }
+                };
+
+                // Don't set MainWindow yet - wait for initialization to complete
+                return;
             }
 
             // Resolve MainWindow from the dependency injection container
