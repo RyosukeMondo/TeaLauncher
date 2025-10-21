@@ -55,85 +55,116 @@ public class CommandExecutorService : ICommandExecutor
 
         await Task.Run(() =>
         {
-            string filename;
-            string args;
-
-            // Check for special commands first (before registry lookup)
-            string commandName = GetExecution(commandInput);
-            if (IsSpecialCommand(commandName))
-            {
-                Debug.WriteLine($"SpecialCommand: {commandName}");
-                throw new NotSupportedException($"Special commands like '{commandName}' must be handled by ApplicationOrchestrator.");
-            }
-
-            if (IsPath(commandInput))
-            {
-                // Direct path or URL - execute as-is
-                filename = GetExecution(commandInput);
-                args = string.Join(" ", GetArguments(commandInput).ToArray());
-            }
-            else
-            {
-                // Registered command - look up in registry
-                // Find command in registry
-                var commands = _commandRegistry.GetAllCommands();
-                var foundCommand = commands.FirstOrDefault(cmd =>
-                    string.Equals(cmd.Name, commandName, StringComparison.OrdinalIgnoreCase));
-
-                if (foundCommand == null)
-                {
-                    throw new InvalidOperationException($"Command '{commandName}' not found in registry.");
-                }
-
-                // Get the execution target and combine arguments
-                filename = GetExecution(foundCommand.LinkTo);
-
-                // Check if the LinkTo is a special command
-                if (IsSpecialCommand(filename))
-                {
-                    Debug.WriteLine($"SpecialCommand from registry: {filename}");
-                    throw new NotSupportedException($"Special commands like '{filename}' must be handled by ApplicationOrchestrator.");
-                }
-
-                var commandArgs = GetArguments(foundCommand.LinkTo).ToList();
-                var inputArgs = GetArguments(commandInput).ToList();
-
-                // Add command-level arguments if specified in the command definition
-                if (!string.IsNullOrWhiteSpace(foundCommand.Arguments))
-                {
-                    commandArgs.AddRange(Split(foundCommand.Arguments));
-                }
-
-                // Combine command arguments and input arguments
-                commandArgs.AddRange(inputArgs);
-                args = string.Join(" ", commandArgs);
-            }
-
-            // Execute regular command
-            Debug.WriteLine($"Execute: {filename} {args}");
-
-            try
-            {
-                // .NET 8 requires UseShellExecute = true for URLs and file associations
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = filename,
-                    Arguments = args,
-                    UseShellExecute = true
-                };
-                Process.Start(startInfo);
-            }
-            catch (Win32Exception ex)
-            {
-                throw new InvalidOperationException(
-                    $"Failed to execute command '{filename}'. The system cannot find the file specified or access is denied.", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException(
-                    $"Failed to execute command '{filename}': {ex.Message}", ex);
-            }
+            var (filename, args) = ResolveCommandTarget(commandInput);
+            var startInfo = BuildProcessStartInfo(filename, args);
+            LaunchProcess(startInfo, filename);
         });
+    }
+
+    /// <summary>
+    /// Resolves the command target and arguments from the command input.
+    /// Handles special command detection, path detection, and registry lookups.
+    /// </summary>
+    /// <param name="commandInput">The command input to resolve.</param>
+    /// <returns>A tuple containing the filename and arguments.</returns>
+    private (string filename, string args) ResolveCommandTarget(string commandInput)
+    {
+        string filename;
+        string args;
+
+        // Check for special commands first (before registry lookup)
+        string commandName = GetExecution(commandInput);
+        if (IsSpecialCommand(commandName))
+        {
+            Debug.WriteLine($"SpecialCommand: {commandName}");
+            throw new NotSupportedException($"Special commands like '{commandName}' must be handled by ApplicationOrchestrator.");
+        }
+
+        if (IsPath(commandInput))
+        {
+            // Direct path or URL - execute as-is
+            filename = GetExecution(commandInput);
+            args = string.Join(" ", GetArguments(commandInput).ToArray());
+        }
+        else
+        {
+            // Registered command - look up in registry
+            // Find command in registry
+            var commands = _commandRegistry.GetAllCommands();
+            var foundCommand = commands.FirstOrDefault(cmd =>
+                string.Equals(cmd.Name, commandName, StringComparison.OrdinalIgnoreCase));
+
+            if (foundCommand == null)
+            {
+                throw new InvalidOperationException($"Command '{commandName}' not found in registry.");
+            }
+
+            // Get the execution target and combine arguments
+            filename = GetExecution(foundCommand.LinkTo);
+
+            // Check if the LinkTo is a special command
+            if (IsSpecialCommand(filename))
+            {
+                Debug.WriteLine($"SpecialCommand from registry: {filename}");
+                throw new NotSupportedException($"Special commands like '{filename}' must be handled by ApplicationOrchestrator.");
+            }
+
+            var commandArgs = GetArguments(foundCommand.LinkTo).ToList();
+            var inputArgs = GetArguments(commandInput).ToList();
+
+            // Add command-level arguments if specified in the command definition
+            if (!string.IsNullOrWhiteSpace(foundCommand.Arguments))
+            {
+                commandArgs.AddRange(Split(foundCommand.Arguments));
+            }
+
+            // Combine command arguments and input arguments
+            commandArgs.AddRange(inputArgs);
+            args = string.Join(" ", commandArgs);
+        }
+
+        Debug.WriteLine($"Execute: {filename} {args}");
+        return (filename, args);
+    }
+
+    /// <summary>
+    /// Builds the ProcessStartInfo for executing a command.
+    /// </summary>
+    /// <param name="filename">The filename or path to execute.</param>
+    /// <param name="args">The arguments to pass to the command.</param>
+    /// <returns>A configured ProcessStartInfo instance.</returns>
+    private ProcessStartInfo BuildProcessStartInfo(string filename, string args)
+    {
+        // .NET 8 requires UseShellExecute = true for URLs and file associations
+        return new ProcessStartInfo
+        {
+            FileName = filename,
+            Arguments = args,
+            UseShellExecute = true
+        };
+    }
+
+    /// <summary>
+    /// Launches the process with the given ProcessStartInfo.
+    /// </summary>
+    /// <param name="startInfo">The ProcessStartInfo to use for launching.</param>
+    /// <param name="filename">The filename being executed (for error messages).</param>
+    private void LaunchProcess(ProcessStartInfo startInfo, string filename)
+    {
+        try
+        {
+            Process.Start(startInfo);
+        }
+        catch (Win32Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to execute command '{filename}'. The system cannot find the file specified or access is denied.", ex);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to execute command '{filename}': {ex.Message}", ex);
+        }
     }
 
     /// <inheritdoc />
