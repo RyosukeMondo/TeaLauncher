@@ -66,3 +66,48 @@ jobs:
 
     - name: Check code formatting
       run: dotnet format TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --verify-no-changes
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    needs: quality-checks
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Extract version from tag
+      id: version
+      shell: bash
+      run: |
+        VERSION="${{ github.ref_name }}"
+        VERSION="${VERSION#v}"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Publish Windows binary
+      run: |
+        dotnet publish TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj `
+          -c Release `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:AssemblyVersion=${{ steps.version.outputs.version }}.0 `
+          -p:FileVersion=${{ steps.version.outputs.version }}.0
+
+    - name: Rename executable
+      shell: bash
+      run: |
+        cd TeaLauncher.Avalonia/bin/Release/net8.0-windows/win-x64/publish
+        mv TeaLauncher.Avalonia.exe TeaLauncher-${{ steps.version.outputs.version }}-win-x64.exe
+
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-build
+        path: TeaLauncher.Avalonia/bin/Release/net8.0-windows/win-x64/publish/TeaLauncher-${{ steps.version.outputs.version }}-win-x64.exe
+        retention-days: 1
