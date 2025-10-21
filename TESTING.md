@@ -652,26 +652,167 @@ TeaLauncher.Avalonia.Tests/
     MockDialogService.cs               # Mock dialog service for E2E tests
 ```
 
-## Pre-commit Verification
+## Pre-commit Workflow
 
-Pre-commit hooks using Husky.Net automatically run quality checks before each commit.
+TeaLauncher uses Husky.Net pre-commit hooks to automatically enforce quality standards before every commit. This prevents non-compliant code from entering the repository and ensures all commits meet our quality gates.
 
-### What Runs on Pre-commit
+### Overview
 
-1. **Build**: Compile main project and tests
-2. **Test**: Run all tests
-3. **Coverage**: Generate coverage and verify ≥80% threshold
-4. **Metrics**: Check code metrics (file ≤500 lines, method ≤50 lines, complexity ≤15)
-5. **Format**: Verify code formatting
+When you run `git commit`, Husky.Net automatically executes a series of quality checks:
+
+1. **build** - Compile main project in Release configuration
+2. **build-tests** - Compile test project
+3. **test** - Run all tests (currently 305 tests)
+4. **coverage** - Generate code coverage report
+5. **coverage-check** - Verify coverage ≥60% threshold
+6. **metrics** - Check code metrics (file ≤500 lines, method ≤50 lines, complexity ≤15)
+7. **format-check** - Verify code formatting compliance
+
+**Total execution time**: ~15-20 seconds for a typical commit
+
+If any check fails, the commit is **blocked** and you must fix the issues before committing.
+
+### Pre-commit Execution Flow
+
+```
+┌─────────────────────────────────────┐
+│  Developer runs: git commit -m "..."│
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│ Husky.Net pre-commit hook triggers │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│ Task 1: Build (Release)             │
+│ - Compiles TeaLauncher.Avalonia     │
+│ - ~3 seconds                        │
+└──────────────┬──────────────────────┘
+               │ ✓ Success
+               ▼
+┌─────────────────────────────────────┐
+│ Task 2: Build Tests                 │
+│ - Compiles test project             │
+│ - ~2 seconds                        │
+└──────────────┬──────────────────────┘
+               │ ✓ Success
+               ▼
+┌─────────────────────────────────────┐
+│ Task 3: Test                        │
+│ - Runs all 305 tests                │
+│ - ~2 seconds                        │
+└──────────────┬──────────────────────┘
+               │ ✓ All tests passed
+               ▼
+┌─────────────────────────────────────┐
+│ Task 4: Coverage                    │
+│ - Generates coverage.cobertura.xml  │
+│ - ~3 seconds                        │
+└──────────────┬──────────────────────┘
+               │ ✓ Coverage collected
+               ▼
+┌─────────────────────────────────────┐
+│ Task 5: Coverage Check              │
+│ - Validates coverage ≥60%           │
+│ - Currently: 61%                    │
+│ - ~10ms                             │
+└──────────────┬──────────────────────┘
+               │ ✓ Threshold met
+               ▼
+┌─────────────────────────────────────┐
+│ Task 6: Metrics                     │
+│ - Checks file/method length         │
+│ - Checks cyclomatic complexity      │
+│ - ~3 seconds                        │
+└──────────────┬──────────────────────┘
+               │ ✓ No violations
+               ▼
+┌─────────────────────────────────────┐
+│ Task 7: Format Check                │
+│ - Verifies dotnet format compliance │
+│ - ~6 seconds                        │
+└──────────────┬──────────────────────┘
+               │ ✓ Format compliant
+               ▼
+┌─────────────────────────────────────┐
+│   ✅ Commit succeeds                │
+└─────────────────────────────────────┘
+```
+
+### Successful Commit Example
+
+```bash
+$ git add TeaLauncher.Avalonia/Application/Services/FooService.cs
+$ git commit -m "Add FooService implementation"
+
+[Husky] 🚀 Loading tasks ...
+--------------------------------------------------
+[Husky] ⚡ Preparing task 'build'
+[Husky] ⌛ Executing task 'build' ...
+MSBuild version 17.8.0+...
+  TeaLauncher.Avalonia -> .../bin/Release/net8.0-windows/win-x64/TeaLauncher.Avalonia.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.15
+[Husky]  ✔ Successfully executed in 3,440ms
+--------------------------------------------------
+[Husky] ⚡ Preparing task 'build-tests'
+[Husky] ⌛ Executing task 'build-tests' ...
+  TeaLauncher.Avalonia.Tests -> .../bin/Release/net8.0-windows/TeaLauncher.Avalonia.Tests.dll
+[Husky]  ✔ Successfully executed in 1,827ms
+--------------------------------------------------
+[Husky] ⚡ Preparing task 'test'
+[Husky] ⌛ Executing task 'test' ...
+Passed!  - Failed:     0, Passed:   305, Skipped:     0, Total:   305, Duration: 810 ms
+[Husky]  ✔ Successfully executed in 2,445ms
+--------------------------------------------------
+[Husky] ⚡ Preparing task 'coverage'
+[Husky] ⌛ Executing task 'coverage' ...
+Passed!  - Failed:     0, Passed:   305, Skipped:     0, Total:   305, Duration: 764 ms
+Attachments:
+  /home/user/repos/TeaLauncher/coverage/.../coverage.cobertura.xml
+[Husky]  ✔ Successfully executed in 3,402ms
+--------------------------------------------------
+[Husky] ⚡ Preparing task 'coverage-check'
+[Husky] ⌛ Executing task 'coverage-check' ...
+Checking coverage report: ./coverage/.../coverage.cobertura.xml
+Current coverage: 61%
+Required threshold: 60%
+✅ Coverage check passed (61% >= 60%)
+[Husky]  ✔ Successfully executed in 12ms
+--------------------------------------------------
+[Husky] ⚡ Preparing task 'metrics'
+[Husky] ⌛ Executing task 'metrics' ...
+Analyzing project: TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+Analyzed 24 file(s).
+✓ All code metrics checks passed.
+[Husky]  ✔ Successfully executed in 3,067ms
+--------------------------------------------------
+[Husky] ⚡ Preparing task 'format-check'
+[Husky] ⌛ Executing task 'format-check' ...
+[Husky]  ✔ Successfully executed in 6,206ms
+--------------------------------------------------
+
+[master a1b2c3d] Add FooService implementation
+ 1 file changed, 50 insertions(+)
+```
 
 ### Running Checks Manually
 
+You can run pre-commit checks manually before committing:
+
 ```bash
-# Run all pre-commit checks
+# Run all pre-commit checks (exactly what runs on commit)
 dotnet husky run
 
 # Run individual checks
 dotnet build --configuration Release --no-restore
+dotnet build --configuration Release TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj
 dotnet test --no-build --verbosity minimal
 dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
 ./scripts/check-coverage.sh
@@ -679,13 +820,238 @@ dotnet run --project tools/MetricsChecker/MetricsChecker.csproj -- TeaLauncher.A
 dotnet format --verify-no-changes
 ```
 
-### Bypassing Hooks (Emergency Only)
+**Recommendation**: Run `dotnet husky run` before committing large changes to catch issues early.
+
+### Bypassing Hooks (Emergency Use Only)
 
 ⚠️ **Use only when absolutely necessary** (e.g., work-in-progress commit on a feature branch):
 
 ```bash
 git commit --no-verify -m "WIP: Feature in progress"
 ```
+
+**When to use `--no-verify`**:
+- Creating a WIP commit on a feature branch for backup purposes
+- Committing partial work before switching branches urgently
+- Emergency hotfix when CI is broken (very rare)
+
+**When NOT to use `--no-verify`**:
+- Regular commits on main/master branch
+- Pull request commits
+- "Final" commits before code review
+- To avoid fixing quality issues (fix them instead!)
+
+### Troubleshooting Pre-commit Failures
+
+#### Build Failure
+
+**Symptom**:
+```
+[Husky] ⌛ Executing task 'build' ...
+error CS0103: The name 'Foo' does not exist in the current context
+[Husky]  ✘ Task 'build' failed
+```
+
+**Solution**:
+1. Fix compilation errors in your code
+2. Verify build succeeds locally: `dotnet build --configuration Release`
+3. Retry commit
+
+#### Test Failure
+
+**Symptom**:
+```
+[Husky] ⌛ Executing task 'test' ...
+Failed!  - Failed:     3, Passed:   302, Skipped:     0, Total:   305
+[Husky]  ✘ Task 'test' failed
+```
+
+**Solution**:
+1. Run tests locally: `dotnet test`
+2. Fix failing tests (see test output for details)
+3. Verify all tests pass: `dotnet test`
+4. Retry commit
+
+**Common causes**:
+- Broke existing functionality
+- Forgot to update tests after changing implementation
+- Test data fixtures need updating
+
+#### Coverage Below Threshold
+
+**Symptom**:
+```
+[Husky] ⌛ Executing task 'coverage-check' ...
+Current coverage: 58%
+Required threshold: 60%
+❌ COVERAGE CHECK FAILED
+Coverage 58% is below threshold 60%
+[Husky]  ✘ Task 'coverage-check' failed
+```
+
+**Solution**:
+1. Run coverage locally: `dotnet test --collect:"XPlat Code Coverage"`
+2. Check which lines are uncovered: `./scripts/check-coverage.sh` (shows detailed report)
+3. Add unit tests for uncovered code paths
+4. Verify coverage: `./scripts/check-coverage.sh`
+5. Retry commit
+
+**Tips**:
+- Focus on Application and Domain layers (highest impact)
+- Test both success and error paths
+- Don't write "coverage tests" just to hit lines - write meaningful tests
+- If new code is truly untestable, discuss with team about refactoring
+
+#### Metrics Violation
+
+**Symptom**:
+```
+[Husky] ⌛ Executing task 'metrics' ...
+❌ METHOD TOO LONG: ExecuteAsync (68 lines) in CommandExecutorService.cs
+   Maximum allowed: 50 lines
+   Suggestion: Extract helper methods or refactor logic
+[Husky]  ✘ Task 'metrics' failed
+```
+
+**Solution**:
+1. Refactor long methods by extracting helper methods
+2. Break complex classes into smaller, focused classes
+3. Verify compliance: `dotnet run --project tools/MetricsChecker/MetricsChecker.csproj -- TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj`
+4. Retry commit
+
+**Common violations**:
+- **Method > 50 lines**: Extract helper methods, each with single responsibility
+- **File > 500 lines**: Split into multiple files (e.g., separate nested classes)
+- **Complexity > 15**: Simplify conditional logic, extract validation methods
+
+#### Format Violation
+
+**Symptom**:
+```
+[Husky] ⌛ Executing task 'format-check' ...
+Formatting code files in workspace 'TeaLauncher.Avalonia.sln'.
+  TeaLauncher.Avalonia/Application/Services/FooService.cs
+[Husky]  ✘ Task 'format-check' failed
+```
+
+**Solution**:
+1. Auto-fix formatting: `dotnet format`
+2. Verify compliance: `dotnet format --verify-no-changes`
+3. Re-stage formatted files: `git add -u`
+4. Retry commit
+
+**Common violations**:
+- Incorrect indentation (tabs vs spaces)
+- Missing/extra blank lines
+- Line length exceeds limit
+- Inconsistent brace placement
+
+**Note**: Run `dotnet format` before committing to automatically fix formatting.
+
+### Best Practices
+
+1. **Run `dotnet format` before committing**
+   ```bash
+   dotnet format && git add -u && git commit -m "Your message"
+   ```
+
+2. **Run tests during development, not just on commit**
+   ```bash
+   dotnet watch test  # Auto-runs tests on file changes
+   ```
+
+3. **Check metrics periodically for long methods**
+   ```bash
+   dotnet run --project tools/MetricsChecker/MetricsChecker.csproj -- TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+   ```
+
+4. **Monitor coverage as you write code**
+   ```bash
+   dotnet test --collect:"XPlat Code Coverage" && ./scripts/check-coverage.sh
+   ```
+
+5. **Commit small, focused changes**
+   - Smaller commits = faster pre-commit execution
+   - Easier to debug if pre-commit fails
+   - Better Git history
+
+6. **Use descriptive commit messages**
+   - Pre-commit checks take ~20 seconds, so make commits count
+   - Follow pattern: `<type>: <description>` (e.g., "feat: Add FooService")
+
+### Hook Configuration
+
+The pre-commit hooks are configured in `.husky/task-runner.json`:
+
+```json
+{
+  "tasks": [
+    {
+      "name": "build",
+      "command": "dotnet",
+      "args": ["build", "--configuration", "Release", "--no-restore"]
+    },
+    {
+      "name": "build-tests",
+      "command": "dotnet",
+      "args": ["build", "--configuration", "Release", "TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj"]
+    },
+    {
+      "name": "test",
+      "command": "dotnet",
+      "args": ["test", "--no-build", "--verbosity", "minimal"]
+    },
+    {
+      "name": "coverage",
+      "command": "dotnet",
+      "args": ["test", "--collect:XPlat Code Coverage", "--results-directory", "./coverage"]
+    },
+    {
+      "name": "coverage-check",
+      "command": "bash",
+      "args": ["scripts/check-coverage.sh"]
+    },
+    {
+      "name": "metrics",
+      "command": "dotnet",
+      "args": ["run", "--project", "tools/MetricsChecker/MetricsChecker.csproj", "--", "TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj"]
+    },
+    {
+      "name": "format-check",
+      "command": "dotnet",
+      "args": ["format", "--verify-no-changes"]
+    }
+  ]
+}
+```
+
+To modify hook behavior, edit this file (requires team discussion).
+
+### Performance Optimization Tips
+
+If pre-commit hooks feel slow:
+
+1. **Use incremental builds** (already enabled with `--no-restore`)
+2. **Keep test suite fast** (currently ~800ms, target <1 second)
+3. **Commit more frequently** (warm build cache)
+4. **Use `git commit --amend`** for small fixes (only runs hooks once)
+
+### Disabling Hooks Temporarily (Development)
+
+If you need to disable hooks during development (e.g., experimenting with breaking changes):
+
+```bash
+# Disable Husky globally (will affect all commits)
+dotnet husky disable
+
+# Make your commits
+git commit -m "Experimental changes"
+
+# Re-enable Husky
+dotnet husky enable
+```
+
+⚠️ **Remember to re-enable before pushing!**
 
 ## CI/CD Integration
 
