@@ -41,7 +41,7 @@
   - _Requirements: 2_
   - _Prompt: Implement the task for spec pre-commit-compliance, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Avalonia UI Developer with expertise in MVVM patterns and UI component refactoring | Task: Refactor AvaloniaDialogService.ShowDialogInternalAsync (currently 81 lines) following requirement 2 by extracting three private helper methods: CreateDialogWindow, ConfigureDialogContent, and CreateDialogButtons. Each helper must be ≤50 lines and encapsulate one UI composition concern. Preserve exact UI behavior - all dialog rendering and event handling must work identically. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Do not change dialog appearance or behavior, do not alter event handler logic, maintain existing ref parameter pattern for result tracking, do not modify public API | _Leverage: Existing DialogType enum, Avalonia.Controls (Window, StackPanel, TextBlock, Button), existing UI tests in TeaLauncher.Avalonia.Tests/Infrastructure/UI/AvaloniaDialogServiceTests.cs | _Requirements: Requirement 2 (Code Metrics Compliance) | Success: MetricsChecker reports zero violations for ShowDialogInternalAsync method, all 267 tests pass, E2E tests confirm dialogs render correctly, extracted methods are well-organized and ≤50 lines each_
 
-- [ ] 4. Verify metrics compliance after refactoring
+- [x] 4. Verify metrics compliance after refactoring
   - Run MetricsChecker to confirm zero method length violations
   - Run full test suite to ensure all 267 tests pass
   - Run performance tests to confirm no regression
