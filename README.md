@@ -1,5 +1,7 @@
 # TeaLauncher
 
+[![Release Build](https://github.com/RyosukeMondo/TeaLauncher/actions/workflows/release.yml/badge.svg)](https://github.com/RyosukeMondo/TeaLauncher/actions/workflows/release.yml)
+
 Modern Windows Command Launcher built with Avalonia UI and .NET 8.
 
 **Version 2.0** - Complete rewrite with modern UI framework and YAML configuration.
@@ -13,15 +15,35 @@ Modern Windows Command Launcher built with Avalonia UI and .NET 8.
 - 🔄 **Auto-completion**: Tab-based command completion
 - 🪟 **Windows 10/11**: Native Windows integration
 
+## Installation
+
+### Download Latest Release
+
+Download pre-built binaries from the [latest release](https://github.com/RyosukeMondo/TeaLauncher/releases/latest).
+
+#### Windows
+
+1. Download `TeaLauncher-{version}-win-x64.exe` from the latest release
+2. Place the executable in a folder of your choice
+3. Create a `commands.yaml` file in the same folder (see [Configuration](#configuration))
+4. Double-click `TeaLauncher-{version}-win-x64.exe` to run
+5. Press `Ctrl+Space` to activate the launcher
+
+#### Linux
+
+1. Download `TeaLauncher-{version}-linux-x64` from the latest release
+2. Make it executable:
+   ```bash
+   chmod +x TeaLauncher-{version}-linux-x64
+   ```
+3. Create a `commands.yaml` file in the same folder (see [Configuration](#configuration))
+4. Run the executable:
+   ```bash
+   ./TeaLauncher-{version}-linux-x64
+   ```
+5. Press `Ctrl+Space` to activate the launcher
+
 ## Quick Start
-
-### Using Pre-built Binary
-
-1. Download the latest release
-2. Extract `TeaLauncher.exe` and `commands.yaml`
-3. Edit `commands.yaml` to add your commands
-4. Run `TeaLauncher.exe`
-5. Press `Ctrl+Space` to activate
 
 ### Configuration
 
@@ -98,6 +120,34 @@ For migration from v1.x, see [docs/MIGRATION.md](docs/MIGRATION.md).
 GNU General Public License v2 (GPL-2.0)
 
 See [LICENSE](LICENSE) for full license text.
+
+## Releases
+
+### For Maintainers: Creating a Release
+
+Releases are automated via GitHub Actions when a version tag is pushed:
+
+1. **Create a version tag** following semantic versioning:
+   ```bash
+   git tag v2.0.0           # Production release
+   git tag v2.1.0-beta      # Pre-release (beta)
+   git tag v2.1.0-rc1       # Pre-release (release candidate)
+   ```
+
+2. **Push the tag** to trigger the release workflow:
+   ```bash
+   git push origin v2.0.0
+   ```
+
+3. **Monitor the workflow** at [Actions → Release Build](https://github.com/RyosukeMondo/TeaLauncher/actions/workflows/release.yml)
+
+The workflow will:
+- Run all quality checks (tests, coverage ≥60%, code metrics, formatting)
+- Build Windows and Linux binaries
+- Create a GitHub Release with both platform executables
+- Auto-generate release notes from commit history
+
+For troubleshooting workflow issues, see [TESTING.md](TESTING.md).
 
 ## Credits
 

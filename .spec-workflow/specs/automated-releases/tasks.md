@@ -90,7 +90,7 @@
 
 ## Phase 5: Documentation
 
-- [ ] 8. Update README.md with release information
+- [x] 8. Update README.md with release information
   - File: README.md
   - Add "Installation" section with download links to latest release
   - Add platform-specific installation instructions
