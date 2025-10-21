@@ -155,3 +155,80 @@ jobs:
         name: linux-build
         path: TeaLauncher.Avalonia/bin/Release/net8.0/linux-x64/publish/TeaLauncher-${{ steps.version.outputs.version }}-linux-x64
         retention-days: 1
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Extract version from tag
+      id: version
+      run: |
+        VERSION="${{ github.ref_name }}"
+        VERSION="${VERSION#v}"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Check if pre-release
+      id: prerelease
+      run: |
+        if [[ "${{ github.ref_name }}" =~ -(alpha|beta|rc) ]]; then
+          echo "is_prerelease=true" >> $GITHUB_OUTPUT
+        else
+          echo "is_prerelease=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-build
+        path: ./artifacts
+
+    - name: Download Linux artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-build
+        path: ./artifacts
+
+    - name: Create release body
+      id: release_body
+      run: |
+        cat << 'EOF' > release_body.md
+        ## Downloads
+
+        **Windows**
+        - [TeaLauncher-${{ steps.version.outputs.version }}-win-x64.exe](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/TeaLauncher-${{ steps.version.outputs.version }}-win-x64.exe)
+
+        **Linux**
+        - [TeaLauncher-${{ steps.version.outputs.version }}-linux-x64](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/TeaLauncher-${{ steps.version.outputs.version }}-linux-x64)
+
+        ## Installation Instructions
+
+        ### Windows
+        1. Download the Windows executable above
+        2. Double-click to run (Windows may show a security warning - click "More info" → "Run anyway")
+        3. No installation required - it's a self-contained executable
+
+        ### Linux
+        1. Download the Linux executable above
+        2. Make it executable: `chmod +x TeaLauncher-${{ steps.version.outputs.version }}-linux-x64`
+        3. Run it: `./TeaLauncher-${{ steps.version.outputs.version }}-linux-x64`
+
+        ## Changelog
+        EOF
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: TeaLauncher v${{ steps.version.outputs.version }}
+        body_path: release_body.md
+        files: |
+          ./artifacts/TeaLauncher-${{ steps.version.outputs.version }}-win-x64.exe
+          ./artifacts/TeaLauncher-${{ steps.version.outputs.version }}-linux-x64
+        prerelease: ${{ steps.prerelease.outputs.is_prerelease }}
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

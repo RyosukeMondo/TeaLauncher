@@ -51,7 +51,7 @@
 
 ## Phase 3: Release Creation
 
-- [ ] 5. Implement create-release job
+- [x] 5. Implement create-release job
   - File: .github/workflows/release.yml
   - Add create-release job depending on both build-windows and build-linux
   - Download both platform artifacts
