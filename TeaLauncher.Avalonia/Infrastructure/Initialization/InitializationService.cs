@@ -76,8 +76,15 @@ commands:
     /// <returns>True if initialization is needed, false otherwise.</returns>
     public bool IsInitializationNeeded(string? configFilePath = null)
     {
+        var logger = Logging.FileLogger.Instance;
         string path = configFilePath ?? DefaultConfigFileName;
-        return !File.Exists(path);
+        bool exists = File.Exists(path);
+        bool needed = !exists;
+
+        logger.Info($"Checking if initialization needed for: {path}");
+        logger.Info($"File exists: {exists}, Initialization needed: {needed}");
+
+        return needed;
     }
 
     /// <summary>
@@ -87,24 +94,30 @@ commands:
     /// <exception cref="IOException">Thrown when file creation fails.</exception>
     public void GenerateSampleConfig(string? configFilePath = null)
     {
+        var logger = Logging.FileLogger.Instance;
         string path = configFilePath ?? DefaultConfigFileName;
 
         try
         {
+            logger.Info($"Generating sample config at: {path}");
+
             // Get the directory path
             string? directory = Path.GetDirectoryName(path);
 
             // Create directory if it doesn't exist and path has a directory component
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
+                logger.Info($"Creating directory: {directory}");
                 Directory.CreateDirectory(directory);
             }
 
             // Write the sample config
             File.WriteAllText(path, SampleConfigContent);
+            logger.Info($"Sample config file created successfully at: {Path.GetFullPath(path)}");
         }
         catch (Exception ex)
         {
+            logger.Error($"Failed to create configuration file at '{path}'", ex);
             throw new IOException($"Failed to create configuration file at '{path}': {ex.Message}", ex);
         }
     }

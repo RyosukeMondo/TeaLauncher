@@ -101,18 +101,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
     /// <param name="dialogService">Service for displaying dialogs.</param>
     public MainWindow(string configFileName, IDialogService dialogService)
     {
-        _commandManager = new CommandManager(this, this, this);
-        _configLoader = new YamlConfigLoaderService();
-        _dialogService = dialogService;
-        _configFileName = configFileName;
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info($"MainWindow constructor: config={configFileName}");
 
-        InitializeComponent();
-        InitializeControls();
-        InitializeConfiguration();
-        InitializeHotkey();
+        try
+        {
+            _commandManager = new CommandManager(this, this, this);
+            _configLoader = new YamlConfigLoaderService();
+            _dialogService = dialogService;
+            _configFileName = configFileName;
 
-        // Hide window on startup
-        Opened += (s, e) => HideWindow();
+            InitializeComponent();
+            InitializeControls();
+            InitializeConfiguration();
+            InitializeHotkey();
+
+            Opened += (s, e) => { logger.Info("Window opened, hiding"); HideWindow(); };
+            logger.Info("MainWindow constructor completed");
+        }
+        catch (Exception ex)
+        {
+            logger.Error("Error in MainWindow constructor", ex);
+            throw;
+        }
     }
 
     private void InitializeComponent()
@@ -152,32 +163,41 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
 
     private void InitializeHotkey()
     {
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+
 #if WINDOWS
+        logger.Info("Initializing Windows hotkey");
+
         try
         {
-            // Wait for window to be fully created before getting handle
             Dispatcher.UIThread.Post(() =>
             {
                 try
                 {
-                    // Load hotkey preference from settings
                     var settingsService = new Infrastructure.Settings.SettingsService();
                     var modifier = settingsService.GetHotkeyModifier();
+                    logger.Info($"Registering hotkey: Space+{modifier}");
 
                     _hotkey = new WindowsHotkeyService();
                     _hotkey.SetWindow(this);
                     _hotkey.RegisterHotkey(Key.Space, modifier, () => Hotkey_Pressed(null, EventArgs.Empty));
+
+                    logger.Info("Hotkey registered successfully");
                 }
                 catch (Exception ex)
                 {
+                    logger.Error("Failed to register hotkey", ex);
                     ShowError($"Failed to register hotkey:\n{ex.Message}");
                 }
             }, DispatcherPriority.ApplicationIdle);
         }
         catch (Exception ex)
         {
+            logger.Error("Failed to initialize hotkey", ex);
             ShowError($"Failed to initialize hotkey:\n{ex.Message}");
         }
+#else
+        logger.Info("Not on Windows - skipping hotkey");
 #endif
     }
 
@@ -366,6 +386,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
 
     private void HideWindow()
     {
+        Infrastructure.Logging.FileLogger.Instance.Info("Hiding window");
         ClearCommandBox();
         this.Hide();
     }
@@ -422,6 +443,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
     // ICommandManagerFinalizer implementation
     public void Exit()
     {
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info("Exit() called, closing window");
+
 #if WINDOWS
         _hotkey?.Dispose();
         _imeController?.Dispose();
@@ -458,11 +482,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info($"OnClosing called. Close reason: {e.CloseReason}");
+
         base.OnClosing(e);
 
 #if WINDOWS
         _hotkey?.Dispose();
         _imeController?.Dispose();
+        logger.Info("Windows resources disposed in OnClosing");
 #endif
+
+        logger.Info("=== MainWindow closing ===");
     }
 }

@@ -38,77 +38,121 @@ public partial class App : AvaloniaApplication
 
     public override void Initialize()
     {
-        AvaloniaXamlLoader.Load(this);
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info("App.Initialize() called");
+
+        try
+        {
+            AvaloniaXamlLoader.Load(this);
+            logger.Info("Avalonia XAML loaded successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.Error("Failed to load Avalonia XAML", ex);
+            throw;
+        }
+    }
+
+    private MainWindow CreateMainWindow()
+    {
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+
+        if (ServiceProvider != null)
+        {
+            logger.Info("Resolving MainWindow from ServiceProvider");
+            return ServiceProvider.GetRequiredService<MainWindow>();
+        }
+        else
+        {
+            logger.Warning("ServiceProvider is null - using direct instantiation");
+            return new MainWindow();
+        }
+    }
+
+    private void HandleInitialization(IClassicDesktopStyleApplicationLifetime desktop, string configFilePath)
+    {
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info("Starting first-time initialization...");
+
+        var initService = new Infrastructure.Initialization.InitializationService();
+        var settingsService = new Infrastructure.Settings.SettingsService();
+        var initWindow = new Views.InitializationWindow(initService, settingsService);
+
+        logger.Info("Showing initialization window");
+        initWindow.Show();
+        initWindow.Activate();
+
+        initWindow.Closed += (s, e) =>
+        {
+            logger.Info($"Initialization window closed. Completed: {initWindow.InitializationCompleted}");
+
+            if (!initWindow.InitializationCompleted)
+            {
+                logger.Warning("Initialization not completed - shutting down application");
+                desktop.Shutdown();
+                return;
+            }
+
+            logger.Info("Initialization completed successfully - creating main window");
+            desktop.MainWindow = CreateMainWindow();
+            logger.Info("Main window created successfully");
+        };
+
+        logger.Info("Waiting for initialization to complete...");
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info("App.OnFrameworkInitializationCompleted() called");
+
+        try
         {
-            // Read command-line arguments, default to "commands.yaml" if not provided
-            string configFilePath = "commands.yaml";
-
-            if (desktop.Args != null && desktop.Args.Length > 0)
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                configFilePath = desktop.Args[0];
-            }
+                logger.Info("Desktop application lifetime detected");
 
-            // Check if initialization is needed (first-time setup)
-            var initService = new Infrastructure.Initialization.InitializationService();
-            if (initService.IsInitializationNeeded(configFilePath))
-            {
-                // Show initialization window
-                var settingsService = new Infrastructure.Settings.SettingsService();
-                var initWindow = new Views.InitializationWindow(initService, settingsService);
+                // Read command-line arguments, default to "commands.yaml" if not provided
+                string configFilePath = "commands.yaml";
 
-                // Use Show() instead of ShowDialog() to avoid null owner issue
-                initWindow.Show();
-                initWindow.Activate();
-
-                // Wait for the window to close
-                initWindow.Closed += (s, e) =>
+                if (desktop.Args != null && desktop.Args.Length > 0)
                 {
-                    // If initialization was not completed (user closed window), exit the app
-                    if (!initWindow.InitializationCompleted)
-                    {
-                        desktop.Shutdown();
-                        return;
-                    }
+                    configFilePath = desktop.Args[0];
+                    logger.Info($"Config file path from args: {configFilePath}");
+                }
+                else
+                {
+                    logger.Info($"Using default config file path: {configFilePath}");
+                }
 
-                    // Resolve MainWindow from the dependency injection container
-                    // Note: MainWindow is registered as Transient, so we get a new instance
-                    if (ServiceProvider != null)
-                    {
-                        desktop.MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-                    }
-                    else
-                    {
-                        // Fallback to direct instantiation if ServiceProvider is not available
-                        // (e.g., in design mode or testing)
-                        // Note: This will use the parameterless constructor which has null! for dialogService
-                        desktop.MainWindow = new MainWindow();
-                    }
-                };
+                // Check if initialization is needed (first-time setup)
+                var initService = new Infrastructure.Initialization.InitializationService();
+                bool needsInit = initService.IsInitializationNeeded(configFilePath);
+                logger.Info($"Initialization needed: {needsInit}");
 
-                // Don't set MainWindow yet - wait for initialization to complete
-                return;
-            }
-
-            // Resolve MainWindow from the dependency injection container
-            // Note: MainWindow is registered as Transient, so we get a new instance
-            if (ServiceProvider != null)
-            {
-                desktop.MainWindow = ServiceProvider.GetRequiredService<MainWindow>();
+                if (needsInit)
+                {
+                    HandleInitialization(desktop, configFilePath);
+                }
+                else
+                {
+                    logger.Info("No initialization needed - creating main window directly");
+                    desktop.MainWindow = CreateMainWindow();
+                    logger.Info("Main window created successfully");
+                }
             }
             else
             {
-                // Fallback to direct instantiation if ServiceProvider is not available
-                // (e.g., in design mode or testing)
-                // Note: This will use the parameterless constructor which has null! for dialogService
-                desktop.MainWindow = new MainWindow();
+                logger.Warning("ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime");
             }
-        }
 
-        base.OnFrameworkInitializationCompleted();
+            base.OnFrameworkInitializationCompleted();
+            logger.Info("Framework initialization completed");
+        }
+        catch (Exception ex)
+        {
+            logger.Error("Error in OnFrameworkInitializationCompleted", ex);
+            throw;
+        }
     }
 }

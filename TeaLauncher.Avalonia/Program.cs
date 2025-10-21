@@ -32,16 +32,48 @@ internal class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // Configure dependency injection
-        var services = new ServiceCollection();
-        services.ConfigureServices();
-        var serviceProvider = services.BuildServiceProvider();
+        var logger = Infrastructure.Logging.FileLogger.Instance;
 
-        // Store the service provider in the App instance for access throughout the application
-        App.ServiceProvider = serviceProvider;
+        try
+        {
+            logger.Info("=== TeaLauncher Starting ===");
+            logger.Info($"Command-line arguments: {string.Join(" ", args)}");
 
-        BuildAvaloniaApp()
-            .StartWithClassicDesktopLifetime(args);
+            // Set up global exception handlers
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                logger.Error("Unhandled exception in AppDomain", (Exception)e.ExceptionObject);
+                logger.Info($"IsTerminating: {e.IsTerminating}");
+            };
+
+            System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (sender, e) =>
+            {
+                logger.Error("Unobserved task exception", e.Exception);
+                e.SetObserved();
+            };
+
+            logger.Info("Configuring dependency injection...");
+            // Configure dependency injection
+            var services = new ServiceCollection();
+            services.ConfigureServices();
+            var serviceProvider = services.BuildServiceProvider();
+            logger.Info("Dependency injection configured successfully");
+
+            // Store the service provider in the App instance for access throughout the application
+            App.ServiceProvider = serviceProvider;
+            logger.Info("Service provider stored in App instance");
+
+            logger.Info("Building Avalonia app...");
+            BuildAvaloniaApp()
+                .StartWithClassicDesktopLifetime(args);
+
+            logger.Info("=== TeaLauncher Exiting Normally ===");
+        }
+        catch (Exception ex)
+        {
+            logger.Error("Fatal error in Main", ex);
+            throw;
+        }
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

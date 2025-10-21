@@ -5,6 +5,23 @@ All notable changes to TeaLauncher will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2025-10-21
+
+### Added
+- **Comprehensive file logging**: All activities logged to `TeaLauncher.log`
+  - Startup and shutdown logging
+  - Initialization flow logging
+  - Hotkey registration logging
+  - Configuration loading logging
+  - Window lifecycle logging
+  - Exception and error logging
+- **Global exception handlers**: Catches unhandled exceptions in AppDomain and TaskScheduler
+- **Diagnostic information**: Log includes process ID, OS version, .NET version, working directory
+
+### Fixed
+- Silent process termination: Logs now reveal why the application exits unexpectedly
+- Improved debugging: Detailed logs help diagnose startup and runtime issues
+
 ## [2.1.0] - 2025-10-21
 
 ### Added

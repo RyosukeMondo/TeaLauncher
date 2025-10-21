@@ -45,12 +45,28 @@ public partial class InitializationWindow : Window
     /// <param name="settingsService">Service for handling settings.</param>
     public InitializationWindow(InitializationService initService, Infrastructure.Settings.SettingsService settingsService)
     {
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info("InitializationWindow constructor called");
+
         _initService = initService;
         _settingsService = settingsService;
 
-        InitializeComponent();
-        InitializeControls();
-        UpdateConfigPath();
+        try
+        {
+            InitializeComponent();
+            logger.Info("InitializationWindow component initialized");
+
+            InitializeControls();
+            logger.Info("InitializationWindow controls initialized");
+
+            UpdateConfigPath();
+            logger.Info("InitializationWindow config path updated");
+        }
+        catch (Exception ex)
+        {
+            logger.Error("Error in InitializationWindow constructor", ex);
+            throw;
+        }
     }
 
     private void InitializeComponent()
@@ -82,32 +98,44 @@ public partial class InitializationWindow : Window
 
     private async void StartButton_Click(object? sender, RoutedEventArgs e)
     {
+        var logger = Infrastructure.Logging.FileLogger.Instance;
+        logger.Info("Start button clicked");
+
         try
         {
             // Determine selected hotkey modifier
             if (_altSpaceRadio?.IsChecked == true)
             {
                 SelectedModifier = KeyModifiers.Alt;
+                logger.Info("Selected hotkey: Alt+Space");
             }
             else
             {
                 SelectedModifier = KeyModifiers.Control;
+                logger.Info("Selected hotkey: Ctrl+Space");
             }
 
             // Generate sample config file
+            logger.Info("Generating sample config file...");
             _initService.GenerateSampleConfig();
 
             // Save the selected hotkey to settings
+            logger.Info("Saving hotkey preference...");
             _settingsService.SaveHotkeyModifier(SelectedModifier);
+            logger.Info("Settings saved successfully");
 
             // Mark initialization as completed
             InitializationCompleted = true;
+            logger.Info("Initialization marked as completed");
 
             // Close the window
+            logger.Info("Closing initialization window");
             Close();
         }
         catch (Exception ex)
         {
+            logger.Error("Error during initialization", ex);
+
             // Show error message
             await ShowErrorDialog("Initialization Error",
                 $"Failed to complete initialization:\n\n{ex.Message}");
