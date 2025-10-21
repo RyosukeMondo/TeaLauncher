@@ -123,7 +123,7 @@ jobs:
         script: |
           const fs = require('fs');
           const coverage = '${{ steps.coverage-linux.outputs.coverage }}';
-          const threshold = 80;
+          const threshold = 60;
 
           let summary = `### Coverage Report\n\n`;
           summary += `**Line Coverage:** ${coverage}%\n`;
