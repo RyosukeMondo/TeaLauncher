@@ -1086,6 +1086,377 @@ Pull requests require:
 - No format violations
 - At least one approval
 
+## Release Process
+
+### Overview
+
+TeaLauncher uses an automated release workflow that triggers on version tags. The workflow ensures quality gates are met before creating production releases with platform-specific binaries.
+
+**Release Workflow**: `.github/workflows/release.yml`
+
+### Tag Naming Convention
+
+Tags must follow semantic versioning with a `v` prefix:
+
+**Format**: `v{major}.{minor}.{patch}[-{prerelease}]`
+
+**Examples**:
+- Production releases: `v1.0.0`, `v2.1.3`, `v3.0.0`
+- Pre-releases: `v1.0.0-alpha`, `v2.0.0-beta`, `v1.5.0-rc1`
+- Test releases: `v0.0.1-test` (for testing the workflow)
+
+**Version Components**:
+- **major**: Breaking changes (v1.0.0 → v2.0.0)
+- **minor**: New features, backward compatible (v1.0.0 → v1.1.0)
+- **patch**: Bug fixes, backward compatible (v1.0.0 → v1.0.1)
+- **prerelease**: Optional suffix for pre-release versions (-alpha, -beta, -rc1, -test)
+
+**Important**: The version tag must match the `AssemblyVersion` in `TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj`.
+
+### Creating a Release
+
+1. **Update AssemblyVersion** (if needed):
+   ```bash
+   # Edit TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+   # Update <AssemblyVersion> to match your tag (without 'v' prefix)
+   <AssemblyVersion>2.0.0</AssemblyVersion>
+   ```
+
+2. **Commit version update**:
+   ```bash
+   git add TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
+   git commit -m "Bump version to 2.0.0"
+   git push
+   ```
+
+3. **Create and push tag**:
+   ```bash
+   git tag v2.0.0
+   git push origin v2.0.0
+   ```
+
+4. **Monitor workflow execution**:
+   - Go to GitHub Actions tab
+   - Watch the "Release Build" workflow
+   - Ensure all jobs pass (quality-checks, build-windows, build-linux, create-release)
+   - Typical completion time: 5-10 minutes
+
+5. **Verify release**:
+   - Go to GitHub Releases page
+   - Download both platform binaries
+   - Test on Windows and Linux
+   - Verify release notes are accurate
+
+### Release Workflow Stages
+
+The release workflow consists of 4 jobs that run sequentially:
+
+```
+┌──────────────────┐
+│ quality-checks   │  ← Quality gates (tests, coverage, metrics, format)
+└────────┬─────────┘
+         │
+         ├─────────────────────────────┐
+         ▼                             ▼
+┌──────────────────┐         ┌──────────────────┐
+│ build-windows    │         │ build-linux      │  ← Platform builds (parallel)
+└────────┬─────────┘         └────────┬─────────┘
+         │                             │
+         └─────────────┬───────────────┘
+                       ▼
+              ┌──────────────────┐
+              │ create-release   │  ← GitHub Release with assets
+              └──────────────────┘
+```
+
+**Job Details**:
+
+1. **quality-checks** (ubuntu-latest, ~3-4 minutes):
+   - Runs all tests (305 tests)
+   - Verifies code coverage ≥60%
+   - Validates code metrics (≤50 lines/method)
+   - Checks code formatting
+
+2. **build-windows** (ubuntu-latest, ~2-3 minutes):
+   - Builds Windows executable (.exe)
+   - Self-contained, single-file binary
+   - Output: `TeaLauncher-{version}-win-x64.exe` (~40-50MB)
+
+3. **build-linux** (ubuntu-latest, ~2-3 minutes):
+   - Builds Linux executable
+   - Self-contained, single-file binary with execute permissions
+   - Output: `TeaLauncher-{version}-linux-x64` (~50-60MB)
+
+4. **create-release** (ubuntu-latest, ~30 seconds):
+   - Downloads both platform artifacts
+   - Creates GitHub Release with auto-generated changelog
+   - Uploads both executables as release assets
+   - Marks as pre-release if tag contains -alpha/-beta/-rc
+
+**Quality Gates**: The workflow will fail if:
+- Any test fails
+- Code coverage < 60%
+- Code metrics violations (method > 50 lines, file > 500 lines, complexity > 15)
+- Code formatting violations
+
+**Timeout**: Each job has a 15-minute timeout to prevent hanging builds.
+
+### Testing the Release Workflow
+
+Before creating a production release, test the workflow with a test tag:
+
+1. **Create test tag**:
+   ```bash
+   git tag v0.0.1-test
+   git push origin v0.0.1-test
+   ```
+
+2. **Monitor workflow**:
+   - Check GitHub Actions for "Release Build" workflow
+   - Verify all 4 jobs complete successfully
+   - Check workflow duration (should be ~7-10 minutes)
+
+3. **Verify test release**:
+   - Go to GitHub Releases
+   - Find the test release (marked as pre-release)
+   - Download both binaries
+   - Test on Windows: `TeaLauncher-0.0.1-test-win-x64.exe`
+   - Test on Linux: `chmod +x TeaLauncher-0.0.1-test-linux-x64 && ./TeaLauncher-0.0.1-test-linux-x64`
+
+4. **Clean up test release**:
+   ```bash
+   # Delete the test release via GitHub UI or:
+   gh release delete v0.0.1-test --yes
+   git tag -d v0.0.1-test
+   git push origin --delete v0.0.1-test
+   ```
+
+### Troubleshooting Release Workflow
+
+#### Quality Checks Failed
+
+**Symptom**:
+```
+quality-checks job failed
+Error: Process completed with exit code 1
+```
+
+**Diagnosis**:
+1. Click on the failed job in GitHub Actions
+2. Expand the failed step (test, coverage-check, metrics, or format-check)
+3. Review the error output
+
+**Common Causes and Solutions**:
+
+**Tests failing**:
+```
+Failed!  - Failed:     3, Passed:   302, Skipped:     0, Total:   305
+```
+- **Solution**: Fix failing tests locally (`dotnet test`), commit, and re-tag
+
+**Coverage below threshold**:
+```
+Current coverage: 58%
+Required threshold: 60%
+❌ COVERAGE CHECK FAILED
+```
+- **Solution**: Add unit tests to increase coverage, commit, re-tag
+- See [Coverage Thresholds](#coverage-thresholds) section
+
+**Metrics violation**:
+```
+❌ METHOD TOO LONG: ExecuteAsync (68 lines) in CommandExecutorService.cs
+Maximum allowed: 50 lines
+```
+- **Solution**: Refactor long methods, commit, re-tag
+- See [Troubleshooting Pre-commit Failures](#troubleshooting-pre-commit-failures)
+
+**Format violation**:
+```
+Formatting code files in workspace 'TeaLauncher.Avalonia.sln'.
+  TeaLauncher.Avalonia/Application/Services/FooService.cs
+```
+- **Solution**: Run `dotnet format`, commit formatted files, re-tag
+
+#### Build Failed (Windows or Linux)
+
+**Symptom**:
+```
+build-windows or build-linux job failed
+Error: Process completed with exit code 1
+```
+
+**Common Causes**:
+
+**Missing dependencies**:
+```
+error: The framework 'Microsoft.NETCore.App', version '8.0.0' was not found
+```
+- **Solution**: Update workflow to install correct .NET SDK version
+- This is rare; workflow uses `setup-dotnet@v4` with .NET 8
+
+**Publish failed**:
+```
+error MSB4236: The SDK 'Microsoft.NET.Sdk' specified could not be found
+```
+- **Solution**: Verify `.csproj` file is valid, restore dependencies
+
+**Artifact upload failed**:
+```
+Error: Unable to find any artifacts for the associated workflow
+```
+- **Solution**: Verify artifact paths in workflow match actual build output
+- Check that `dotnet publish` succeeded before artifact upload
+
+#### Release Creation Failed
+
+**Symptom**:
+```
+create-release job failed
+Error: Resource not accessible by integration
+```
+
+**Common Causes**:
+
+**Permission denied**:
+```
+Error: Resource not accessible by integration
+```
+- **Solution**: Ensure workflow has `contents: write` permission (already configured)
+- Verify GitHub token has necessary permissions
+
+**Missing artifacts**:
+```
+Error: Unable to download artifact
+```
+- **Solution**: Verify both build-windows and build-linux jobs completed successfully
+- Check artifact names match download step
+
+**Tag already exists**:
+```
+Error: Release already exists for tag v2.0.0
+```
+- **Solution**: Delete existing release and tag before re-creating:
+  ```bash
+  gh release delete v2.0.0 --yes
+  git tag -d v2.0.0
+  git push origin --delete v2.0.0
+  ```
+
+#### Workflow Timeout
+
+**Symptom**:
+```
+The job running on runner ... has exceeded the maximum execution time of 15 minutes
+```
+
+**Common Causes**:
+- NuGet restore hanging (network issues)
+- Tests hanging (infinite loop, deadlock)
+- Build hanging (resource exhaustion)
+
+**Solution**:
+1. Re-run the workflow (may be transient network issue)
+2. Check for newly added infinite loops or deadlocks in code
+3. Verify tests complete locally within expected time
+4. If persistent, increase timeout in `.github/workflows/release.yml`:
+   ```yaml
+   timeout-minutes: 20  # Increase from 15
+   ```
+
+### Release Checklist
+
+Before creating a production release:
+
+- [ ] All tests passing locally (`dotnet test`)
+- [ ] Coverage ≥60% (`./scripts/check-coverage.sh`)
+- [ ] Code metrics passing (`dotnet run --project tools/MetricsChecker/MetricsChecker.csproj`)
+- [ ] Code formatted (`dotnet format --verify-no-changes`)
+- [ ] Version updated in `.csproj` (AssemblyVersion matches tag)
+- [ ] CHANGELOG updated (if applicable)
+- [ ] Test workflow validated with test tag (`v0.0.1-test`)
+- [ ] All changes committed and pushed to main branch
+- [ ] Tag follows naming convention (`v{major}.{minor}.{patch}`)
+- [ ] Team notified of upcoming release
+
+After release is published:
+
+- [ ] Download and test Windows binary on Windows 10/11
+- [ ] Download and test Linux binary on Ubuntu 22.04+
+- [ ] Verify release notes are accurate
+- [ ] Announce release to users (if applicable)
+- [ ] Update documentation links to point to new release
+
+### Manual Release Recovery
+
+If the automated workflow fails and you need to create a release manually:
+
+1. **Build binaries locally**:
+   ```bash
+   # Windows
+   dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:AssemblyVersion=2.0.0
+
+   # Linux
+   dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:AssemblyVersion=2.0.0
+   ```
+
+2. **Rename executables**:
+   ```bash
+   mv TeaLauncher.Avalonia/bin/Release/net8.0-windows/win-x64/publish/TeaLauncher.Avalonia.exe TeaLauncher-2.0.0-win-x64.exe
+   mv TeaLauncher.Avalonia/bin/Release/net8.0/linux-x64/publish/TeaLauncher.Avalonia TeaLauncher-2.0.0-linux-x64
+   chmod +x TeaLauncher-2.0.0-linux-x64
+   ```
+
+3. **Create GitHub Release manually**:
+   ```bash
+   gh release create v2.0.0 \
+     --title "TeaLauncher v2.0.0" \
+     --notes "See CHANGELOG for details" \
+     TeaLauncher-2.0.0-win-x64.exe \
+     TeaLauncher-2.0.0-linux-x64
+   ```
+
+**Note**: Manual releases should be rare. Fix the workflow issue to prevent recurrence.
+
+### Pre-release vs Production Releases
+
+**Pre-release tags** (contain -alpha, -beta, -rc, -test):
+- Marked as "Pre-release" on GitHub Releases page
+- Not shown as "Latest release"
+- Used for testing, early access, or release candidates
+- Examples: `v1.0.0-alpha`, `v2.0.0-beta`, `v1.5.0-rc1`
+
+**Production tags** (no suffix):
+- Marked as "Latest release" on GitHub Releases page
+- Recommended for end users
+- Should be thoroughly tested before release
+- Examples: `v1.0.0`, `v2.1.3`, `v3.0.0`
+
+### Deleting or Editing Releases
+
+**Delete a release** (if published by mistake):
+```bash
+# Via GitHub CLI
+gh release delete v2.0.0 --yes
+
+# Delete the tag locally and remotely
+git tag -d v2.0.0
+git push origin --delete v2.0.0
+```
+
+**Edit release notes**:
+- Go to GitHub Releases page
+- Click "Edit" on the release
+- Update release notes
+- Click "Update release"
+
+**Add missing assets**:
+```bash
+gh release upload v2.0.0 TeaLauncher-2.0.0-macos-arm64
+```
+
+**Important**: Never delete or modify a production release after users have downloaded it. If there's a critical issue, create a new patch release (e.g., v2.0.1) instead.
+
 ## Troubleshooting
 
 ### Common Test Failures

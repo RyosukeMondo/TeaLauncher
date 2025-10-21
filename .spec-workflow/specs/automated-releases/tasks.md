@@ -100,7 +100,7 @@
   - _Requirements: 4_
   - _Prompt: Implement the task for spec automated-releases, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Technical Writer with expertise in developer documentation and user guides | Task: Update README.md following requirement 4 by adding "Installation" section with links to GitHub Releases page, platform-specific download and run instructions for Windows and Linux, GitHub Actions workflow status badge for release.yml, and brief documentation of the release process for maintainers. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Keep documentation concise and user-friendly, use clear step-by-step instructions for each platform, include badge from GitHub Actions (shields.io format), do not duplicate information already in release notes | _Leverage: Existing README.md structure and formatting, GitHub Actions badge syntax (https://github.com/{owner}/{repo}/actions/workflows/release.yml/badge.svg) | _Requirements: Requirement 4 (Release Documentation) | Success: README.md updated with Installation section, includes download links to latest release, platform-specific instructions are clear (Windows: download .exe and run; Linux: download, chmod +x, run), workflow badge added and displays correctly_
 
-- [ ] 9. Document release workflow in TESTING.md or CONTRIBUTING.md
+- [x] 9. Document release workflow in TESTING.md or CONTRIBUTING.md
   - File: TESTING.md (or create CONTRIBUTING.md if doesn't exist)
   - Document release workflow validation steps
   - Add troubleshooting guide for common workflow failures
