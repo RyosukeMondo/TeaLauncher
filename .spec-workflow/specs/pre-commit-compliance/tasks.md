@@ -64,7 +64,7 @@
   - _Requirements: 1_
   - _Prompt: Implement the task for spec pre-commit-compliance, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Test Coverage Analyst with expertise in code coverage analysis and gap identification | Task: Analyze current code coverage report (61%) following requirement 1, identify specific uncovered lines in critical services (CommandExecutorService, AutoCompleterService, YamlConfigLoaderService, AvaloniaDialogService), and create prioritized list of test scenarios needed to reach ≥80% coverage. Parse coverage.cobertura.xml to identify exact line numbers lacking coverage. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Do not write tests yet (analysis only), focus on critical services first, ensure analysis is data-driven from actual coverage report | _Leverage: coverage/**/coverage.cobertura.xml for line-by-line coverage data, scripts/check-coverage.sh for threshold validation, TESTING.md for existing test patterns | _Requirements: Requirement 1 (Code Coverage Compliance) | Success: Detailed analysis document created identifying specific uncovered lines, prioritized list of 10-15 test scenarios to implement, clear path to ≥80% coverage_
 
-- [ ] 6. Add CommandExecutorService edge case tests
+- [x] 6. Add CommandExecutorService edge case tests
   - File: TeaLauncher.Avalonia.Tests/Application/Services/CommandExecutorServiceTests.cs
   - Add unit tests for uncovered scenarios:
     - Special command detection (!reload, !version, !exit)

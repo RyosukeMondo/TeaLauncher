@@ -606,4 +606,313 @@ public class CommandExecutorServiceTests
     }
 
     #endregion
+
+    #region Special Command Detection Tests
+
+    /// <summary>
+    /// Tests that !reload command throws NotSupportedException.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithReloadCommand_ShouldThrowNotSupportedException()
+    {
+        // Arrange & Act
+        Func<Task> act = async () => await _service.ExecuteAsync("!reload");
+
+        // Assert
+        await act.Should().ThrowAsync<NotSupportedException>()
+            .WithMessage("*must be handled by ApplicationOrchestrator*");
+    }
+
+    /// <summary>
+    /// Tests that !version command throws NotSupportedException.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithVersionCommand_ShouldThrowNotSupportedException()
+    {
+        // Arrange & Act
+        Func<Task> act = async () => await _service.ExecuteAsync("!version");
+
+        // Assert
+        await act.Should().ThrowAsync<NotSupportedException>()
+            .WithMessage("*must be handled by ApplicationOrchestrator*");
+    }
+
+    /// <summary>
+    /// Tests that !exit command throws NotSupportedException.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithExitCommand_ShouldThrowNotSupportedException()
+    {
+        // Arrange & Act
+        Func<Task> act = async () => await _service.ExecuteAsync("!exit");
+
+        // Assert
+        await act.Should().ThrowAsync<NotSupportedException>()
+            .WithMessage("*must be handled by ApplicationOrchestrator*");
+    }
+
+    /// <summary>
+    /// Tests that special command with arguments throws NotSupportedException.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithSpecialCommandAndArguments_ShouldThrowNotSupportedException()
+    {
+        // Arrange & Act
+        Func<Task> act = async () => await _service.ExecuteAsync("!reload force");
+
+        // Assert
+        await act.Should().ThrowAsync<NotSupportedException>()
+            .WithMessage("*must be handled by ApplicationOrchestrator*");
+    }
+
+    #endregion
+
+    #region Registry Lookup Failure Tests
+
+    /// <summary>
+    /// Tests that registry lookup failure for unknown command throws InvalidOperationException.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithUnknownCommandNotInRegistry_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        _mockCommandRegistry.GetAllCommands().Returns(new List<Command>().AsReadOnly());
+
+        // Act
+        Func<Task> act = async () => await _service.ExecuteAsync("unknowncommand");
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*not found in registry*")
+            .WithMessage("*unknowncommand*");
+    }
+
+    /// <summary>
+    /// Tests that registry lookup failure with case variation throws InvalidOperationException.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithCommandNotInRegistry_ShouldIncludeCommandNameInError()
+    {
+        // Arrange
+        var existingCommand = new Command("git", "/usr/bin/git");
+        _mockCommandRegistry.GetAllCommands().Returns(new List<Command> { existingCommand }.AsReadOnly());
+
+        // Act
+        Func<Task> act = async () => await _service.ExecuteAsync("svn");
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Command 'svn' not found in registry*");
+    }
+
+    #endregion
+
+    #region IsPath Edge Case Tests
+
+    /// <summary>
+    /// Tests that GetExecution recognizes file:// URLs.
+    /// </summary>
+    [Test]
+    public void GetExecution_WithFileUrl_ShouldRecognizeAsCommand()
+    {
+        // Arrange & Act
+        var result = _service.GetExecution("file://C:/path/to/file.txt");
+
+        // Assert
+        result.Should().Be("file://C:/path/to/file.txt");
+    }
+
+    /// <summary>
+    /// Tests that GetExecution handles UNC paths (\\server\share).
+    /// </summary>
+    [Test]
+    public void GetExecution_WithUncPath_ShouldReturnPath()
+    {
+        // Arrange & Act
+        var result = _service.GetExecution("\\\\server\\share\\file.exe");
+
+        // Assert
+        result.Should().Be("\\\\server\\share\\file.exe");
+    }
+
+    /// <summary>
+    /// Tests that GetExecution handles relative paths.
+    /// </summary>
+    [Test]
+    public void GetExecution_WithRelativePath_ShouldReturnPath()
+    {
+        // Arrange & Act
+        var result = _service.GetExecution("..\\folder\\app.exe");
+
+        // Assert
+        result.Should().Be("..\\folder\\app.exe");
+    }
+
+    /// <summary>
+    /// Tests that GetExecution handles paths with forward slashes.
+    /// </summary>
+    [Test]
+    public void GetExecution_WithForwardSlashPath_ShouldReturnPath()
+    {
+        // Arrange & Act
+        var result = _service.GetExecution("C:/Windows/notepad.exe");
+
+        // Assert
+        result.Should().Be("C:/Windows/notepad.exe");
+    }
+
+    #endregion
+
+    #region IsSpecialCommand Edge Cases
+
+    /// <summary>
+    /// Tests that commands with exclamation in the middle are not treated as special commands.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithExclamationInMiddle_ShouldNotTreatAsSpecial()
+    {
+        // Arrange
+        var command = new Command("test!command", "test.exe");
+        _mockCommandRegistry.GetAllCommands().Returns(new List<Command> { command }.AsReadOnly());
+
+        // Act
+        Func<Task> act = async () => await _service.ExecuteAsync("other!command");
+
+        // Assert - should throw command not found, not special command exception
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*not found in registry*");
+    }
+
+    /// <summary>
+    /// Tests that commands without exclamation prefix are not treated as special.
+    /// </summary>
+    [Test]
+    public async Task ExecuteAsync_WithoutExclamationPrefix_ShouldNotTreatAsSpecial()
+    {
+        // Arrange
+        _mockCommandRegistry.GetAllCommands().Returns(new List<Command>().AsReadOnly());
+
+        // Act
+        Func<Task> act = async () => await _service.ExecuteAsync("reload");
+
+        // Assert - should throw command not found, NOT special command exception
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*not found in registry*")
+            .Where(ex => !ex.Message.Contains("ApplicationOrchestrator"));
+    }
+
+    #endregion
+
+    #region Split Edge Cases
+
+    /// <summary>
+    /// Tests that GetArguments with null input returns empty list.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithNullString_ShouldReturnEmptyList()
+    {
+        // Arrange & Act
+        var result = _service.GetArguments(null!);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+    }
+
+    /// <summary>
+    /// Tests that GetExecution with only whitespace returns empty after validation.
+    /// </summary>
+    [Test]
+    public void GetExecution_WithOnlyWhitespace_ShouldThrowArgumentException()
+    {
+        // Arrange & Act
+        Action act = () => _service.GetExecution("   ");
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithParameterName("commandInput");
+    }
+
+    #endregion
+
+    #region Argument Combination Edge Cases
+
+    /// <summary>
+    /// Tests that commands with complex argument combinations are parsed correctly.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithMixedQuotesAndSpecialChars_ShouldParseCorrectly()
+    {
+        // Arrange & Act
+        var result = _service.GetArguments("cmd \"arg with spaces\" -flag value");
+
+        // Assert
+        result.Should().HaveCount(3);
+        result[0].Should().Be("arg with spaces");
+        result[1].Should().Be("-flag");
+        result[2].Should().Be("value");
+    }
+
+    /// <summary>
+    /// Tests that arguments with equals signs are handled correctly.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithEqualsInArguments_ShouldPreserveEquals()
+    {
+        // Arrange & Act
+        var result = _service.GetArguments("cmd --key=value --other=\"val=ue\"");
+
+        // Assert
+        result.Should().HaveCount(2);
+        result[0].Should().Be("--key=value");
+        result[1].Should().Be("--other=val=ue");
+    }
+
+    /// <summary>
+    /// Tests that arguments with dashes are handled correctly.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithMultipleDashes_ShouldHandleCorrectly()
+    {
+        // Arrange & Act
+        var result = _service.GetArguments("git commit --no-verify --allow-empty");
+
+        // Assert
+        result.Should().HaveCount(3);
+        result[0].Should().Be("commit");
+        result[1].Should().Be("--no-verify");
+        result[2].Should().Be("--allow-empty");
+    }
+
+    /// <summary>
+    /// Tests that arguments with dots are handled correctly.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithDotsInArguments_ShouldHandleCorrectly()
+    {
+        // Arrange & Act
+        var result = _service.GetArguments("dotnet build project.csproj");
+
+        // Assert
+        result.Should().HaveCount(2);
+        result[0].Should().Be("build");
+        result[1].Should().Be("project.csproj");
+    }
+
+    /// <summary>
+    /// Tests that very long argument lists are handled correctly.
+    /// </summary>
+    [Test]
+    public void GetArguments_WithManyArguments_ShouldParseAll()
+    {
+        // Arrange & Act
+        var result = _service.GetArguments("cmd arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10");
+
+        // Assert
+        result.Should().HaveCount(10);
+        result[0].Should().Be("arg1");
+        result[9].Should().Be("arg10");
+    }
+
+    #endregion
 }
