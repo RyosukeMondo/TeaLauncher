@@ -12,6 +12,7 @@ jobs:
   quality-checks:
     name: Quality Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - name: Checkout code
@@ -43,6 +44,7 @@ jobs:
       run: dotnet build TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --configuration Release --no-restore
 
     - name: Run tests
+      continue-on-error: false
       run: dotnet test TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --no-build --verbosity minimal --configuration Release
 
     - name: Run tests with coverage
@@ -59,18 +61,22 @@ jobs:
           -reporttypes:"Html;Cobertura"
 
     - name: Check coverage threshold
+      continue-on-error: false
       run: bash scripts/check-coverage.sh
 
     - name: Check code metrics
+      continue-on-error: false
       run: dotnet run --project tools/MetricsChecker/MetricsChecker.csproj -- TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj
 
     - name: Check code formatting
+      continue-on-error: false
       run: dotnet format TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --verify-no-changes
 
   build-windows:
     name: Build Windows
     runs-on: windows-latest
     needs: quality-checks
+    timeout-minutes: 15
 
     steps:
     - name: Checkout code
@@ -119,6 +125,7 @@ jobs:
     name: Build Linux
     runs-on: ubuntu-latest
     needs: quality-checks
+    timeout-minutes: 15
 
     steps:
     - name: Checkout code
@@ -166,6 +173,7 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: [build-windows, build-linux]
+    timeout-minutes: 15
 
     steps:
     - name: Checkout code

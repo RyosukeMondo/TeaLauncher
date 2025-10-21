@@ -78,7 +78,7 @@
   - _Requirements: All_
   - _Prompt: Implement the task for spec automated-releases, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA Engineer with expertise in CI/CD validation and end-to-end testing | Task: Validate the complete release workflow following all requirements by creating test tag `v0.0.1-test`, pushing to GitHub, monitoring workflow execution, verifying all jobs pass, downloading release assets, testing executables on Windows and Linux platforms, and cleaning up test artifacts. Document any issues found. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Use test tag with -test suffix (not production version), test on real Windows and Linux systems if available (or use VMs), verify file sizes are reasonable (~40-50MB Windows, ~50-60MB Linux), confirm executables launch successfully, delete test release after validation to avoid confusion | _Leverage: GitHub Actions web UI for workflow monitoring, GitHub Releases page for asset download, Windows and Linux test environments for execution validation | _Requirements: All requirements (end-to-end validation) | Success: Test tag triggers workflow successfully, all 4 jobs pass (quality-checks, build-windows, build-linux, create-release), GitHub Release created with 2 assets, Windows .exe runs on Windows 10/11, Linux executable runs on Ubuntu 22.04+, test artifacts cleaned up, workflow completes within 10 minutes_
 
-- [ ] 7. Add workflow timeout and error handling
+- [x] 7. Add workflow timeout and error handling
   - File: .github/workflows/release.yml
   - Add timeout-minutes: 15 to each job
   - Add continue-on-error: false to critical steps
