@@ -97,7 +97,7 @@
   - _Requirements: 1_
   - _Prompt: Implement the task for spec pre-commit-compliance, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Integration Test Developer with expertise in YAML processing and auto-completion logic testing | Task: Add comprehensive unit tests for AutoCompleterService and YamlConfigLoaderService following requirement 1, covering empty inputs, no candidates, special characters, malformed YAML, missing files, and validation errors identified in task 5. Use existing Integration/Fixtures/*.yaml patterns for test data. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Follow AAA pattern and existing test naming conventions, use real YAML files in test fixtures (not inline strings), ensure tests are isolated and independent, validate error messages are user-friendly | _Leverage: TeaLauncher.Avalonia.Tests/Integration/Fixtures/ for YAML test data, existing AutoCompleterServiceTests.cs and YamlConfigLoaderServiceTests.cs patterns, FluentAssertions for exception assertions | _Requirements: Requirement 1 (Code Coverage Compliance) | Success: 8-10 new tests added (4-5 per service), AutoCompleterService coverage ≥85%, YamlConfigLoaderService coverage ≥85%, all tests pass 10 consecutive runs_
 
-- [ ] 8. Add AvaloniaDialogService coverage tests
+- [x] 8. Add AvaloniaDialogService coverage tests
   - File: TeaLauncher.Avalonia.Tests/Infrastructure/UI/AvaloniaDialogServiceTests.cs
   - Add tests for DialogType variations:
     - DialogType.Message rendering
