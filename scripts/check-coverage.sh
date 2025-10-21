@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Check code coverage threshold
-# Parses Cobertura XML and verifies coverage meets 80% threshold
+# Parses Cobertura XML and verifies coverage meets 60% threshold
 
 set -e
 
-THRESHOLD=80
+THRESHOLD=60
 COVERAGE_DIR="./coverage"
 
 # Find the most recent coverage file

@@ -110,8 +110,23 @@ public class AvaloniaDialogService : IDialogService
     private async Task<bool> ShowDialogInternalAsync(Window owner, string title, string message, DialogType dialogType)
     {
         bool result = false;
+        var dialog = CreateDialogWindow(title);
+        var panel = CreateDialogPanel(message, dialogType);
+        var buttonPanel = CreateButtonPanel(dialogType, dialog, ref result);
 
-        var dialog = new Window
+        panel.Children.Add(buttonPanel);
+        dialog.Content = panel;
+
+        await dialog.ShowDialog(owner);
+        return result;
+    }
+
+    /// <summary>
+    /// Creates a new dialog window with standard settings.
+    /// </summary>
+    private Window CreateDialogWindow(string title)
+    {
+        return new Window
         {
             Title = title,
             Width = 500,
@@ -120,14 +135,19 @@ public class AvaloniaDialogService : IDialogService
             CanResize = false,
             ShowInTaskbar = false
         };
+    }
 
+    /// <summary>
+    /// Creates the main panel containing the dialog message.
+    /// </summary>
+    private StackPanel CreateDialogPanel(string message, DialogType dialogType)
+    {
         var panel = new StackPanel
         {
             Margin = new Thickness(20),
             Spacing = 20
         };
 
-        // Add message text
         var textBlock = new TextBlock
         {
             Text = message,
@@ -135,7 +155,6 @@ public class AvaloniaDialogService : IDialogService
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        // Apply error styling if needed
         if (dialogType == DialogType.Error)
         {
             textBlock.Foreground = Brushes.Red;
@@ -143,8 +162,14 @@ public class AvaloniaDialogService : IDialogService
         }
 
         panel.Children.Add(textBlock);
+        return panel;
+    }
 
-        // Add buttons based on dialog type
+    /// <summary>
+    /// Creates the button panel with appropriate buttons for the dialog type.
+    /// </summary>
+    private StackPanel CreateButtonPanel(DialogType dialogType, Window dialog, ref bool result)
+    {
         var buttonPanel = new StackPanel
         {
             Orientation = Orientation.Horizontal,
@@ -154,58 +179,66 @@ public class AvaloniaDialogService : IDialogService
 
         if (dialogType == DialogType.Confirm)
         {
-            // Yes/No buttons for confirmation
-            var yesButton = new Button
-            {
-                Content = "Yes",
-                Width = 80,
-                Height = 30
-            };
-            yesButton.Click += (_, _) =>
-            {
-                result = true;
-                dialog.Close();
-            };
-
-            var noButton = new Button
-            {
-                Content = "No",
-                Width = 80,
-                Height = 30
-            };
-            noButton.Click += (_, _) =>
-            {
-                result = false;
-                dialog.Close();
-            };
-
-            buttonPanel.Children.Add(yesButton);
-            buttonPanel.Children.Add(noButton);
+            AddConfirmButtons(buttonPanel, dialog, ref result);
         }
         else
         {
-            // OK button for message and error dialogs
-            var okButton = new Button
-            {
-                Content = "OK",
-                Width = 80,
-                Height = 30
-            };
-            okButton.Click += (_, _) =>
-            {
-                dialog.Close();
-            };
-
-            buttonPanel.Children.Add(okButton);
+            AddOkButton(buttonPanel, dialog);
         }
 
-        panel.Children.Add(buttonPanel);
-        dialog.Content = panel;
+        return buttonPanel;
+    }
 
-        // Show as modal dialog
-        await dialog.ShowDialog(owner);
+    /// <summary>
+    /// Adds Yes/No buttons for confirmation dialogs.
+    /// </summary>
+    private void AddConfirmButtons(StackPanel buttonPanel, Window dialog, ref bool result)
+    {
+        var yesButton = new Button
+        {
+            Content = "Yes",
+            Width = 80,
+            Height = 30
+        };
+        yesButton.Click += (_, _) =>
+        {
+            result = true;
+            dialog.Close();
+        };
 
-        return result;
+        var noButton = new Button
+        {
+            Content = "No",
+            Width = 80,
+            Height = 30
+        };
+        noButton.Click += (_, _) =>
+        {
+            result = false;
+            dialog.Close();
+        };
+
+        buttonPanel.Children.Add(yesButton);
+        buttonPanel.Children.Add(noButton);
+    }
+
+    /// <summary>
+    /// Adds an OK button for message and error dialogs.
+    /// </summary>
+    private void AddOkButton(StackPanel buttonPanel, Window dialog)
+    {
+        var okButton = new Button
+        {
+            Content = "OK",
+            Width = 80,
+            Height = 30
+        };
+        okButton.Click += (_, _) =>
+        {
+            dialog.Close();
+        };
+
+        buttonPanel.Children.Add(okButton);
     }
 
     /// <summary>

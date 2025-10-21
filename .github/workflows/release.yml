@@ -1,0 +1,159 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0, v2.1.3, etc.
+  workflow_dispatch:  # Allows manual trigger
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: false
+        default: 'manual-build'
+
+permissions:
+  contents: write  # Required for creating releases
+
+jobs:
+  build-and-release:
+    name: Build and Release for ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            runtime: win-x64
+            artifact_name: TeaLauncher-windows-x64
+            executable_ext: .exe
+          - os: ubuntu-latest
+            platform: linux
+            runtime: linux-x64
+            artifact_name: TeaLauncher-linux-x64
+            executable_ext: ''
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Get version
+      id: get_version
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" == "push" ] && [ "${{ startsWith(github.ref, 'refs/tags/') }}" == "true" ]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        elif [ "${{ github.event.inputs.version }}" != "" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION="dev-$(date +'%Y%m%d-%H%M%S')"
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+
+    - name: Restore dependencies
+      run: dotnet restore TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj -r ${{ matrix.runtime }}
+
+    - name: Build application
+      run: dotnet build TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj --configuration Release --no-restore -r ${{ matrix.runtime }}
+
+    - name: Run tests
+      run: dotnet test TeaLauncher.Avalonia.Tests/TeaLauncher.Avalonia.Tests.csproj --configuration Release --verbosity minimal
+
+    - name: Publish self-contained application
+      run: |
+        dotnet publish TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj \
+          --configuration Release \
+          --runtime ${{ matrix.runtime }} \
+          --self-contained true \
+          -p:PublishSingleFile=true \
+          -p:IncludeNativeLibrariesForSelfExtract=true \
+          -p:PublishTrimmed=false \
+          --output ./publish/${{ matrix.runtime }}
+
+    - name: Create release package (Windows)
+      if: matrix.platform == 'windows'
+      shell: pwsh
+      run: |
+        $publishDir = "./publish/${{ matrix.runtime }}"
+        $packageDir = "./release-package"
+        New-Item -ItemType Directory -Force -Path $packageDir
+
+        # Copy executable
+        Copy-Item "$publishDir/TeaLauncher.Avalonia.exe" "$packageDir/TeaLauncher.exe"
+
+        # Copy readme and license if they exist
+        if (Test-Path "README.md") { Copy-Item "README.md" "$packageDir/" }
+        if (Test-Path "LICENSE") { Copy-Item "LICENSE" "$packageDir/" }
+
+        # Create zip archive
+        Compress-Archive -Path "$packageDir/*" -DestinationPath "${{ matrix.artifact_name }}-${{ steps.get_version.outputs.version }}.zip"
+
+        # Display package contents
+        Write-Host "Package contents:"
+        Get-ChildItem $packageDir -Recurse
+
+    - name: Create release package (Linux)
+      if: matrix.platform == 'linux'
+      shell: bash
+      run: |
+        publishDir="./publish/${{ matrix.runtime }}"
+        packageDir="./release-package"
+        mkdir -p "$packageDir"
+
+        # Copy executable
+        cp "$publishDir/TeaLauncher.Avalonia" "$packageDir/TeaLauncher"
+        chmod +x "$packageDir/TeaLauncher"
+
+        # Copy readme and license if they exist
+        [ -f "README.md" ] && cp "README.md" "$packageDir/"
+        [ -f "LICENSE" ] && cp "LICENSE" "$packageDir/"
+
+        # Create tar.gz archive
+        tar -czf "${{ matrix.artifact_name }}-${{ steps.get_version.outputs.version }}.tar.gz" -C "$packageDir" .
+
+        # Display package contents
+        echo "Package contents:"
+        ls -lah "$packageDir"
+
+    - name: Upload build artifacts (Windows)
+      if: matrix.platform == 'windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: ${{ matrix.artifact_name }}-${{ steps.get_version.outputs.version }}.zip
+        retention-days: 30
+
+    - name: Upload build artifacts (Linux)
+      if: matrix.platform == 'linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: ${{ matrix.artifact_name }}-${{ steps.get_version.outputs.version }}.tar.gz
+        retention-days: 30
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ${{ matrix.artifact_name }}-${{ steps.get_version.outputs.version }}.zip
+          ${{ matrix.artifact_name }}-${{ steps.get_version.outputs.version }}.tar.gz
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
