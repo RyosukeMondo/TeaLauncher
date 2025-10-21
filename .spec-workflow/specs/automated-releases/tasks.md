@@ -37,7 +37,7 @@
   - _Requirements: 2_
   - _Prompt: Implement the task for spec automated-releases, first run spec-workflow-guide to get the workflow guide then implement the task: Role: .NET Build Engineer with expertise in cross-platform compilation and GitHub Actions | Task: Add build-windows job to release.yml following requirement 2 that depends on quality-checks job passing. Extract version from `github.ref_name` (v1.0.0 → 1.0.0), publish self-contained single-file executable for win-x64 using `dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true`, rename output to `TeaLauncher-{version}-win-x64.exe`, and upload as workflow artifact. Edit tasks.md to mark this task as in-progress [-] when you start, then as completed [x] when finished. | Restrictions: Must use Release configuration, must be self-contained and single-file, must include version in assembly metadata (-p:AssemblyVersion), ensure executable is in publish output directory, set artifact retention to 1 day (ephemeral) | _Leverage: TeaLauncher.Avalonia/TeaLauncher.Avalonia.csproj PublishSingleFile and SelfContained settings, GitHub Actions expressions for version extraction (${{ github.ref_name }}), actions/upload-artifact@v4 for artifact upload | _Requirements: Requirement 2 (Windows Build Artifacts) | Success: build-windows job defined, depends on quality-checks, publishes ~40-50MB .exe named TeaLauncher-{version}-win-x64.exe, artifact uploaded successfully, job completes within 5 minutes_
 
-- [ ] 4. Implement Linux build job
+- [x] 4. Implement Linux build job
   - File: .github/workflows/release.yml
   - Add build-linux job with dependency on quality-checks (parallel to build-windows)
   - Extract version from tag name
