@@ -86,7 +86,7 @@ namespace CommandLauncher.Tests
                 }
             }
         }
-        
+
         [Test]
         public void TestAutoComplete()
         {
@@ -102,15 +102,15 @@ namespace CommandLauncher.Tests
             cm.RegisterWord("fuffy");
 
             // 補完
-            Assert.AreEqual("test",      cm.AutoCompleteWord("t"));
-            Assert.AreEqual("test",      cm.AutoCompleteWord("te"));
-            Assert.AreEqual("",          cm.AutoCompleteWord("ts"));
-            Assert.AreEqual("hog",       cm.AutoCompleteWord("h"));
-            Assert.AreEqual("testest",   cm.AutoCompleteWord("teste"));
-            Assert.AreEqual("fu",        cm.AutoCompleteWord("f"));
-            Assert.AreEqual("fu",        cm.AutoCompleteWord("fu"));
-            Assert.AreEqual("fuf",       cm.AutoCompleteWord("fuf"));
-            Assert.AreEqual("",          cm.AutoCompleteWord(""));
+            Assert.AreEqual("test", cm.AutoCompleteWord("t"));
+            Assert.AreEqual("test", cm.AutoCompleteWord("te"));
+            Assert.AreEqual("", cm.AutoCompleteWord("ts"));
+            Assert.AreEqual("hog", cm.AutoCompleteWord("h"));
+            Assert.AreEqual("testest", cm.AutoCompleteWord("teste"));
+            Assert.AreEqual("fu", cm.AutoCompleteWord("f"));
+            Assert.AreEqual("fu", cm.AutoCompleteWord("fu"));
+            Assert.AreEqual("fuf", cm.AutoCompleteWord("fuf"));
+            Assert.AreEqual("", cm.AutoCompleteWord(""));
 
             // 候補
             {
@@ -129,14 +129,14 @@ namespace CommandLauncher.Tests
                 List<string> cand = cm.GetCandidates("f");
                 Assert.AreEqual(3, cand.Count);
                 Assert.AreEqual("fuga", cand[0]);
-                Assert.AreEqual("fuf", cand[1]); 
+                Assert.AreEqual("fuf", cand[1]);
                 Assert.AreEqual("fuffy", cand[2]);
             }
             {
                 List<string> cand = cm.GetCandidates("fu");
                 Assert.AreEqual(3, cand.Count);
                 Assert.AreEqual("fuga", cand[0]);
-                Assert.AreEqual("fuf", cand[1]); 
+                Assert.AreEqual("fuf", cand[1]);
                 Assert.AreEqual("fuffy", cand[2]);
             }
             {
@@ -147,7 +147,7 @@ namespace CommandLauncher.Tests
             {
                 List<string> cand = cm.GetCandidates("fuf");
                 Assert.AreEqual(2, cand.Count);
-                Assert.AreEqual("fuf", cand[0]); 
+                Assert.AreEqual("fuf", cand[0]);
                 Assert.AreEqual("fuffy", cand[1]);
             }
         }

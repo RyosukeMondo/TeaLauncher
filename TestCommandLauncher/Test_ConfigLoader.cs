@@ -62,13 +62,13 @@ hoge = fuga   "));
             Assert.AreEqual(4, sections.Count);
 
             // note : 順序は保証されない
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section1"; }));
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section2"; }));
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section3"; }));
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section4"; }));
-            Assert.AreEqual(false, sections.Exists(delegate(string s) { return s == "section5"; }));
-            Assert.AreEqual(false, sections.Exists(delegate(string s) { return s == "section"; }));
-            Assert.AreEqual(false, sections.Exists(delegate(string s) { return s == ""; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section1"; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section2"; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section3"; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section4"; }));
+            Assert.AreEqual(false, sections.Exists(delegate (string s) { return s == "section5"; }));
+            Assert.AreEqual(false, sections.Exists(delegate (string s) { return s == "section"; }));
+            Assert.AreEqual(false, sections.Exists(delegate (string s) { return s == ""; }));
 
             // セクションから項目取得
             {
@@ -227,14 +227,14 @@ poka = poka
             List<string> sections = cl.GetSections();
             Assert.AreEqual(5, sections.Count);
 
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section1"; }));
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section2"; }));
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section3"; }));
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "section4"; }));
-            Assert.AreEqual(true, sections.Exists(delegate(string s) { return s == "addedsection"; }));
-            Assert.AreEqual(false, sections.Exists(delegate(string s) { return s == "section5"; }));
-            Assert.AreEqual(false, sections.Exists(delegate(string s) { return s == "section"; }));
-            Assert.AreEqual(false, sections.Exists(delegate(string s) { return s == ""; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section1"; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section2"; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section3"; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "section4"; }));
+            Assert.AreEqual(true, sections.Exists(delegate (string s) { return s == "addedsection"; }));
+            Assert.AreEqual(false, sections.Exists(delegate (string s) { return s == "section5"; }));
+            Assert.AreEqual(false, sections.Exists(delegate (string s) { return s == "section"; }));
+            Assert.AreEqual(false, sections.Exists(delegate (string s) { return s == ""; }));
 
             // セクションから項目取得
             {
