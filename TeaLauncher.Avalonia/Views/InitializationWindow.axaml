@@ -3,8 +3,10 @@
         x:Class="TeaLauncher.Avalonia.Views.InitializationWindow"
         Title="TeaLauncher - First Time Setup"
         Width="600"
-        Height="500"
-        CanResize="False"
+        Height="650"
+        MinHeight="500"
+        MinWidth="500"
+        CanResize="True"
         WindowStartupLocation="CenterScreen"
         Icon="/Assets/icon.ico">
 
@@ -31,10 +33,12 @@
         </Style>
     </Window.Styles>
 
-    <Border Padding="40">
-        <StackPanel Spacing="10">
-            <!-- Header -->
-            <TextBlock Classes="heading" Text="Welcome to TeaLauncher!" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Border Padding="40">
+            <StackPanel Spacing="10">
+                <!-- Header -->
+                <TextBlock Classes="heading" Text="Welcome to TeaLauncher!" />
 
             <TextBlock Classes="body" TextWrapping="Wrap">
                 TeaLauncher is a keyboard-driven command launcher for Windows.
@@ -118,6 +122,7 @@
                     Content="Start TeaLauncher"
                     Click="StartButton_Click"
                     Margin="0,20,0,0"/>
-        </StackPanel>
-    </Border>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
 </Window>
