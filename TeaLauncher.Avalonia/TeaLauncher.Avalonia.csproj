@@ -15,8 +15,8 @@
 
     <!-- Assembly metadata -->
     <AssemblyTitle>TeaLauncher</AssemblyTitle>
-    <AssemblyVersion>2.1.1.0</AssemblyVersion>
-    <FileVersion>2.1.1.0</FileVersion>
+    <AssemblyVersion>2.1.2.0</AssemblyVersion>
+    <FileVersion>2.1.2.0</FileVersion>
     <Description>Modern Avalonia-based command launcher</Description>
     <Company></Company>
     <Product>TeaLauncher</Product>
