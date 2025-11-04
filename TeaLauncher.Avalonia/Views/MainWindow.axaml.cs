@@ -116,7 +116,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.";
             InitializeConfiguration();
             InitializeHotkey();
 
-            Opened += (s, e) => { logger.Info("Window opened, hiding"); HideWindow(); };
+            // Hide window on first open only
+            bool firstOpen = true;
+            Opened += (s, e) => { if (firstOpen) { logger.Info("First window open, hiding"); firstOpen = false; HideWindow(); } };
             logger.Info("MainWindow constructor completed");
         }
         catch (Exception ex)
