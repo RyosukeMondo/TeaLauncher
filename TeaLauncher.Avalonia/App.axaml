@@ -2,7 +2,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="TeaLauncher.Avalonia.App"
              RequestedThemeVariant="Dark">
+
+    <!-- Application Resources -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Core Theme Resources -->
+                <ResourceInclude Source="/Themes/Colors.axaml"/>
+                <ResourceInclude Source="/Themes/Typography.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
+
+        <!-- Window-specific Style Themes -->
+        <StyleInclude Source="/Themes/MainWindowTheme.axaml"/>
+        <StyleInclude Source="/Themes/InitializationWindowTheme.axaml"/>
     </Application.Styles>
 </Application>

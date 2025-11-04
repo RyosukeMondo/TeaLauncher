@@ -1,0 +1,109 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Initialization Window Styles -->
+
+    <!-- Heading Text Style -->
+    <Style Selector="TextBlock.heading">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeLarge}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeightBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,20"/>
+    </Style>
+
+    <!-- Subheading Text Style -->
+    <Style Selector="TextBlock.subheading">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeMedium}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeightSemiBold}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,25,0,12"/>
+    </Style>
+
+    <!-- Body Text Style -->
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeightRegular}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="Margin" Value="{DynamicResource SpacingXSmall}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="22"/>
+    </Style>
+
+    <!-- Muted Text Style -->
+    <Style Selector="TextBlock.muted">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeightRegular}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+
+    <!-- Code Text Style -->
+    <Style Selector="TextBlock.code">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyMonospace}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeSmall}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentPrimaryBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- Info Panel Style -->
+    <Style Selector="Border.info-panel">
+        <Setter Property="Background" Value="{DynamicResource SurfaceDefaultBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderPrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource BorderRadiusMedium}"/>
+        <Setter Property="Padding" Value="{DynamicResource SpacingMedium}"/>
+        <Setter Property="Margin" Value="0,10,0,10"/>
+    </Style>
+
+    <!-- Primary Button Style -->
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource AccentPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeMedium}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource FontWeightSemiBold}"/>
+        <Setter Property="Padding" Value="24,12"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource BorderRadiusMedium}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <Style Selector="Button.primary:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AccentSecondaryBrush}"/>
+    </Style>
+
+    <Style Selector="Button.primary:pressed">
+        <Setter Property="Background" Value="{DynamicResource AccentTertiaryBrush}"/>
+    </Style>
+
+    <!-- Radio Button Style -->
+    <Style Selector="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
+    </Style>
+
+    <Style Selector="RadioButton:checked">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+
+    <!-- Bullet Point Style -->
+    <Style Selector="TextBlock.bullet">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="Margin" Value="0,4,0,4"/>
+        <Setter Property="LineHeight" Value="22"/>
+    </Style>
+
+    <!-- ScrollViewer Style -->
+    <Style Selector="ScrollViewer">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+</Styles>

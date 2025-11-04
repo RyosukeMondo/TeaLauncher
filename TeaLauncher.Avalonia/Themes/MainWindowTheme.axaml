@@ -1,0 +1,60 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Main Window Styles -->
+
+    <!-- AutoCompleteBox Base Style -->
+    <Style Selector="AutoCompleteBox">
+        <Setter Property="Margin" Value="{DynamicResource SpacingSmall}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeMedium}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <!-- AutoCompleteBox TextBox Style -->
+    <Style Selector="AutoCompleteBox /template/ TextBox">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+    </Style>
+
+    <!-- AutoCompleteBox Border Style -->
+    <Style Selector="AutoCompleteBox /template/ Border">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <!-- ListBoxItem Base Style -->
+    <Style Selector="ListBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamilyPrimary}"/>
+        <Setter Property="Padding" Value="8,6"/>
+    </Style>
+
+    <!-- ListBoxItem Hover Style -->
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource OverlayLightBrush}"/>
+    </Style>
+
+    <!-- ListBoxItem Selected Style -->
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource OverlayMediumBrush}"/>
+    </Style>
+
+    <!-- AutoCompleteBox Popup Style -->
+    <Style Selector="AutoCompleteBox /template/ Popup">
+        <Setter Property="PlacementTarget" Value="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+    </Style>
+
+    <!-- AutoCompleteBox ListBox Style -->
+    <Style Selector="AutoCompleteBox ListBox">
+        <Setter Property="Background" Value="{DynamicResource OverlayDarkBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OverlayLightBrush}"/>
+    </Style>
+
+</Styles>
